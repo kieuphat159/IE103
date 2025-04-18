@@ -1,0 +1,23 @@
+body {
+    background-color: #f3f4f6;
+}
+
+.sidebar {
+    background-color: #374151;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #e5e7eb;
+}
+
+.section {
+    transition: opacity 0.3s ease;
+}
+
+.hidden {
+    display: none;
+}

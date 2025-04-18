@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airline Ticket Booking Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../src/css/styles.css">
+</head>
+<body class="font-sans">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 sidebar text-white p-4">
+            <h1 class="text-2xl font-bold mb-6">Airline Management</h1>
+            <nav>
+                <ul>
+                    <li><button onclick="showSection('users')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Users</button></li>
+                    <li><button onclick="showSection('customers')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Customers</button></li>
+                    <li><button onclick="showSection('bookings')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Bookings</button></li>
+                    <li><button onclick="showSection('payments')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Payments</button></li>
+                    <li><button onclick="showSection('seats')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Seats</button></li>
+                    <li><button onclick="showSection('invoices')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Invoices</button></li>
+                    <li><button onclick="showSection('flights')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Flights</button></li>
+                    <li><button onclick="showSection('aircrafts')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Aircrafts</button></li>
+                </ul>
+            </nav>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 p-6 overflow-auto bg-gray-100">
+            <!-- Users Section -->
+            <div id="users" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Users</h2>
+                <button onclick="openModal('userModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add User</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Username</th>
+                            <th class="p-2">Full Name</th>
+                            <th class="p-2">Email</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTable">
+                        <!-- Users will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Customers Section -->
+            <div id="customers" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Customers</h2>
+                <button onclick="openModal('customerModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Customer</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Customer ID</th>
+                            <th class="p-2">Password</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTable">
+                        <!-- Customers will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Bookings Section -->
+            <div id="bookings" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Bookings</h2>
+                <button onclick="openModal('bookingModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Booking</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Booking ID</th>
+                            <th class="p-2">Booking Date</th>
+                            <th class="p-2">Flight Status</th>
+                            <th class="p-2">Total Amount</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingTable">
+                        <!-- Bookings will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Payments Section -->
+            <div id="payments" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Payments</h2>
+                <button onclick="openModal('paymentModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Payment</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Payment ID</th>
+                            <th class="p-2">Payment Date</th>
+                            <th class="p-2">Amount</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentTable">
+                        <!-- Payments will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Seats Section -->
+            <div id="seats" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Seats</h2>
+                <button onclick="openModal('seatModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Seat</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Seat ID</th>
+                            <th class="p-2">Price</th>
+                            <th class="p-2">Status</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seatTable">
+                        <!-- Seats will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Invoices Section -->
+            <div id="invoices" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Invoices</h2>
+                <button onclick="openModal('invoiceModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Invoice</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Invoice ID</th>
+                            <th class="p-2">Issue Date</th>
+                            <th class="p-2">Total Amount</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceTable">
+                        <!-- Invoices will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Flights Section -->
+            <div id="flights" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Flights</h2>
+                <button onclick="openModal('flightModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Flight</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Flight ID</th>
+                            <th class="p-2">Flight Date</th>
+                            <th class="p-2">Departure</th>
+                            <th class="p-2">Arrival</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flightTable">
+                        <!-- Flights will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Aircrafts Section -->
+            <div id="aircrafts" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Manage Aircrafts</h2>
+                <button onclick="openModal('aircraftModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Aircraft</button>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Aircraft ID</th>
+                            <th class="p-2">Total Seats</th>
+                            <th class="p-2">Aircraft Type</th>
+                            <th class="p-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="aircraftTable">
+                        <!-- Aircrafts will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for Adding/Editing -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded w-1/3 shadow-lg">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4"></h2>
+            <div id="modalContent"></div>
+            <div class="flex justify-end mt-4">
+                <button onclick="closeModal()" class="bg-gray-400 text-white px-4 py-2 rounded mr-2 hover:bg-gray-500">Cancel</button>
+                <button onclick="saveData()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Save</button>
+            </div>
+        </div>
+    </div>
+    <script src="../src/js/script.js"></script>
+</body>
+</html>
