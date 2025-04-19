@@ -14,14 +14,13 @@
             <h1 class="text-2xl font-bold mb-6">Airline Management</h1>
             <nav>
                 <ul>
-                    <li><button onclick="showSection('users')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Users</button></li>
-                    <li><button onclick="showSection('customers')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Customers</button></li>
-                    <li><button onclick="showSection('bookings')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Bookings</button></li>
-                    <li><button onclick="showSection('payments')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Payments</button></li>
-                    <li><button onclick="showSection('seats')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Seats</button></li>
-                    <li><button onclick="showSection('invoices')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Invoices</button></li>
-                    <li><button onclick="showSection('flights')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Flights</button></li>
-                    <li><button onclick="showSection('aircrafts')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Aircrafts</button></li>
+                    <li><button onclick="showSection('users')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Khách hàng</button></li>
+                    <li><button onclick="showSection('bookings')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Đặt vé</button></li>
+                    <li><button onclick="showSection('payments')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Thanh toán</button></li>
+                    <li><button onclick="showSection('seats')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Chỗ ngồi</button></li>
+                    <li><button onclick="showSection('invoices')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Hóa đơn</button></li>
+                    <li><button onclick="showSection('flights')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Chuyến bay</button></li>
+                    <li><button onclick="showSection('aircrafts')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Máy bay</button></li>
                 </ul>
             </nav>
         </div>
@@ -29,36 +28,20 @@
         <div class="flex-1 p-6 overflow-auto bg-gray-100">
             <!-- Users Section -->
             <div id="users" class="section hidden">
-                <h2 class="text-2xl font-bold mb-4">Manage Users</h2>
-                <button onclick="openModal('userModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add User</button>
+                <h2 class="text-2xl font-bold mb-4">Quản lý khách hàng</h2>
+                <button onclick="openModal('userModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm khách hàng</button>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="p-2">Username</th>
-                            <th class="p-2">Full Name</th>
+                            <th class="p-2">Tài khoản</th>
+                            <th class="p-2">Tên khách hàng</th>
                             <th class="p-2">Email</th>
-                            <th class="p-2">Actions</th>
+                            <th class="p-2">Số điện thoại</th>
+                            <th class="p-2">Hộ chiếu</th>
                         </tr>
                     </thead>
                     <tbody id="userTable">
                         <!-- Users will be populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-            <!-- Customers Section -->
-            <div id="customers" class="section hidden">
-                <h2 class="text-2xl font-bold mb-4">Manage Customers</h2>
-                <button onclick="openModal('customerModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Add Customer</button>
-                <table class="w-full border bg-white shadow-md rounded">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-2">Customer ID</th>
-                            <th class="p-2">Password</th>
-                            <th class="p-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerTable">
-                        <!-- Customers will be populated by JS -->
                     </tbody>
                 </table>
             </div>
