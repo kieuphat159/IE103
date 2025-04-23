@@ -12,7 +12,7 @@ table {
 }
 
 th, td {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e5ebea;
 }
 
 .section {
@@ -21,4 +21,8 @@ th, td {
 
 .hidden {
     display: none;
+}
+
+#userNgaySinh::placeholder {
+    opacity: 0.5;
 }
