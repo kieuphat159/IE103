@@ -1,0 +1,28 @@
+# Ignore Node.js dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# Lock files (nếu không muốn commit)
+backend/package-lock.json
+frontend/package-lock.json
+
+# Env files
+*.env
+
+# Build output
+dist/
+build/
+tmp/
+temp/
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE/editor files
+.vscode/
+.idea/
