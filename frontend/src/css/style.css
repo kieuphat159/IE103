@@ -1,0 +1,168 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff; /* Đổi nền trang thành trắng */
+    color: #333;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    background-color: #2C3E50; /* Màu xanh đậm cho sidebar */
+    color: #fff;
+    width: 200px; /* Chiều rộng sidebar */
+    padding: 20px;
+}
+
+.sidebar-title {
+    font-size: 1.8em; /* Tiêu đề lớn hơn */
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item {
+    padding: 12px 15px; /* Padding cho các mục menu */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+}
+
+.menu-item:hover {
+    background-color: #34495E;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f9f9f9; /* Giữ màu xám nhạt cho main-content */
+    overflow-y: auto; /* Thêm thanh cuộn dọc khi cần */
+    display: flex; /* Sử dụng flexbox để căn chỉnh tiêu đề và bảng */
+    flex-direction: column; /* Sắp xếp các phần tử theo chiều dọc */
+    align-items: stretch; /* Kéo dài các phần tử con theo chiều ngang */
+}
+
+/* Стилизация cho tiêu đề chính ở bên phải */
+.main-content-header {
+    margin-bottom: 10px; /* Giảm margin dưới tiêu đề chính */
+    padding: 15px;
+    text-align: left; /* Căn trái header */
+    background-color: transparent; /* Để tiêu đề không có nền riêng */
+}
+
+.main-content-header p { /* Стилизация cho phần tử p (tiêu đề phụ) */
+    font-size: 1.4em; /* Tăng kích thước chữ tiêu đề phụ */
+    font-weight: bold; /* In đậm */
+    margin-bottom: 5px; /* Tạo khoảng cách với bảng */
+    color: #333; /* Màu chữ đen cho tiêu đề phụ */
+    text-align: left; /* Căn trái tiêu đề phụ */
+}
+
+/* Стилизация cho bảng dữ liệu */
+table {
+    width: 100%; /* Kéo dài bảng full chiều rộng */
+    border-collapse: collapse;
+    margin-top: 10px; /* Thụt xuống một chút */
+    background-color: #f0f0f0; /* Đổi nền bảng thành xám nhạt */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    border-bottom: 1px solid #ddd; /* Giữ lại đường kẻ ngang */
+    padding: 8px; /* Giảm padding để chữ nhỏ hơn */
+    text-align: left; /* Căn trái nội dung cell */
+    font-size: 0.9em; /* Giảm kích thước chữ trong cell */
+}
+
+th {
+    font-weight: bold;
+}
+
+/* ... (các стилизация CSS hiện tại của bạn) ... */
+
+.vertical-table {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    margin-left: 0; /* Căn sát lề trái */
+    border-collapse: collapse;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.vertical-table th, .vertical-table td {
+    border: 1px solid #ddd;
+    padding: 12px; /* Tăng padding để chữ lớn hơn một chút */
+    text-align: left;
+    font-size: 1.1em; /* Tăng kích thước chữ */
+}
+
+.vertical-table th {
+    font-weight: bold;
+    width: 30%; /* Điều chỉnh chiều rộng cột tiêu đề */
+    background-color: #f0f0f0;
+}
+
+.search-container {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    width: 100%; /* Đảm bảo container chiếm toàn bộ chiều rộng */
+}
+
+.search-container label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.search-container input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1; /* Quan trọng: cho phép input tự động mở rộng */
+    width: 100%; /* Đảm bảo input chiếm toàn bộ chiều rộng còn lại */
+}
+
+.search-container input[type="text"]:focus {
+    outline: none;
+    border-color: #007bff; /* Màu sắc bạn muốn khi focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Hiệu ứng bóng đổ khi focus */
+}
+
+/* Các kiểu dáng khác của bạn */
+
+.right-scrollable-area {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 5px; /* Nhỏ hơn nữa */
+    height: 100%;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    margin-right: 5px; /* Điều chỉnh margin tương ứng */
+}
+
+/* Ẩn thanh cuộn mặc định của trình duyệt trong vùng main-content */
+.main-content::-webkit-scrollbar {
+    width: 0 !important;
+}
+
+.main-content {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Các CSS khác của bạn */
