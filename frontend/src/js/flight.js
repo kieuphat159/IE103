@@ -9,30 +9,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   
-  function fetchFlights() {
-    // Mock API response that matches the ChuyenBay class in the diagram
-    const mockData = [
-      {
-        maChuyenBay: 'CB001',
-        thoiGianChuyenBay: '2 giờ 30 phút',
-        soGhe: 150,
-        giaBay: '1,500,000 VND',
-        diemDi: 'Hà Nội',
-        diemDen: 'Hồ Chí Minh',
-        thoiGian: '08:00 15/04/2025'
-      },
-      {
-        maChuyenBay: 'CB002',
-        thoiGianChuyenBay: '1 giờ 45 phút',
-        soGhe: 120,
-        giaBay: '1,200,000 VND',
-        diemDi: 'Hồ Chí Minh',
-        diemDen: 'Đà Nẵng',
-        thoiGian: '10:30 16/04/2025'
+  async function fetchFlights() {
+    try {
+      // Gửi yêu cầu GET tới API
+      const response = await fetch('http://localhost:3000/api/flights', {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      // Kiểm tra xem yêu cầu có thành công không
+      if (!response.ok) {
+          throw new Error('Lỗi khi lấy danh sách chuyến bay');
       }
-    ];
-    
-    renderFlightTable(mockData);
+
+      // Lấy dữ liệu JSON từ response
+      const flights = await response.json();
+
+      // Hiển thị dữ liệu lên bảng
+      renderCustomerTable(flights);
+  } catch (error) {
+      console.error('Lỗi:', error);
+      alert('Không thể tải danh sách chuyến bay. Vui lòng kiểm tra kết nối.');
+  }
   }
   
   function renderFlightTable(flights) {

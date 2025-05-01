@@ -9,32 +9,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function fetchCustomers() {
-  // Mock API response that matches the KhachHang class in the diagram
-  const mockData = [
-    {
-      maKH: 'KH001',
-      ten: 'Nguyễn Văn A',
-      taiKhoan: 'nguyenvana',
-      email: 'nguyenvana@example.com',
-      sdt: '0123456789',
-      ngaySinh: '01/01/1990',
-      gioiTinh: 'Nam',
-      cccd: '123456789012'
-    },
-    {
-      maKH: 'KH002',
-      ten: 'Trần Thị B',
-      taiKhoan: 'tranthib',
-      email: 'tranthib@example.com',
-      sdt: '0987654321',
-      ngaySinh: '15/05/1995',
-      gioiTinh: 'Nữ',
-      cccd: '098765432109'
-    }
-  ];
-  
-  renderCustomerTable(mockData);
+async function fetchCustomers() {
+  try {
+      // Gửi yêu cầu GET tới API
+      const response = await fetch('http://localhost:3000/api/customers', {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      // Kiểm tra xem yêu cầu có thành công không
+      if (!response.ok) {
+          throw new Error('Lỗi khi lấy danh sách khách hàng');
+      }
+
+      // Lấy dữ liệu JSON từ response
+      const customers = await response.json();
+
+      // Hiển thị dữ liệu lên bảng
+      renderCustomerTable(customers);
+  } catch (error) {
+      console.error('Lỗi:', error);
+      alert('Không thể tải danh sách khách hàng. Vui lòng kiểm tra kết nối.');
+  }
 }
 
 function renderCustomerTable(customers) {
