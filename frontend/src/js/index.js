@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleSearchInput() {
         const searchTerm = searchInput.value;
         const filteredData = filterFlights(searchTerm);
-        displayTable(filteredData, ['MaCB', 'ThoiGianBay', 'DiemDi', 'DiemDen', 'TrangThai', 'SoChoConTrong'], 'Danh Sách Các chuyến bay', true);
+        displayTable(filteredData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống'], 'Danh Sách Các chuyến bay', true);
     }
 
     // Hàm để hiển thị bảng dữ liệu
@@ -138,11 +138,11 @@ document.addEventListener('DOMContentLoaded', function() {
         switch (contentId) {
             case 'booked-tickets':
                 mainContentTitle.textContent = 'Danh sách chuyến bay';
-                displayTable(flightData, ['MaCB', 'ThoiGianBay', 'DiemDi', 'DiemDen', 'TrangThai', 'SoChoConTrong'], 'Danh Sách Các chuyến bay', true);
+                displayTable(flightData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống'], 'Danh Sách Các chuyến bay', true);
                 break;
             case 'flight-list':
                 mainContentTitle.textContent = 'Vé đã đặt';
-                displayTable(bookedTicketsData, ['MaKH', 'MaVe', 'MaCB', 'NgayMua', 'SoGhe', 'HangGhe', 'TinhTrangVe'], 'Danh sách vé đã đặt');
+                displayTable(bookedTicketsData, ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'], 'Danh sách vé đã đặt');
                 break;
             case 'customer-info':
                 mainContentTitle.textContent = 'Thông tin khách hàng';
