@@ -1,4 +1,4 @@
-﻿
+
 -- Tạo cơ sở dữ liệu
 CREATE DATABASE QLdatve;
 GO
@@ -84,13 +84,12 @@ CREATE TABLE ThongTinDatVe (
     NgayDatVe DATE NOT NULL,
     NgayBay DATE NOT NULL,
     TrangThaiThanhToan NVARCHAR(50) CHECK (TrangThaiThanhToan IN ('Chưa thanh toán', 'Đã thanh toán')),
-    SoCong INT NOT NULL,
+    SoGhe INT NOT NULL,
     SoTien DECIMAL(18, 2) NOT NULL,
     MaChuyenBay VARCHAR(20) NOT NULL,
     MaKH VARCHAR(20) NOT NULL,
     CONSTRAINT FK_ThongTinDatVe_ChuyenBay FOREIGN KEY (MaChuyenBay) REFERENCES ChuyenBay(MaChuyenBay),
     CONSTRAINT FK_ThongTinDatVe_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
-    CONSTRAINT CK_SoCong_Positive CHECK (SoCong > 0),
     CONSTRAINT CK_SoTien_Positive CHECK (SoTien > 0)
 );
 GO
@@ -218,6 +217,21 @@ BEGIN
     INNER JOIN inserted i ON dv.MaDatVe = i.MaDatVe;
 END;
 GO
+
+ALTER TRIGGER [dbo].[trg_Update_Seat_Status]
+ON [dbo].[ThongTinDatVe]
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Cập nhật trạng thái từng ghế được đặt là 'đã đặt'
+    UPDATE tg
+    SET TinhTrangGhe = 'đã đặt'
+    FROM ThongTinGhe tg
+    INNER JOIN inserted i
+        ON tg.SoGhe = i.SoGhe AND tg.MaChuyenBay = i.MaChuyenBay;
+END;
 
 -- Stored Procedures
 
@@ -397,3 +411,5 @@ EXEC sp_ThemThanhToan 'TT002', '2025-04-12', 2400000, 'Chuyển khoản', 'DV002
 -- Thêm hóa đơn
 EXEC sp_ThemHoaDon 'HD001', '2025-04-10', 'Thẻ tín dụng', '2025-04-10', 'TT001';
 EXEC sp_ThemHoaDon 'HD002', '2025-04-12', 'Chuyển khoản', '2025-04-12', 'TT002';
+
+
