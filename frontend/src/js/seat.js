@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="p-2">${s.soGhe}</td>
           <td class="p-2">${s.giaGhe}</td>
           <td class="p-2">${s.hangGhe}</td>
-          <td class="p-2">${s.tinhTrangGhe}/td>
+          <td class="p-2">${s.tinhTrangGhe}</td>
           <td class="p-2">
             <button onclick="editItem('seats', '${s.maGhe}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
             <button onclick="deleteItem('seats', '${s.maGhe}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
