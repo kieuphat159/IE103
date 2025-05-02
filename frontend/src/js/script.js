@@ -281,41 +281,20 @@ function populateInvoiceTable(tableBody) {
 }
 
 function populateFlightTable(tableBody) {
-    const flightData = [
-        {
-            maChuyenBay: 'CB001',
-            thoiGianChuyenBay: '2 giờ 30 phút',
-            soGhe: 150,
-            giaBay: '1,500,000 VND',
-            diemDi: 'Hà Nội',
-            diemDen: 'Hồ Chí Minh',
-            thoiGian: '08:00 15/04/2025'
-        },
-        {
-            maChuyenBay: 'CB002',
-            thoiGianChuyenBay: '1 giờ 45 phút',
-            soGhe: 120,
-            giaBay: '1,200,000 VND',
-            diemDi: 'Hồ Chí Minh',
-            diemDen: 'Đà Nẵng',
-            thoiGian: '10:30 16/04/2025'
-        }
-    ];
 
-    flightData.forEach(flight => {
+    flightData.forEach(f => {
         const row = document.createElement('tr');
         row.classList.add('hover:bg-gray-100');
         row.innerHTML = `
-            <td class="p-2">${flight.maChuyenBay}</td>
-            <td class="p-2">${flight.thoiGianChuyenBay}</td>
-            <td class="p-2">${flight.soGhe}</td>
-            <td class="p-2">${flight.giaBay}</td>
-            <td class="p-2">${flight.diemDi}</td>
-            <td class="p-2">${flight.diemDen}</td>
-            <td class="p-2">${flight.thoiGian}</td>
+            <td class="p-2">${f.maChuyenBay}</td>
+            <td class="p-2">${f.tinhTrangChuyenBay}</td>
+            <td class="p-2">${f.gioBay}</td>
+            <td class="p-2">${f.gioDen}</td>
+            <td class="p-2">${f.diaDiemDau}</td>
+            <td class="p-2">${f.diaDiemCuoi}</td>
             <td class="p-2">
-                <button onclick="editItem('flights', '${flight.maChuyenBay}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-                <button onclick="deleteItem('flights', '${flight.maChuyenBay}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
+                <button onclick="editItem('flights', '${f.maChuyenBay}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
+                <button onclick="deleteItem('flights', '${f.maChuyenBay}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
             </td>
         `;
         tableBody.appendChild(row);

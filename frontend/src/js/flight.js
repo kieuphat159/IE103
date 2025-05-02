@@ -28,12 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const flights = await response.json();
 
       // Hiển thị dữ liệu lên bảng
-      renderCustomerTable(flights);
-  } catch (error) {
+      renderFlightTable(flights);
+    } catch (error) {
       console.error('Lỗi:', error);
       alert('Không thể tải danh sách chuyến bay. Vui lòng kiểm tra kết nối.');
-  }
-  }
+    }
+}
   
   function renderFlightTable(flights) {
     const tbody = document.getElementById("flightTable");
@@ -43,12 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = `
         <tr class="border-t hover:bg-gray-100">
           <td class="p-2">${f.maChuyenBay}</td>
-          <td class="p-2">${f.thoiGianChuyenBay}</td>
-          <td class="p-2">${f.soGhe}</td>
-          <td class="p-2">${f.giaBay}</td>
-          <td class="p-2">${f.diemDi}</td>
-          <td class="p-2">${f.diemDen}</td>
-          <td class="p-2">${f.thoiGian}</td>
+          <td class="p-2">${f.tinhTrangChuyenBay}</td>
+          <td class="p-2">${f.gioBay}</td>
+          <td class="p-2">${f.gioDen}</td>
+          <td class="p-2">${f.diaDiemDau}</td>
+          <td class="p-2">${f.diaDiemCuoi}</td>
           <td class="p-2">
             <button onclick="editItem('flights', '${f.maChuyenBay}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
             <button onclick="deleteItem('flights', '${f.maChuyenBay}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
