@@ -141,7 +141,7 @@ app.get('/api/flights', async (req, res) => {
                 GioDen AS gioDen,
                 DiaDiemDau AS diaDiemDau,
                 DiaDiemCuoi AS diaDiemCuoi
-            FROM CHUYENBAY
+            FROM ChuyenBay
         `);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
@@ -151,86 +151,46 @@ app.get('/api/flights', async (req, res) => {
     }
 });
 
-// API thêm khách hàng mới
-/*app.post('/api/customers', async (req, res) => {
-    const { maKH, ten, taiKhoan, matKhau, email, sdt, ngaySinh, gioiTinh, soCCCD, passport } = req.body;
-
+app.get('/api/invoices', async (req, res) => {
     try {
-        // Mã hóa mật khẩu bằng bcrypt
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
-
+        console.log('Nhận được yêu cầu GET /api/invoices');
         const pool = await connectToDB();
-
-        // Thêm vào bảng NguoiDung
-        await pool.request()
-            .input('taiKhoan', sql.VarChar, taiKhoan)
-            .input('ten', sql.NVarChar, ten)
-            .input('matKhau', sql.VarChar, hashedPassword)
-            .input('email', sql.VarChar, email)
-            .input('sdt', sql.VarChar, sdt)
-            .input('ngaySinh', sql.Date, ngaySinh)
-            .input('gioiTinh', sql.NVarChar, gioiTinh)
-            .input('soCCCD', sql.VarChar, soCCCD)
-            .query(`
-                INSERT INTO NguoiDung (taiKhoan, ten, matKhau, email, sdt, ngaySinh, gioiTinh, soCCCD)
-                VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
-            `);
-
-        // Thêm vào bảng KhachHang
-        await pool.request()
-            .input('maKH', sql.VarChar, maKH)
-            .input('passport', sql.VarChar, passport)
-            .input('taiKhoan', sql.VarChar, taiKhoan)
-            .query(`
-                INSERT INTO KhachHang (maKH, passport, taiKhoan)
-                VALUES (@maKH, @passport, @taiKhoan)
-            `);
-
-        res.status(201).json({ message: 'Thêm khách hàng thành công' });
+        const result = await pool.request().query(`
+            SELECT 
+                MaHoaDon AS maHD,
+                NgayXuatHD AS ngayXuatHD,
+                PhuongThucTT as phuongThucTT,
+                NgayThanhToan AS ngayThanhToan
+            FROM HoaDon
+        `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
     } catch (err) {
-        console.error('Lỗi khi thêm khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi khi thêm khách hàng' });
+        console.error('Lỗi khi lấy danh sách hóa đơn:', err);
+        res.status(500).json({ error: 'Lỗi server' });
     }
 });
 
-// API xóa khách hàng
-app.delete('/api/customers/:maKH', async (req, res) => {
-    const { maKH } = req.params;
-
+app.get('/api/seats', async (req, res) => {
     try {
+        console.log('Nhận được yêu cầu GET /api/seats');
         const pool = await connectToDB();
-
-        // Tìm taiKhoan từ maKH để xóa khỏi NguoiDung
-        const findResult = await pool.request()
-            .input('maKH', sql.VarChar, maKH)
-            .query('SELECT taiKhoan FROM KhachHang WHERE maKH = @maKH');
-
-        if (findResult.recordset.length === 0) {
-            res.status(404).json({ error: 'Không tìm thấy khách hàng' });
-            return;
-        }
-
-        const taiKhoan = findResult.recordset[0].taiKhoan;
-
-        // Xóa khỏi bảng KhachHang
-        await pool.request()
-            .input('maKH', sql.VarChar, maKH)
-            .query('DELETE FROM KhachHang WHERE maKH = @maKH');
-
-        // Xóa khỏi bảng NguoiDung
-        await pool.request()
-            .input('taiKhoan', sql.VarChar, taiKhoan)
-            .query('DELETE FROM NguoiDung WHERE taiKhoan = @taiKhoan');
-
-        res.json({ message: 'Xóa khách hàng thành công' });
+        const result = await pool.request().query(`
+            SELECT 
+                SoGhe AS soGhe,
+                GiaGhe AS giaGhe,
+                HangGhe as hangGhe,
+                TinhTrangGhe AS tinhTrangGhe
+            FROM ThongTinGhe
+        `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
     } catch (err) {
-        console.error('Lỗi khi xóa khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa khách hàng' });
+        console.error('Lỗi khi lấy danh sách ghế:', err);
+        res.status(500).json({ error: 'Lỗi server' });
     }
 });
 
-*/
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server đang chạy trên cổng ${PORT}`);

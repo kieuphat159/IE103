@@ -9,22 +9,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   
-  function fetchSeats() {
-    // Mock API response that matches the NhanVienKiemSoat class in the diagram
-    const mockData = [
-      {
-        maGhe: 'G001',
-        taiKhoan: 'seat001',
-        matKhau: '********'
-      },
-      {
-        maGhe: 'G002',
-        taiKhoan: 'seat002',
-        matKhau: '********'
+  async function fetchSeats() {
+    try {
+      // Gửi yêu cầu GET tới API
+      const response = await fetch('http://localhost:3000/api/seats', {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      // Kiểm tra xem yêu cầu có thành công không
+      if (!response.ok) {
+          throw new Error('Lỗi khi lấy danh sách ghế');
       }
-    ];
-    
-    renderSeatTable(mockData);
+
+      // Lấy dữ liệu JSON từ response
+      const seats = await response.json();
+
+      // Hiển thị dữ liệu lên bảng
+      renderSeatTable(seats);
+    } catch (error) {
+      console.error('Lỗi:', error);
+      alert('Không thể tải danh sách ghế. Vui lòng kiểm tra kết nối.');
+    }
   }
   
   function renderSeatTable(seats) {
@@ -34,9 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
     seats.forEach(s => {
       const row = `
         <tr class="border-t hover:bg-gray-100">
-          <td class="p-2">${s.maGhe}</td>
-          <td class="p-2">${s.taiKhoan}</td>
-          <td class="p-2">${s.matKhau}</td>
+          <td class="p-2">${s.soGhe}</td>
+          <td class="p-2">${s.giaGhe}</td>
+          <td class="p-2">${s.hangGhe}</td>
+          <td class="p-2">${s.tinhTrangGhe}/td>
           <td class="p-2">
             <button onclick="editItem('seats', '${s.maGhe}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
             <button onclick="deleteItem('seats', '${s.maGhe}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
@@ -47,33 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   
-  // Implement methods from the class diagram
-  function dangNhap() {
-    console.log("Đăng nhập kiểm soát ghế");
-    // Implementation for seat controller login
-  }
-  
-  function dangXuat() {
-    console.log("Đăng xuất kiểm soát ghế");
-    // Implementation for seat controller logout
-  }
-  
   function themGhe() {
     console.log("Thêm ghế mới");
     // Implementation for adding a new seat
-  }
-  
-  function themBaoCao() {
-    console.log("Thêm báo cáo ghế");
-    // Implementation for adding seat report
-  }
-  
-  function xoaBaoCao() {
-    console.log("Xóa báo cáo ghế");
-    // Implementation for deleting seat report
-  }
-  
-  function suaBaoCao() {
-    console.log("Sửa báo cáo ghế");
-    // Implementation for updating seat report
   }

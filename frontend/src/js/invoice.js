@@ -9,24 +9,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   
-  function fetchInvoices() {
+  async function fetchInvoices() {
     // Mock API response that matches the HoaDon class in the diagram
-    const mockData = [
-      {
-        maHD: 'HD001',
-        ngayXuatHD: '10/04/2025',
-        phuongThucTT: 'Thẻ tín dụng',
-        ngayThanhToan: '10/04/2025'
-      },
-      {
-        maHD: 'HD002',
-        ngayXuatHD: '11/04/2025',
-        phuongThucTT: 'Chuyển khoản',
-        ngayThanhToan: '12/04/2025'
+    try {
+      // Gửi yêu cầu GET tới API
+      const response = await fetch('http://localhost:3000/api/invoices', {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      // Kiểm tra xem yêu cầu có thành công không
+      if (!response.ok) {
+          throw new Error('Lỗi khi lấy danh sách hóa đơn');
       }
-    ];
-    
-    renderInvoiceTable(mockData);
+
+      // Lấy dữ liệu JSON từ response
+      const invoices = await response.json();
+
+      // Hiển thị dữ liệu lên bảng
+      renderInvoiceTable(invoices);
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Không thể tải danh sách hóa đơn. Vui lòng kiểm tra kết nối.');
+    }
   }
   
   function renderInvoiceTable(invoices) {
