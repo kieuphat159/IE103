@@ -93,6 +93,85 @@ app.post('/api/customers', async (req, res) => {
     }
 });
 
+
+// API xóa hóa đơn liên quan đến MaTT
+app.delete('/api/invoices/by-payment/:maTT', async (req, res) => {
+    const { maTT } = req.params;
+
+    try {
+        const pool = await connectToDB();
+        await pool.request()
+            .input('maTT', sql.VarChar, maTT)
+            .query('DELETE FROM HoaDon WHERE MaTT = @maTT');
+        res.json({ message: 'Xóa hóa đơn thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa hóa đơn:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa hóa đơn' });
+    }
+});
+
+// API xóa thanh toán liên quan đến MaDatVe
+app.delete('/api/payments/by-booking/:maDatVe', async (req, res) => {
+    const { maDatVe } = req.params;
+
+    try {
+        const pool = await connectToDB();
+
+        // Tìm tất cả MaTT liên quan đến MaDatVe
+        const paymentResult = await pool.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @maDatVe');
+
+        // Xóa các hóa đơn liên quan đến từng MaTT
+        for (const payment of paymentResult.recordset) {
+            await fetch(`http://localhost:3000/api/invoices/by-payment/${payment.MaTT}`, {
+                method: 'DELETE'
+            });
+        }
+
+        // Xóa bản ghi trong ThanhToan
+        await pool.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
+
+        res.json({ message: 'Xóa thanh toán thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa thanh toán:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa thanh toán' });
+    }
+});
+
+// API xóa thông tin đặt vé liên quan đến MaKH
+app.delete('/api/bookings/by-customer/:maKH', async (req, res) => {
+    const { maKH } = req.params;
+
+    try {
+        const pool = await connectToDB();
+
+        // Tìm tất cả MaDatVe liên quan đến MaKH
+        const bookingResult = await pool.request()
+            .input('maKH', sql.VarChar, maKH)
+            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaKH = @maKH');
+
+        // Xóa các thanh toán liên quan đến từng MaDatVe
+        for (const booking of bookingResult.recordset) {
+            await fetch(`http://localhost:3000/api/payments/by-booking/${booking.MaDatVe}`, {
+                method: 'DELETE'
+            });
+        }
+
+        // Xóa bản ghi trong ThongTinDatVe
+        await pool.request()
+            .input('maKH', sql.VarChar, maKH)
+            .query('DELETE FROM ThongTinDatVe WHERE MaKH = @maKH');
+
+        res.json({ message: 'Xóa thông tin đặt vé thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa thông tin đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa thông tin đặt vé' });
+    }
+});
+
 // API xóa khách hàng
 app.delete('/api/customers/:maKH', async (req, res) => {
     const { maKH } = req.params;
@@ -111,6 +190,11 @@ app.delete('/api/customers/:maKH', async (req, res) => {
         }
 
         const taiKhoan = findResult.recordset[0].taiKhoan;
+
+        // Xóa thông tin đặt vé liên quan đến MaKH
+        await fetch(`http://localhost:3000/api/bookings/by-customer/${maKH}`, {
+            method: 'DELETE'
+        });
 
         // Xóa khỏi bảng KhachHang
         await pool.request()
@@ -187,6 +271,27 @@ app.get('/api/seats', async (req, res) => {
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách ghế:', err);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+app.get('/api/bookings', async (req, res) => {
+    try {
+        console.log('Nhận được yêu cầu GET /api/bookings');
+        const pool = await connectToDB();
+        const result = await pool.request().query(`
+            SELECT 
+                MaDatVe AS maDatVe,
+                NgayDatVe AS ngayDatVe,
+                NgayBay AS ngayBay,
+                SoGhe AS soGhe,
+                SoTien AS soTien 
+            FROM ThongTinDatVe
+        `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách thông tin đặt vé:', err);
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
