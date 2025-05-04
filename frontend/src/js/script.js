@@ -16,8 +16,6 @@ function openModal(modalType) {
     if (modalType === 'userModal') {
         modalTitle.textContent = 'Thêm khách hàng';
         modalContent.innerHTML = `
-            <label class="block mb-2">Mã KH</label>
-            <input id="userMaKH" type="text" class="w-full p-2 border rounded mb-4">
             <label class="block mb-2">Tên</label>
             <input id="userTen" type="text" class="w-full p-2 border rounded mb-4">
             <label class="block mb-2">Tài khoản</label>
@@ -79,19 +77,22 @@ function openModal(modalType) {
         modalTitle.textContent = 'Thêm chuyến bay';
         modalContent.innerHTML = `
             <label class="block mb-2">Mã chuyến bay</label>
-            <input id="flightMaChuyenBay" type="text" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Thời gian chuyến bay</label>
-            <input id="flightThoiGianChuyenBay" type="text" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Số ghế</label>
-            <input id="flightSoGhe" type="number" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Giá bay</label>
-            <input id="flightGiaBay" type="text" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Điểm đi</label>
-            <input id="flightDiemDi" type="text" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Điểm đến</label>
-            <input id="flightDiemDen" type="text" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Thời gian</label>
-            <input id="flightThoiGian" type="text" class="w-full p-2 border rounded mb-4">
+            <input id="flightMaChuyenBay" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: CB001">
+            <label class="block mb-2">Tình trạng chuyến bay</label>
+            <select id="flightTinhTrangChuyenBay" class="w-full p-2 border rounded mb-4">
+                <option value="Chưa khởi hành">Chưa khởi hành</option>
+                <option value="Đang bay">Đang bay</option>
+                <option value="Hạ cánh">Hạ cánh</option>
+                <option value="Hủy">Hủy</option>
+            </select>
+            <label class="block mb-2">Giờ bay</label>
+            <input id="flightGioBay" type="datetime-local" class="w-full p-2 border rounded mb-4">
+            <label class="block mb-2">Giờ đến</label>
+            <input id="flightGioDen" type="datetime-local" class="w-full p-2 border rounded mb-4">
+            <label class="block mb-2">Địa điểm đầu</label>
+            <input id="flightDiaDiemDau" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: Hà Nội">
+            <label class="block mb-2">Địa điểm cuối</label>
+            <input id="flightDiaDiemCuoi" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: TP.HCM">
         `;
     } else if (modalType === 'seatModal') {
         modalTitle.textContent = 'Thêm vị trí ghế';
@@ -221,28 +222,7 @@ function populateInvoiceTable(tableBody) {
     });
 }
 
-function populateFlightTable(tableBody) {
-
-    flightData.forEach(f => {
-        const row = document.createElement('tr');
-        row.classList.add('hover:bg-gray-100');
-        row.innerHTML = `
-            <td class="p-2">${f.maChuyenBay}</td>
-            <td class="p-2">${f.tinhTrangChuyenBay}</td>
-            <td class="p-2">${f.gioBay}</td>
-            <td class="p-2">${f.gioDen}</td>
-            <td class="p-2">${f.diaDiemDau}</td>
-            <td class="p-2">${f.diaDiemCuoi}</td>
-            <td class="p-2">
-                <button onclick="editItem('flights', '${f.maChuyenBay}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-                <button onclick="deleteItem('flights', '${f.maChuyenBay}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
 function populateSeatTable(tableBody) {
-
     seatData.forEach(seat => {
         const row = document.createElement('tr');
         row.classList.add('hover:bg-gray-100');
