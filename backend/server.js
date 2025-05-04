@@ -315,6 +315,49 @@ app.get('/api/bookings', async (req, res) => {
     }
 });
 
+// API tạo mã chuyến bay mới
+app.get('/api/flights/generate-code', async (req, res) => {
+    try {
+        console.log('Đang tạo mã chuyến bay mới...');
+        const pool = await connectToDB();
+        console.log('Đã kết nối database');
+        
+        // Lấy danh sách mã chuyến bay hiện có
+        const result = await pool.request().query('SELECT MaChuyenBay FROM ChuyenBay');
+        console.log('Đã lấy danh sách mã chuyến bay hiện có');
+        const existingCodes = result.recordset.map(row => row.MaChuyenBay);
+        
+        // Tạo mã mới cho đến khi tìm được mã không trùng
+        let newCode;
+        let isUnique = false;
+        let attempts = 0;
+        const maxAttempts = 100; // Giới hạn số lần thử để tránh vòng lặp vô hạn
+        
+        while (!isUnique && attempts < maxAttempts) {
+            // Tạo mã ngẫu nhiên dạng CBxxx (xxx là số từ 100-999)
+            const randomNum = Math.floor(100 + Math.random() * 900);
+            newCode = `CB${randomNum}`;
+            
+            // Kiểm tra xem mã đã tồn tại chưa
+            if (!existingCodes.includes(newCode)) {
+                isUnique = true;
+                console.log('Đã tìm thấy mã chuyến bay mới:', newCode);
+            }
+            attempts++;
+        }
+        
+        if (!isUnique) {
+            console.error('Không thể tạo mã chuyến bay mới sau', maxAttempts, 'lần thử');
+            throw new Error('Không thể tạo mã chuyến bay mới');
+        }
+        
+        res.json({ maChuyenBay: newCode });
+    } catch (err) {
+        console.error('Lỗi khi tạo mã chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi khi tạo mã chuyến bay: ' + err.message });
+    }
+});
+
 // Xử lý các route không tồn tại
 app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint không tồn tại' });

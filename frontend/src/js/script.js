@@ -76,8 +76,7 @@ function openModal(modalType) {
     } else if (modalType === 'flightModal') {
         modalTitle.textContent = 'Thêm chuyến bay';
         modalContent.innerHTML = `
-            <label class="block mb-2">Mã chuyến bay</label>
-            <input id="flightMaChuyenBay" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: CB001">
+            <input id="flightMaChuyenBay" type="hidden">
             <label class="block mb-2">Tình trạng chuyến bay</label>
             <select id="flightTinhTrangChuyenBay" class="w-full p-2 border rounded mb-4">
                 <option value="Chưa khởi hành">Chưa khởi hành</option>
@@ -94,6 +93,8 @@ function openModal(modalType) {
             <label class="block mb-2">Địa điểm cuối</label>
             <input id="flightDiaDiemCuoi" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: TP.HCM">
         `;
+        // Generate a new flight code when opening the modal
+        generateNewFlightCode();
     } else if (modalType === 'seatModal') {
         modalTitle.textContent = 'Thêm vị trí ghế';
         modalContent.innerHTML = `
@@ -312,5 +313,84 @@ async function deleteItem(section, id) {
             alert(`Đã xóa ${section} với ID: ${id}`);
             // Thêm logic xóa cho các section khác nếu cần
         }
+    }
+}
+
+// Add this new function to generate flight codes
+async function generateNewFlightCode() {
+    try {
+        const response = await fetch('http://localhost:3000/api/flights/generate-code');
+        if (!response.ok) {
+            throw new Error('Không thể tạo mã chuyến bay');
+        }
+        const data = await response.json();
+        document.getElementById('flightMaChuyenBay').value = data.maChuyenBay;
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Không thể tạo mã chuyến bay. Vui lòng thử lại.');
+    }
+}
+
+// Update the saveFlightData function to use the generated code
+async function saveFlightData() {
+    const tinhTrangChuyenBay = document.getElementById("flightTinhTrangChuyenBay").value;
+    const gioBay = document.getElementById("flightGioBay").value;
+    const gioDen = document.getElementById("flightGioDen").value;
+    const diaDiemDau = document.getElementById("flightDiaDiemDau").value.trim();
+    const diaDiemCuoi = document.getElementById("flightDiaDiemCuoi").value.trim();
+
+    // Kiểm tra hợp lệ dữ liệu
+    if (!tinhTrangChuyenBay || !gioBay || !gioDen || !diaDiemDau || !diaDiemCuoi) {
+        alert("Vui lòng điền đầy đủ các trường bắt buộc!");
+        return;
+    }
+
+    // Kiểm tra giờ đến phải sau giờ bay
+    if (new Date(gioDen) <= new Date(gioBay)) {
+        alert("Giờ đến phải sau giờ bay!");
+        return;
+    }
+
+    // Kiểm tra địa điểm đầu và cuối không được trùng
+    if (diaDiemDau === diaDiemCuoi) {
+        alert("Địa điểm đầu và cuối không được trùng nhau!");
+        return;
+    }
+
+    try {
+        // Get the generated flight code
+        const response = await fetch('http://localhost:3000/api/flights/generate-code');
+        if (!response.ok) {
+            throw new Error('Không thể tạo mã chuyến bay');
+        }
+        const { maChuyenBay } = await response.json();
+
+        const flightData = {
+            maChuyenBay,
+            tinhTrangChuyenBay,
+            gioBay,
+            gioDen,
+            diaDiemDau,
+            diaDiemCuoi
+        };
+
+        const saveResponse = await fetch('http://localhost:3000/api/flights', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(flightData)
+        });
+
+        if (!saveResponse.ok) {
+            throw new Error('Lỗi khi thêm chuyến bay');
+        }
+
+        alert('Thêm chuyến bay thành công!');
+        closeModal();
+        fetchFlights(); // Cập nhật lại bảng
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert(`Không thể thêm chuyến bay: ${error.message}`);
     }
 }
