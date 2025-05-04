@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Load dữ liệu ngay khi trang được tải
-    fetchReports();
+    //fetchReports();
     
     // Gọi lại khi nhấn tab "Báo cáo"
     const reportTabButton = document.querySelector("button[onclick*='reports']");

@@ -35,28 +35,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 }
   
-  function renderFlightTable(flights) {
-    const tbody = document.getElementById("flightTable");
-    tbody.innerHTML = "";
-  
-    flights.forEach(f => {
-      const row = `
-        <tr class="border-t hover:bg-gray-100">
-          <td class="p-2">${f.maChuyenBay}</td>
-          <td class="p-2">${f.tinhTrangChuyenBay}</td>
-          <td class="p-2">${f.gioBay}</td>
-          <td class="p-2">${f.gioDen}</td>
-          <td class="p-2">${f.diaDiemDau}</td>
-          <td class="p-2">${f.diaDiemCuoi}</td>
-          <td class="p-2">
-            <button onclick="editItem('flights', '${f.maChuyenBay}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-            <button onclick="deleteItem('flights', '${f.maChuyenBay}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
-          </td>
-        </tr>
-      `;
-      tbody.insertAdjacentHTML("beforeend", row);
-    });
-  }
+function renderFlightTable(flights) {
+  const tbody = document.getElementById("flightTable");
+  tbody.innerHTML = "";
+
+  flights.forEach(f => {
+    const row = `
+      <tr class="border-t hover:bg-gray-100">
+        <td class="p-2">${f.maChuyenBay}</td>
+        <td class="p-2">${f.tinhTrangChuyenBay}</td>
+        <td class="p-2">${f.gioBay}</td>
+        <td class="p-2">${f.gioDen}</td>
+        <td class="p-2">${f.diaDiemDau}</td>
+        <td class="p-2">${f.diaDiemCuoi}</td>
+        <td class="p-2">
+          <div class="flex gap-2 max-w-xs">
+            <button onclick="editItem('flights', '${f.maChuyenBay}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
+            <button onclick="deleteItem('flights', '${f.maChuyenBay}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+            <button onclick="showSection('seats');fetchSeats();" class="bg-gray-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Quản lý chỗ ngồi</button>
+          </div>
+        </td>
+      </tr>
+    `;
+    tbody.insertAdjacentHTML("beforeend", row);
+  });
+}
   
   // Implement methods from the class diagram
   function capNhatSoGhe() {

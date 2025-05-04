@@ -18,7 +18,7 @@
                     <li><button onclick="showSection('bookings')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Thông tin đặt vé</button></li>
                     <li><button onclick="showSection('invoices')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Hóa đơn</button></li>
                     <li><button onclick="showSection('flights')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Chuyến bay</button></li>
-                    <li><button onclick="showSection('seats')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Ghế</button></li>
+                    <!-- <li><button onclick="showSection('seats')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Ghế</button></li> -->
                     <li><button onclick="showSection('reports')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Báo cáo</button></li>
                 </ul>
             </nav>
@@ -127,6 +127,25 @@
                     </thead>
                     <tbody id="seatTable">
                         <!-- Seats will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Các báo cáo</h2>
+                <table class="w-full border bg-white shadow-md rounded">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-2">Mã báo cáo</th>
+                            <th class="p-2">Người báo cáo</th>
+                            <th class="p-2">Ngày báo cáo</th>
+                            <th class="p-2">Nội dung báo cáo</th>
+                            <th class="p-2">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seatTable">
+                        <!-- Reports will be populated by JS -->
                     </tbody>
                 </table>
             </div>

@@ -154,38 +154,13 @@ function populateTable(sectionId) {
         case 'seats':
             populateSeatTable(tableBody);
             break;
-        case 'reports':
-            populateReportTable(tableBody);
-            break;
+        //case 'reports':
+            //populateReportTable(tableBody);
+        //    break;
     }
 }
 
 function populateUserTable(tableBody) {
-    const userData = [
-        {
-            maKH: 'KH001',
-            ten: 'Nguyễn Văn A',
-            taiKhoan: 'nguyenvana',
-            matKhau: '********',
-            email: 'nguyenvana@example.com',
-            sdt: '0123456789',
-            ngaySinh: '01/01/1990',
-            gioiTinh: 'Nam',
-            cccd: '123456789012'
-        },
-        {
-            maKH: 'KH002',
-            ten: 'Trần Thị B',
-            taiKhoan: 'tranthib',
-            matKhau: '********',
-            email: 'tranthib@example.com',
-            sdt: '0987654321',
-            ngaySinh: '15/05/1995',
-            gioiTinh: 'Nữ',
-            cccd: '098765432109'
-        }
-    ];
-
     userData.forEach(user => {
         const row = document.createElement('tr');
         row.classList.add('hover:bg-gray-100');
@@ -209,25 +184,6 @@ function populateUserTable(tableBody) {
 }
 
 function populateBookingTable(tableBody) {
-    const bookingData = [
-        {
-            maDatVe: 'DV001',
-            ngayDatVe: '10/04/2025',
-            ngayBay: '15/04/2025',
-            trangThaiThanhToan: 'Đã thanh toán',
-            soGhe: 3,
-            soTien: '3,500,000 VND'
-        },
-        {
-            maDatVe: 'DV002',
-            ngayDatVe: '11/04/2025',
-            ngayBay: '20/04/2025',
-            trangThaiThanhToan: 'Chưa thanh toán',
-            soGhe: 2,
-            soTien: '2,800,000 VND'
-        }
-    ];
-
     bookingData.forEach(booking => {
         const row = document.createElement('tr');
         row.classList.add('hover:bg-gray-100');
@@ -248,21 +204,6 @@ function populateBookingTable(tableBody) {
 }
 
 function populateInvoiceTable(tableBody) {
-    const invoiceData = [
-        {
-            maHD: 'HD001',
-            ngayXuatHD: '10/04/2025',
-            phuongThucTT: 'Thẻ tín dụng',
-            ngayThanhToan: '10/04/2025'
-        },
-        {
-            maHD: 'HD002',
-            ngayXuatHD: '11/04/2025',
-            phuongThucTT: 'Chuyển khoản',
-            ngayThanhToan: '12/04/2025'
-        }
-    ];
-
     invoiceData.forEach(invoice => {
         const row = document.createElement('tr');
         row.classList.add('hover:bg-gray-100');
@@ -301,18 +242,6 @@ function populateFlightTable(tableBody) {
     });
 }
 function populateSeatTable(tableBody) {
-    const seatData = [
-        {
-            maGhe: 'G001',
-            taiKhoan: 'seat001',
-            matKhau: '********'
-        },
-        {
-            maGhe: 'G002',
-            taiKhoan: 'seat002',
-            matKhau: '********'
-        }
-    ];
 
     seatData.forEach(seat => {
         const row = document.createElement('tr');
@@ -366,9 +295,42 @@ function editItem(section, id) {
     // This would typically involve opening the modal and populating it with data
 }
 
-function deleteItem(section, id) {
-    if (confirm(`Bạn có chắc chắn muốn xóa ${section} với ID: ${id}?`)) {
-        alert(`Đã xóa ${section} với ID: ${id}`);
-        // Implementation for deleting items would go here
+async function deleteItem(section, id) {
+    if (section === 'users') {
+        if (confirm(`Bạn có chắc chắn muốn xóa khách hàng với ID: ${id}?`)) {
+            try {
+                // Gửi yêu cầu DELETE tới API
+                const response = await fetch(`http://localhost:3000/api/customers/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Lấy dữ liệu JSON từ response
+                const data = await response.json();
+
+                // Kiểm tra xem yêu cầu có thành công không
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi khi xóa khách hàng');
+                }
+
+                // Hiển thị thông báo thành công
+                alert(data.message || `Đã xóa khách hàng với ID: ${id}`);
+
+                // Cập nhật lại bảng khách hàng
+                if (currentSection === 'users') {
+                    fetchCustomers(); // Gọi hàm từ customer.js để tải lại danh sách
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert(`Không thể xóa khách hàng: ${error.message}`);
+            }
+        }
+    } else {
+        if (confirm(`Bạn có chắc chắn muốn xóa ${section} với ID: ${id}?`)) {
+            alert(`Đã xóa ${section} với ID: ${id}`);
+            // Thêm logic xóa cho các section khác nếu cần
+        }
     }
 }

@@ -9,28 +9,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function fetchBookings() {
-  // Mock API response that matches the ThongTinDatVe class in the diagram
-  const mockData = [
-    {
-      maDatVe: 'DV001',
-      ngayDatVe: '10/04/2025',
-      ngayBay: '15/04/2025',
-      trangThaiThanhToan: 'Đã thanh toán',
-      soGhe: 3,
-      soTien: '3,500,000 VND'
-    },
-    {
-      maDatVe: 'DV002',
-      ngayDatVe: '11/04/2025',
-      ngayBay: '20/04/2025',
-      trangThaiThanhToan: 'Chưa thanh toán',
-      soGhe: 2,
-      soTien: '2,800,000 VND'
+async function fetchBookings() {
+  try {
+    // Gửi yêu cầu GET tới API
+    const response = await fetch('http://localhost:3000/api/bookings', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // Kiểm tra xem yêu cầu có thành công không
+    if (!response.ok) {
+        throw new Error('Lỗi khi lấy danh sách thông tin đặt vé');
     }
-  ];
-  
-  renderBookingTable(mockData);
+
+    // Lấy dữ liệu JSON từ response
+    const bookings = await response.json();
+
+    // Hiển thị dữ liệu lên bảng
+    renderBookingTable(bookings);
+  } catch (error) {
+    console.error('Lỗi:', error);
+    alert('Không thể tải danh sách thông tin đặt vé. Vui lòng kiểm tra kết nối.');
+  }
 }
 
 function renderBookingTable(bookings) {

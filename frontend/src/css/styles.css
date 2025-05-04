@@ -26,3 +26,15 @@ th, td {
 #userNgaySinh::placeholder {
     opacity: 0.5;
 }
+
+/* Tùy chỉnh thêm cho nút hành động */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap; /* Cho phép nút xuống dòng nếu quá nhiều */
+    max-width: 300px; /* Giới hạn chiều rộng */
+}
+
+.action-buttons button {
+    transition: all 0.2s ease; /* Hiệu ứng mượt mà cho hover */
+}
