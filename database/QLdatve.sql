@@ -8,21 +8,7 @@ USE QLdatve;
 GO
 
 -- Bảng NguoiDung
-CREATE TABLE NguoiDung (
-    TaiKhoan VARCHAR(50) PRIMARY KEY,
-    Ten NVARCHAR(100) NOT NULL,
-    MatKhau VARCHAR(255) NOT NULL,
-    Email VARCHAR(100) NOT NULL,
-    Sdt VARCHAR(15),
-    NgaySinh DATE,
-    GioiTinh NVARCHAR(10) CHECK (GioiTinh IN ('Nam', 'Nữ', 'Khác')),
-    SoCCCD VARCHAR(20),
-    CONSTRAINT UC_Email UNIQUE (Email),
-    CONSTRAINT UC_SoCCCD UNIQUE (SoCCCD),
-    CONSTRAINT CK_Email_Valid CHECK (Email LIKE '%_@__%.[a-z][a-z]%')
-);
-GO
-
+ 
 -- Bảng KhachHang
 CREATE TABLE KhachHang (
     MaKH VARCHAR(20) PRIMARY KEY,
@@ -55,7 +41,7 @@ GO
 -- Bảng ChuyenBay
 CREATE TABLE ChuyenBay (
     MaChuyenBay VARCHAR(20) PRIMARY KEY,
-    TinhTrangChuyenBay NVARCHAR(50) CHECK (TinhTrangChuyenBay IN ('Chưa khởi hành', 'Đang bay', 'Hạ cánh', 'Hủy')),
+    TinhTrangChuyenBay NVARCHAR(50),
     GioBay DATETIME NOT NULL,
     GioDen DATETIME NOT NULL,
     DiaDiemDau NVARCHAR(100) NOT NULL,
@@ -83,7 +69,7 @@ CREATE TABLE ThongTinDatVe (
     MaDatVe VARCHAR(20) PRIMARY KEY,
     NgayDatVe DATE NOT NULL,
     NgayBay DATE NOT NULL,
-    TrangThaiThanhToan NVARCHAR(50) CHECK (TrangThaiThanhToan IN ('Chưa thanh toán', 'Đã thanh toán')),
+    TrangThaiThanhToan NVARCHAR(50),
     SoGhe INT NOT NULL,
     SoTien DECIMAL(18, 2) NOT NULL,
     MaChuyenBay VARCHAR(20) NOT NULL,
@@ -92,6 +78,7 @@ CREATE TABLE ThongTinDatVe (
     CONSTRAINT FK_ThongTinDatVe_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
     CONSTRAINT CK_SoTien_Positive CHECK (SoTien > 0)
 );
+-- CHECK (TrangThaiThanhToan IN ('Chưa thanh toán', 'Đã thanh toán'))
 GO
 
 -- Bảng ThanhToan
@@ -145,16 +132,16 @@ ON ThongTinDatVe
 AFTER INSERT, UPDATE
 AS
 BEGIN
-    DECLARE @MaChuyenBay VARCHAR(20), @SoCong INT, @AvailableSeats INT;
+    DECLARE @MaChuyenBay VARCHAR(20), @SoGhe INT, @AvailableSeats INT;
 
-    SELECT @MaChuyenBay = MaChuyenBay, @SoCong = SoCong
+    SELECT @MaChuyenBay = MaChuyenBay, @SoGhe = SoGhe
     FROM inserted;
 
     SELECT @AvailableSeats = COUNT(*)
     FROM ThongTinGhe
     WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn';
 
-    IF @SoCong > @AvailableSeats
+    IF @SoGhe > @AvailableSeats
     BEGIN
         RAISERROR ('Số lượng hành khách vượt quá số ghế trống!', 16, 1);
         ROLLBACK TRANSACTION;
@@ -168,14 +155,14 @@ ON ThongTinDatVe
 AFTER INSERT
 AS
 BEGIN
-    DECLARE @MaChuyenBay VARCHAR(20), @SoCong INT;
+    DECLARE @MaChuyenBay VARCHAR(20), @SoGhe INT;
 
-    SELECT @MaChuyenBay = MaChuyenBay, @SoCong = SoCong
+    SELECT @MaChuyenBay = MaChuyenBay, @SoGhe = SoGhe
     FROM inserted;
 
     -- Cập nhật trạng thái ghế (đặt số ghế tương ứng với SoCong)
     WITH AvailableSeats AS (
-        SELECT TOP (@SoCong) SoGhe
+        SELECT TOP (@SoGhe) SoGhe
         FROM ThongTinGhe
         WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn'
     )
@@ -329,14 +316,14 @@ CREATE PROCEDURE sp_ThemDatVe
     @NgayDatVe DATE,
     @NgayBay DATE,
     @TrangThaiThanhToan NVARCHAR(50),
-    @SoCong INT,
+    @SoGhe INT,
     @SoTien DECIMAL(18, 2),
     @MaChuyenBay VARCHAR(20),
     @MaKH VARCHAR(20)
 AS
 BEGIN
-    INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoCong, SoTien, MaChuyenBay, MaKH)
-    VALUES (@MaDatVe, @NgayDatVe, @NgayBay, @TrangThaiThanhToan, @SoCong, @SoTien, @MaChuyenBay, @MaKH);
+    INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
+    VALUES (@MaDatVe, @NgayDatVe, @NgayBay, @TrangThaiThanhToan, @SoGhe, @SoTien, @MaChuyenBay, @MaKH);
 END;
 GO
 
