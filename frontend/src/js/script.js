@@ -82,8 +82,8 @@ function openModal(modalType) {
             <select id="flightTinhTrangChuyenBay" class="w-full p-2 border rounded mb-4">
                 <option value="Chưa khởi hành">Chưa khởi hành</option>
                 <option value="Đang bay">Đang bay</option>
-                <option value="Hạ cánh">Hạ cánh</option>
-                <option value="Hủy">Hủy</option>
+                <option value="Đã hoàn thành">Đã hoàn thành</option>
+                <option value="Đã hủy">Đã hủy</option>
             </select>
             <label class="block mb-2">Giờ bay</label>
             <input id="flightGioBay" type="datetime-local" class="w-full p-2 border rounded mb-4">
