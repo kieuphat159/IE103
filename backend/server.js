@@ -433,7 +433,6 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
         }
         
-        //console.log('Đã tìm thấy chuyến bay, đang lấy danh sách ghế...');
         const result = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query(`
@@ -450,6 +449,27 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
     } catch (err) {
         console.error('Lỗi khi lấy danh sách ghế:', err);
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
+// API lấy danh sách báo cáo
+app.get('/api/reports', async (req, res) => {
+    try {
+        console.log('Nhận được yêu cầu GET /api/reports');
+        const pool = await connectToDB();
+        const result = await pool.request().query(`
+            SELECT 
+                MaBaoCao as maBaoCao,
+                NgayBaoCao as ngayBaoCao,
+                NoiDungBaoCao as noiDungBaoCao,
+                MaNV as maNV
+            FROM BaoCao
+        `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi server' });
     }
 });
 

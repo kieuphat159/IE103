@@ -237,24 +237,14 @@ function populateSeatTable(tableBody) {
 }
 
 function populateReportTable(tableBody) {
-    const reportData = [
-        {
-            maBaoCao: 'BC001',
-            ngayBaoCao: '12/04/2025',
-            noiDungBaoCao: 'Khách hàng Joe không mang hộ chiếu'
-        },
-        {
-            maBaoCao: 'BC002',
-            ngayBaoCao: '14/04/2025',
-            noiDungBaoCao: 'Khách hàng John cần thay đổi giờ bay'
-        }
-    ];
+
 
     reportData.forEach(report => {
         const row = document.createElement('tr');
         row.classList.add('hover:bg-gray-100');
         row.innerHTML = `
             <td class="p-2">${report.maBaoCao}</td>
+            <td class="p-2">${report.maNV}</td>
             <td class="p-2">${report.ngayBaoCao}</td>
             <td class="p-2">${report.noiDungBaoCao}</td>
             <td class="p-2">

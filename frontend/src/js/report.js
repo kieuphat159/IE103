@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Load dữ liệu ngay khi trang được tải
     //fetchReports();
     
     // Gọi lại khi nhấn tab "Báo cáo"
@@ -9,22 +8,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   
-  function fetchReports() {
-    // Mock API response that matches the BaoCao class in the diagram
-    const mockData = [
-      {
-        maBaoCao: 'BC001',
-        ngayBaoCao: '12/04/2025',
-        noiDungBaoCao: 'Khách hàng Joe không mang hộ chiếu'
-      },
-      {
-        maBaoCao: 'BC002',
-        ngayBaoCao: '14/04/2025',
-        noiDungBaoCao: 'Khách hàng John cần thay đổi giờ bay'
+  async function fetchReports() {
+    try {
+      // Gửi yêu cầu GET tới API
+      const response = await fetch('http://localhost:3000/api/reports', {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      // Kiểm tra xem yêu cầu có thành công không
+      if (!response.ok) {
+          throw new Error('Lỗi khi lấy danh sách báo cáo');
       }
-    ];
-    
-    renderReportTable(mockData);
+
+      // Lấy dữ liệu JSON từ response
+      const reports = await response.json();
+
+      // Hiển thị dữ liệu lên bảng
+      renderReportTable(reports);
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Không thể tải danh sách báo cáo. Vui lòng kiểm tra kết nối.');
+    }
   }
   
   function renderReportTable(reports) {
@@ -35,8 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = `
         <tr class="border-t hover:bg-gray-100">
           <td class="p-2">${r.maBaoCao}</td>
+          <td class="p-2">${r.maNV}</td>
           <td class="p-2">${r.ngayBaoCao}</td>
           <td class="p-2">${r.noiDungBaoCao}</td>
+          
           <td class="p-2">
             <button onclick="editItem('reports', '${r.maBaoCao}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
             <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
