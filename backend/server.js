@@ -252,6 +252,58 @@ app.post('/api/flights', async (req, res) => {
     }
 });
 
+// API xóa chuyến bay
+app.delete('/api/flights/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    console.log(`Nhận được yêu cầu DELETE /api/flights/${maChuyenBay}`);
+
+    try {
+        const pool = await connectToDB();
+        
+        // Kiểm tra xem chuyến bay có tồn tại không
+        const flightCheck = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+
+        if (flightCheck.recordset.length === 0) {
+            console.log(`Không tìm thấy chuyến bay: ${maChuyenBay}`);
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        // Xóa thông tin đặt vé liên quan đến chuyến bay
+        const bookingResult = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
+
+        for (const booking of bookingResult.recordset) {
+            console.log(`Xóa thanh toán cho MaDatVe: ${booking.MaDatVe}`);
+            await fetch(`http://localhost:3000/api/payments/by-booking/${booking.MaDatVe}`, {
+                method: 'DELETE'
+            });
+        }
+
+        await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('DELETE FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
+
+        // Xóa thông tin ghế liên quan
+        await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('DELETE FROM ThongTinGhe WHERE MaChuyenBay = @maChuyenBay');
+
+        // Xóa chuyến bay
+        await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('DELETE FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+
+        console.log(`Xóa chuyến bay thành công: ${maChuyenBay}`);
+        res.json({ message: 'Xóa chuyến bay thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa chuyến bay: ' + err.message });
+    }
+});
+
 // API lấy danh sách hóa đơn
 app.get('/api/invoices', async (req, res) => {
     try {
@@ -390,6 +442,7 @@ app.get('/api/flights/generate-code', async (req, res) => {
     }
 });
 
+// API lấy thông tin khách hàng theo tài khoản
 app.get('/api/customers/by-username/:taiKhoan', async (req, res) => {
     const { taiKhoan } = req.params;
 
@@ -423,7 +476,7 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
         const pool = await connectToDB();
         console.log('Đã kết nối database, đang thực hiện truy vấn...');
         
-        // First check if the flight exists
+        // Kiểm tra xem chuyến bay có tồn tại không
         const flightCheck = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
@@ -475,6 +528,7 @@ app.get('/api/reports', async (req, res) => {
 
 // Xử lý các route không tồn tại
 app.use((req, res) => {
+    console.log(`Route không tồn tại: ${req.method} ${req.url}`);
     res.status(404).json({ error: 'Endpoint không tồn tại' });
 });
 
@@ -482,4 +536,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server đang chạy trên cổng ${PORT}`);
 });
-
