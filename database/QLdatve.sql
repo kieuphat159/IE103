@@ -397,7 +397,6 @@ EXEC sp_ThemGhe '03', 'CB001', 2500000, 'Thương gia', 'có sẵn';
 EXEC sp_ThemGhe '04', 'CB002', 1200000, 'Phổ thông', 'có sẵn';
 EXEC sp_ThemGhe '05', 'CB002', 1200000, 'Phổ thông', 'có sẵn';
 
-delete from ThongTinGhe
 
 -- Thêm thông tin đặt vé
 EXEC sp_ThemDatVe 'DV001', '2025-04-10', '2025-04-15', 'Chưa thanh toán', 1, 1500000, 'CB001', 'KH001';
