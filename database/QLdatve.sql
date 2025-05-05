@@ -8,7 +8,17 @@ USE QLdatve;
 GO
 
 -- Bảng NguoiDung
- 
+ CREATE TABLE NguoiDung (
+    TaiKhoan VARCHAR(50) PRIMARY KEY,
+    Ten NVARCHAR(100) NOT NULL,
+    MatKhau VARCHAR(255) NOT NULL,
+    Email VARCHAR(100),
+    Sdt VARCHAR(15),
+    NgaySinh DATE,
+    GioiTinh NVARCHAR(10),
+    SoCCCD VARCHAR(20)
+);
+GO
 -- Bảng KhachHang
 CREATE TABLE KhachHang (
     MaKH VARCHAR(20) PRIMARY KEY,

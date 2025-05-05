@@ -16,11 +16,11 @@ app.use((err, req, res, next) => {
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: 'sa',
-    password: 'Thnguyen_123',
-    server: 'LAPTOPCUAPHAT\\SQLEXPRESS',
+    password: '23520989',
+    server: 'localhost',
     database: 'QLdatve',
     options: {
-        encrypt: true,
+        encrypt: false,
         trustServerCertificate: true
     }
 };
@@ -358,6 +358,31 @@ app.get('/api/flights/generate-code', async (req, res) => {
     }
 });
 
+app.get('/api/customers/by-username/:taiKhoan', async (req, res) => {
+    const { taiKhoan } = req.params;
+
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query(`
+                SELECT kh.MaKH, nd.Ten, nd.Email, nd.Sdt, nd.SoCCCD, kh.Passport
+                FROM KhachHang kh
+                JOIN NguoiDung nd ON kh.TaiKhoan = nd.TaiKhoan
+                WHERE kh.TaiKhoan = @taiKhoan
+            `);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy khách hàng' });
+        }
+
+        res.json(result.recordset[0]);
+    } catch (err) {
+        console.error('Lỗi khi lấy thông tin khách hàng:', err);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
 // Xử lý các route không tồn tại
 app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint không tồn tại' });
@@ -367,3 +392,4 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server đang chạy trên cổng ${PORT}`);
 });
+

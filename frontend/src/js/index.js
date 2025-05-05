@@ -3,6 +3,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContent = document.querySelector('.main-content');
     const mainContentTitle = document.querySelector('.main-content-title');
 
+    // hàm lấy khách hàng
+    async function fetchCustomerByTaiKhoan(taiKhoan) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/customers/by-username/${taiKhoan}`);
+            if (!response.ok) throw new Error("Không tìm thấy khách hàng");
+            return await response.json();
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
     // Dữ liệu chuyến bay mẫu
     const flightData = [
     ];
@@ -137,17 +148,73 @@ document.addEventListener('DOMContentLoaded', function() {
     function showContent(contentId) {
         switch (contentId) {
             case 'booked-tickets':
-                mainContentTitle.textContent = 'Danh sách chuyến bay';
-                displayTable(flightData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống'], 'Danh Sách Các chuyến bay', true);
+                fetch('http://localhost:3000/api/flights')
+                .then(res => res.json())
+                .then(data => {
+                    flightData.length = 0; // Clear cũ
+                    data.forEach(f => {
+                        flightData.push({
+                            'Mã chuyến bay ': f.maChuyenBay,
+                            'Thời gian bay': new Date(f.gioBay).toLocaleString() + ' - ' + new Date(f.gioDen).toLocaleString(),
+                            'Điểm khởi hành': f.diaDiemDau,
+                            'Điểm đến': f.diaDiemCuoi,
+                            'Trạng thái': f.tinhTrangChuyenBay,
+                            'Số chỗ còn trống': 'N/A' // Nếu chưa xử lý số ghế trống
+                        });
+                    });
+        
+                    displayTable(flightData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống'], 'Danh Sách Các chuyến bay', true);
+                })
+                .catch(err => {
+                    console.error('Lỗi gọi API /flights:', err);
+                    mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách chuyến bay</p>';
+                });
                 break;
-            case 'flight-list':
-                mainContentTitle.textContent = 'Vé đã đặt';
-                displayTable(bookedTicketsData, ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'], 'Danh sách vé đã đặt');
-                break;
-            case 'customer-info':
-                mainContentTitle.textContent = 'Thông tin khách hàng';
-                displayVerticalTable({});
-                break;
+                case 'flight-list':
+                    mainContentTitle.textContent = 'Vé đã đặt';
+                
+                    fetch('http://localhost:3000/api/bookings')
+                        .then(res => res.json())
+                        .then(data => {
+                            bookedTicketsData.length = 0;
+                            data.forEach(v => {
+                                bookedTicketsData.push({
+                                    'Mã khách hàng': v.maKH || 'N/A',
+                                    'Mã vé': v.maDatVe,
+                                    'Mã chuyến bay': v.maChuyenBay,
+                                    'Ngày mua': new Date(v.ngayDatVe).toLocaleDateString(),
+                                    'Số ghế': v.soGhe,
+                                    'Hạng ghế': 'N/A', // Nếu cần thì sửa ở backend để trả luôn hạng
+                                    'Tình trạng vé': v.trangThaiThanhToan || 'Chưa rõ'
+                                });
+                            });
+                
+                            displayTable(
+                                bookedTicketsData,
+                                ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'],
+                                'Danh sách vé đã đặt'
+                            );
+                        })
+                        .catch(err => {
+                            console.error('Lỗi API /bookings:', err);
+                            mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách vé đã đặt</p>';
+                        });
+                    break;
+                
+                    case 'customer-info':
+                        mainContentTitle.textContent = 'Thông tin khách hàng';
+                        fetchCustomerByTaiKhoan("user1")  // ← dùng tài khoản đang đăng nhập thật
+                            .then(data => {
+                                displayVerticalTable({
+                                    'Mã KH': data?.MaKH || '',
+                                    'Tên': data?.Ten || '',
+                                    'Email': data?.Email || '',
+                                    'Số Điện Thoại': data?.Sdt || '',
+                                    'Địa Chỉ': '',  // chưa có cột này, có thể thêm nếu muốn
+                                    'Passport': data?.Passport || ''
+                                });
+                            });
+                        break;
             default:
                 mainContentTitle.textContent = 'Chào mừng';
                 mainContent.innerHTML = '<div class="main-content-header"><p>Chào mừng!</p></div>';
