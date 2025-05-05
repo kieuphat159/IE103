@@ -28,7 +28,13 @@
             <!-- Users Section -->
             <div id="users" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý khách hàng</h2>
-                <button onclick="openModal('userModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm khách hàng</button>
+                <div class="flex justify-between items-center mb-4">        
+                    <div class="flex-1">
+                        <input type="text" id="searchInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm khách hàng">
+                        <button onclick="searchUser()" id="search_btn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                    </div>
+                    <button onclick="openModal('userModal')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Thêm khách hàng</button>
+                </div>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -51,7 +57,7 @@
             <!-- Bookings Section -->
             <div id="bookings" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý thông tin đặt vé</h2>
-                <button onclick="openModal('bookingModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm thông tin đặt vé</button>
+                <!--<button onclick="openModal('bookingModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm thông tin đặt vé</button> -->
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -73,7 +79,7 @@
             <!-- Invoices Section -->
             <div id="invoices" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý hóa đơn</h2>
-                <button onclick="openModal('invoiceModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm hóa đơn</button>
+                <!--<button onclick="openModal('invoiceModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm hóa đơn</button> -->
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -114,7 +120,7 @@
             <!-- Seats Section -->
             <div id="seats" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý ghế</h2>
-                <h2 class="text-2xl font-bold mb-4">Chuyến bay 123</h2>
+                <h2 class="text-2xl font-bold mb-4">Chuyến bay <span id="flightCode"></span></h2>
                 <button onclick="showSection('flights')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Trở lại</button>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>

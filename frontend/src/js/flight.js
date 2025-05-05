@@ -54,13 +54,20 @@ function renderFlightTable(flights) {
                   <div class="flex gap-2 max-w-xs">
                       <button onclick="editItem('flights', '${f.maChuyenBay}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
                       <button onclick="deleteItem('flights', '${f.maChuyenBay}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
-                      <button onclick="showSection('seats');fetchSeats();" class="bg-gray-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Quản lý chỗ ngồi</button>
+                      <button onclick="showSeatsSection('${f.maChuyenBay}')" class="bg-gray-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Quản lý chỗ ngồi</button>
                   </div>
               </td>
           </tr>
       `;
       tbody.insertAdjacentHTML("beforeend", row);
   });
+}
+
+// Add new function to show seats section with flight code
+function showSeatsSection(flightCode) {
+    showSection('seats');
+    document.getElementById('flightCode').textContent = flightCode;
+    fetchSeats();
 }
 
 // Hàm tạo mã chuyến bay ngẫu nhiên

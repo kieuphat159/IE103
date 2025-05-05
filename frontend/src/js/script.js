@@ -93,7 +93,6 @@ function openModal(modalType) {
             <label class="block mb-2">Địa điểm cuối</label>
             <input id="flightDiaDiemCuoi" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: TP.HCM">
         `;
-        // Generate a new flight code when opening the modal
         generateNewFlightCode();
     } else if (modalType === 'seatModal') {
         modalTitle.textContent = 'Thêm vị trí ghế';
@@ -156,9 +155,6 @@ function populateTable(sectionId) {
         case 'seats':
             populateSeatTable(tableBody);
             break;
-        //case 'reports':
-            //populateReportTable(tableBody);
-        //    break;
     }
 }
 
@@ -394,3 +390,94 @@ async function saveFlightData() {
         alert(`Không thể thêm chuyến bay: ${error.message}`);
     }
 }
+
+// search user add enter key
+document.getElementById('searchInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        searchUser();
+    }
+});
+
+function searchUser() {
+    // search by name
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const tableBody = document.getElementById('userTable');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 1; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+
+    // search by username
+    const usernameFilter = document.getElementById('usernameFilter');
+    const usernameTerm = usernameFilter.value.toLowerCase();
+    const usernameTableBody = document.getElementById('userTable');
+    const usernameRows = usernameTableBody.getElementsByTagName('tr');
+    for (let i = 0; i < usernameRows.length; i++) {
+        const usernameCells = usernameRows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 1; j < usernameCells.length - 1; j++) {
+            const usernameCellText = usernameCells[j].textContent.toLowerCase();
+        }
+    }
+
+    // search by phone number
+    const phoneFilter = document.getElementById('phoneFilter');
+    const phoneTerm = phoneFilter.value.toLowerCase();
+    const phoneTableBody = document.getElementById('userTable');
+    const phoneRows = phoneTableBody.getElementsByTagName('tr');    
+    for (let i = 0; i < phoneRows.length; i++) {
+        const phoneCells = phoneRows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 1; j < phoneCells.length - 1; j++) {
+            const phoneCellText = phoneCells[j].textContent.toLowerCase();
+        }
+    }   
+    
+    // search by email
+    const emailFilter = document.getElementById('emailFilter');
+    const emailTerm = emailFilter.value.toLowerCase();
+    const emailTableBody = document.getElementById('userTable');
+    const emailRows = emailTableBody.getElementsByTagName('tr');
+    for (let i = 0; i < emailRows.length; i++) {
+        const emailCells = emailRows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 1; j < emailCells.length - 1; j++) {
+            const emailCellText = emailCells[j].textContent.toLowerCase();
+        }
+    }
+    // search by passport
+    const passportFilter = document.getElementById('passportFilter');
+    const passportTerm = passportFilter.value.toLowerCase();
+    const passportTableBody = document.getElementById('userTable');
+    const passportRows = passportTableBody.getElementsByTagName('tr');  
+    for (let i = 0; i < passportRows.length; i++) {
+        const passportCells = passportRows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 1; j < passportCells.length - 1; j++) {
+            const passportCellText = passportCells[j].textContent.toLowerCase();
+        }
+    }
+    
+    // search by CCCD
+    const cccdFilter = document.getElementById('cccdFilter');
+    const cccdTerm = cccdFilter.value.toLowerCase();
+    const cccdTableBody = document.getElementById('userTable');
+    const cccdRows = cccdTableBody.getElementsByTagName('tr');
+    for (let i = 0; i < cccdRows.length; i++) {
+        const cccdCells = cccdRows[i].getElementsByTagName('td');
+    }
+}
+

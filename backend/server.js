@@ -2,6 +2,7 @@ const express = require('express');
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const DatabasePassword = 'Thnguyen_123';
 
 const app = express();
 app.use(cors());
@@ -16,7 +17,7 @@ app.use((err, req, res, next) => {
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: 'sa',
-    password: '23520989',
+    password: DatabasePassword,
     server: 'localhost',
     database: 'QLdatve',
     options: {
@@ -276,15 +277,28 @@ app.get('/api/invoices', async (req, res) => {
 app.get('/api/seats', async (req, res) => {
     try {
         console.log('Nhận được yêu cầu GET /api/seats');
+        const { maChuyenBay } = req.query;
         const pool = await connectToDB();
-        const result = await pool.request().query(`
+        
+        let query = `
             SELECT 
                 SoGhe AS soGhe,
                 GiaGhe AS giaGhe,
                 HangGhe as hangGhe,
                 TinhTrangGhe AS tinhTrangGhe
             FROM ThongTinGhe
-        `);
+        `;
+        
+        if (maChuyenBay) {
+            query += ' WHERE MaChuyenBay = @maChuyenBay';
+        }
+        
+        const request = pool.request();
+        if (maChuyenBay) {
+            request.input('maChuyenBay', sql.VarChar, maChuyenBay);
+        }
+        
+        const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
@@ -380,6 +394,44 @@ app.get('/api/customers/by-username/:taiKhoan', async (req, res) => {
     } catch (err) {
         console.error('Lỗi khi lấy thông tin khách hàng:', err);
         res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+// API lấy danh sách ghế theo mã chuyến bay
+app.get('/api/seats/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    try {
+        console.log('Nhận được yêu cầu GET /api/seats/' + maChuyenBay);
+        const pool = await connectToDB();
+        console.log('Đã kết nối database, đang thực hiện truy vấn...');
+        
+        // First check if the flight exists
+        const flightCheck = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+            
+        if (flightCheck.recordset.length === 0) {
+            console.log('Không tìm thấy chuyến bay:', maChuyenBay);
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+        
+        //console.log('Đã tìm thấy chuyến bay, đang lấy danh sách ghế...');
+        const result = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query(`
+                SELECT 
+                    SoGhe AS soGhe,
+                    GiaGhe AS giaGhe,
+                    HangGhe as hangGhe,
+                    TinhTrangGhe AS tinhTrangGhe
+                FROM ThongTinGhe
+                WHERE MaChuyenBay = @maChuyenBay
+            `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách ghế:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 

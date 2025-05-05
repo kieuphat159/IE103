@@ -38,3 +38,21 @@ th, td {
 .action-buttons button {
     transition: all 0.2s ease; /* Hiệu ứng mượt mà cho hover */
 }
+
+#search_btn {
+    background-color: #374151;
+    color: #fff;
+    /* let the button be on the right side of the search input */
+    margin-left: 10px;
+}
+
+.search-input {
+    /* add enter key to search */
+    input:focus {
+        outline: none;
+    }
+    /* add enter key to search */
+    input:enter {
+        outline: none;
+    }   
+}
