@@ -296,18 +296,36 @@ app.get('/api/seats', async (req, res) => {
 // API lấy danh sách thông tin đặt vé
 app.get('/api/bookings', async (req, res) => {
     try {
-        console.log('Nhận được yêu cầu GET /api/bookings');
+        console.log('Nhận được yêu cầu GET /api/bookings với username:', req.query.username);
+        const { username } = req.query;
         const pool = await connectToDB();
-        const result = await pool.request().query(`
+
+        let query = `
             SELECT 
-                MaDatVe AS maDatVe,
-                NgayDatVe AS ngayDatVe,
-                NgayBay AS ngayBay,
-                SoGhe AS soGhe,
-                SoTien AS soTien 
-            FROM ThongTinDatVe
-        `);
-        console.log('Dữ liệu trả về:', result.recordset);
+                tdv.MaDatVe AS maDatVe,
+                tdv.NgayDatVe AS ngayDatVe,
+                tdv.NgayBay AS ngayBay,
+                tdv.SoGhe AS soGhe,
+                tdv.SoTien AS soTien,
+                kh.MaKH AS maKH,
+                cb.MaChuyenBay AS maChuyenBay,
+                tdv.TrangThaiThanhToan AS trangThaiThanhToan
+            FROM ThongTinDatVe tdv
+            LEFT JOIN KhachHang kh ON tdv.MaKH = kh.MaKH
+            LEFT JOIN ChuyenBay cb ON tdv.MaChuyenBay = cb.MaChuyenBay
+        `.trim();
+
+        if (username) {
+            query += ` WHERE kh.TaiKhoan = @username`;
+        }
+
+        const request = pool.request();
+        if (username) {
+            request.input('username', sql.VarChar, username);
+        }
+
+        const result = await request.query(query);
+        console.log('Dữ liệu thô từ database:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách thông tin đặt vé:', err);

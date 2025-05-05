@@ -172,20 +172,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
                 case 'flight-list':
                     mainContentTitle.textContent = 'Vé đã đặt';
-                
-                    fetch('http://localhost:3000/api/bookings')
+                    const currentUsername = localStorage.getItem('currentUser') || "user1";
+                    fetch(`http://localhost:3000/api/bookings?username=${currentUsername}`)
                         .then(res => res.json())
                         .then(data => {
+                            console.log("Dữ liệu từ API /bookings:", data);
                             bookedTicketsData.length = 0;
+                
                             data.forEach(v => {
                                 bookedTicketsData.push({
-                                    'Mã khách hàng': v.maKH || 'N/A',
-                                    'Mã vé': v.maDatVe,
-                                    'Mã chuyến bay': v.maChuyenBay,
-                                    'Ngày mua': new Date(v.ngayDatVe).toLocaleDateString(),
-                                    'Số ghế': v.soGhe,
-                                    'Hạng ghế': 'N/A', // Nếu cần thì sửa ở backend để trả luôn hạng
-                                    'Tình trạng vé': v.trangThaiThanhToan || 'Chưa rõ'
+                                    'Mã khách hàng': v.maKH ?? 'Không có',
+                                    'Mã vé': v.maDatVe ?? 'Không rõ',
+                                    'Mã chuyến bay': v.maChuyenBay ?? 'Không có',
+                                    'Ngày mua': v.ngayDatVe ? new Date(v.ngayDatVe).toLocaleDateString() : 'Không rõ',
+                                    'Số ghế': v.soGhe ?? '?',
+                                    'Hạng ghế': 'N/A',
+                                    'Tình trạng vé': v.trangThaiThanhToan ?? 'Không rõ'
                                 });
                             });
                 
@@ -200,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách vé đã đặt</p>';
                         });
                     break;
+                
                 
                     case 'customer-info':
                         mainContentTitle.textContent = 'Thông tin khách hàng';
