@@ -64,9 +64,11 @@ function renderReportTable(reports, status) {
                 <td class="p-2">${r.noiDungBaoCao}</td>
                 ${status === 'unprocessed' ? `
                     <td class="p-2">
-                        <button onclick="editItem('reports', '${r.maBaoCao}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-                        <button onclick="markAsProcessed('${r.maBaoCao}')" class="bg-green-500 text-white px-2 py-1 rounded mr-1">Đánh dấu đã xử lý</button>
-                        <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
+                        <div class="flex gap-2 max-w-xs">
+                            <button onclick="editItem('reports', '${r.maBaoCao}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
+                            <button onclick="markAsProcessed('${r.maBaoCao}')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Đánh dấu đã xử lý</button>
+                            <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+                        </div>
                     </td>
                 ` : `
                     <td class="p-2">${r.trangThai}</td>
