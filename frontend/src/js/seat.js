@@ -65,3 +65,25 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Thêm ghế mới");
     // Implementation for adding a new seat
   }
+
+  function searchSeat() {
+    const searchInput = document.getElementById('searchSeatInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const tableBody = document.getElementById('seatTable');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+  }

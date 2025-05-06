@@ -75,3 +75,25 @@ function xoaDatVe() {
   console.log("Xóa thông tin đặt vé");
   // Implementation for deleting booking information
 }
+
+function searchBooking() {
+    const searchInput = document.getElementById('searchBookingInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const tableBody = document.getElementById('bookingTable');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+}

@@ -20,6 +20,7 @@
                     <li><button onclick="showSection('flights')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Chuyến bay</button></li>
                     <!-- <li><button onclick="showSection('seats')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Ghế</button></li> -->
                     <li><button onclick="showSection('reports')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Báo cáo</button></li>
+                    <li class="mt-auto"><button onclick="logout()" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded text-red-400">Đăng xuất</button></li>
                 </ul>
             </nav>
         </div>
@@ -31,7 +32,7 @@
                 <div class="flex justify-between items-center mb-4">        
                     <div class="flex-1">
                         <input type="text" id="searchInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm khách hàng">
-                        <button onclick="searchUser()" id="search_btn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                        <button onclick="searchUser()" id="search-btn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-500">Tìm kiếm</button> 
                     </div>
                     <button onclick="openModal('userModal')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Thêm khách hàng</button>
                 </div>
@@ -57,7 +58,12 @@
             <!-- Bookings Section -->
             <div id="bookings" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý thông tin đặt vé</h2>
-                <!--<button onclick="openModal('bookingModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm thông tin đặt vé</button> -->
+                <div class="flex justify-between items-center mb-4">        
+                    <div class="flex-1">
+                        <input type="text" id="searchBookingInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm thông tin đặt vé">
+                        <button onclick="searchBooking()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                    </div>
+                </div>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -79,7 +85,12 @@
             <!-- Invoices Section -->
             <div id="invoices" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý hóa đơn</h2>
-                <!--<button onclick="openModal('invoiceModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm hóa đơn</button> -->
+                <div class="flex justify-between items-center mb-4">        
+                    <div class="flex-1">
+                        <input type="text" id="searchInvoiceInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm hóa đơn">
+                        <button onclick="searchInvoice()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                    </div>
+                </div>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -98,7 +109,13 @@
             <!-- Flights Section -->
             <div id="flights" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý chuyến bay</h2>
-                <button onclick="openModal('flightModal')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Thêm chuyến bay</button>
+                <div class="flex justify-between items-center mb-4">        
+                    <div class="flex-1">
+                        <input type="text" id="searchFlightInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm chuyến bay">
+                        <button onclick="searchFlight()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                    </div>
+                    <button onclick="openModal('flightModal')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Thêm chuyến bay</button>
+                </div>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -121,7 +138,13 @@
             <div id="seats" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý ghế</h2>
                 <h2 class="text-2xl font-bold mb-4">Chuyến bay <span id="flightCode"></span></h2>
-                <button onclick="showSection('flights')" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 hover:bg-gray-600">Trở lại</button>
+                <div class="flex justify-between items-center mb-4">        
+                    <div class="flex-1">
+                        <input type="text" id="searchSeatInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm ghế">
+                        <button onclick="searchSeat()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                    </div>
+                    <button onclick="showSection('flights')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Trở lại</button>
+                </div>
                 <table class="w-full border bg-white shadow-md rounded">
                     <thead>
                         <tr class="bg-gray-200">
@@ -141,6 +164,12 @@
             <!-- Reports Section -->
             <div id="reports" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Các báo cáo</h2>
+                <div class="flex justify-between items-center mb-4">        
+                    <div class="flex-1">
+                        <input type="text" id="searchReportInput" class="w-1/2 p-2 border rounded" placeholder="Tìm kiếm báo cáo">
+                        <button onclick="searchReport()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tìm kiếm</button> 
+                    </div>
+                </div>
                 <div class="mb-4">
                     <button onclick="showReportTab('unprocessed')" class="bg-gray-500 text-white px-4 py-2 rounded-l hover:bg-gray-600">Báo cáo chưa xử lý</button>
                     <button onclick="showReportTab('processed')" class="bg-gray-500 text-white px-4 py-2 rounded-r hover:bg-gray-600">Báo cáo đã xử lý</button>
@@ -191,6 +220,17 @@
     </div>
 </div>
 
+<!-- Custom Confirmation Dialog -->
+<div id="confirmDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h3 class="text-xl font-bold mb-4">Xác nhận đăng xuất</h3>
+        <p class="mb-6">Bạn có chắc chắn muốn đăng xuất?</p>
+        <div class="flex justify-end gap-4">
+            <button onclick="closeConfirmDialog()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Hủy</button>
+            <button onclick="confirmLogout()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Đăng xuất</button>
+        </div>
+    </div>
+</div>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {

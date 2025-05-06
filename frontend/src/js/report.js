@@ -105,3 +105,39 @@ async function markAsProcessed(maBaoCao) {
         alert(error.message || 'Không thể cập nhật trạng thái báo cáo. Vui lòng thử lại.');
     }
 }
+
+function searchReport() {
+    const searchInput = document.getElementById('searchReportInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    // Search in both processed and unprocessed tables
+    const unprocessedTableBody = document.getElementById('unprocessedReportTable');
+    const processedTableBody = document.getElementById('processedReportTable');
+    
+    if (unprocessedTableBody) {
+        const unprocessedRows = unprocessedTableBody.getElementsByTagName('tr');
+        searchInTable(unprocessedRows, searchTerm);
+    }
+    
+    if (processedTableBody) {
+        const processedRows = processedTableBody.getElementsByTagName('tr');
+        searchInTable(processedRows, searchTerm);
+    }
+}
+
+function searchInTable(rows, searchTerm) {
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+}

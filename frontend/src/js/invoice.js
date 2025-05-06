@@ -69,3 +69,25 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Xuất hóa đơn");
     // Implementation for exporting invoice
   }
+
+  function searchInvoice() {
+    const searchInput = document.getElementById('searchInvoiceInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const tableBody = document.getElementById('invoiceTable');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+  }
