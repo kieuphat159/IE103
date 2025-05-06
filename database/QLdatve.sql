@@ -1,4 +1,4 @@
-
+drop database QLdatve
 -- Tạo cơ sở dữ liệu
 CREATE DATABASE QLdatve;
 GO
@@ -44,9 +44,10 @@ CREATE TABLE BaoCao (
     NgayBaoCao DATE NOT NULL,
     NoiDungBaoCao NVARCHAR(MAX) NOT NULL,
     MaNV VARCHAR(20) NOT NULL,
-    CONSTRAINT FK_BaoCao_NhanVienKiemSoat FOREIGN KEY (MaNV) REFERENCES NhanVienKiemSoat(MaNV)
+    TrangThai NVARCHAR(20) NOT NULL,
+    CONSTRAINT FK_BaoCao_NhanVienKiemSoat FOREIGN KEY (MaNV) REFERENCES NhanVienKiemSoat(MaNV),
+    CONSTRAINT CK_TrangThai_Valid CHECK (TrangThai IN (N'Đã xử lý', N'Chưa xử lý')) 
 );
-GO
 
 -- Bảng ChuyenBay
 CREATE TABLE ChuyenBay (
@@ -56,7 +57,6 @@ CREATE TABLE ChuyenBay (
     GioDen DATETIME NOT NULL,
     DiaDiemDau NVARCHAR(100) NOT NULL,
     DiaDiemCuoi NVARCHAR(100) NOT NULL,
-    LoTrinh NVARCHAR(MAX),
     CONSTRAINT CK_GioBay_Before_GioDen CHECK (GioBay < GioDen)
 );
 GO
@@ -297,12 +297,11 @@ CREATE PROCEDURE sp_ThemChuyenBay
     @GioBay DATETIME,
     @GioDen DATETIME,
     @DiaDiemDau NVARCHAR(100),
-    @DiaDiemCuoi NVARCHAR(100),
-    @LoTrinh NVARCHAR(MAX)
+    @DiaDiemCuoi NVARCHAR(100)
 AS
 BEGIN
-    INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi, LoTrinh)
-    VALUES (@MaChuyenBay, @TinhTrangChuyenBay, @GioBay, @GioDen, @DiaDiemDau, @DiaDiemCuoi, @LoTrinh);
+    INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi)
+    VALUES (@MaChuyenBay, @TinhTrangChuyenBay, @GioBay, @GioDen, @DiaDiemDau, @DiaDiemCuoi);
 END;
 GO
 
@@ -382,13 +381,13 @@ INSERT INTO NhanVienKiemSoat (MaNV, TaiKhoan)
 VALUES ('NV001', 'nv1');
 
 -- Thêm báo cáo
-INSERT INTO BaoCao (MaBaoCao, NgayBaoCao, NoiDungBaoCao, MaNV)
-VALUES ('BC001', '2025-04-12', N'Khách hàng không mang hộ chiếu', 'NV001'),
-       ('BC002', '2025-04-14', N'Khách hàng yêu cầu đổi giờ bay', 'NV001');
+INSERT INTO BaoCao
+VALUES ('BC001', '2025-04-12', N'Khách hàng không mang hộ chiếu', 'NV001', N'Đã xử lý'),
+       ('BC002', '2025-04-14', N'Khách hàng yêu cầu đổi giờ bay', 'NV001', N'Chưa xử lý');
 
 -- Thêm chuyến bay
-EXEC sp_ThemChuyenBay 'CB001', 'Chưa khởi hành', '2025-04-15 08:00:00', '2025-04-15 10:30:00', N'Hà Nội', N'Hồ Chí Minh', N'Bay thẳng';
-EXEC sp_ThemChuyenBay 'CB002', 'Chưa khởi hành', '2025-04-16 10:30:00', '2025-04-16 12:15:00', N'Hồ Chí Minh', N'Đà Nẵng', N'Bay thẳng';
+EXEC sp_ThemChuyenBay 'CB001', 'Chưa khởi hành', '2025-04-15 08:00:00', '2025-04-15 10:30:00', N'Hà Nội', N'Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB002', 'Chưa khởi hành', '2025-04-16 10:30:00', '2025-04-16 12:15:00', N'Hồ Chí Minh', N'Đà Nẵng';
 
 -- Thêm ghế
 EXEC sp_ThemGhe '01', 'CB001', 1500000, 'Phổ thông', 'có sẵn';

@@ -509,20 +509,79 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
 app.get('/api/reports', async (req, res) => {
     try {
         console.log('Nhận được yêu cầu GET /api/reports');
+        const { trangThai } = req.query;
         const pool = await connectToDB();
-        const result = await pool.request().query(`
+        
+        let query = `
             SELECT 
                 MaBaoCao as maBaoCao,
                 NgayBaoCao as ngayBaoCao,
                 NoiDungBaoCao as noiDungBaoCao,
-                MaNV as maNV
+                MaNV as maNV,
+                TrangThai as trangThai
             FROM BaoCao
-        `);
+        `;
+        
+        if (trangThai) {
+            query += ' WHERE TrangThai = @trangThai';
+        }
+        
+        const request = pool.request();
+        if (trangThai) {
+            request.input('trangThai', sql.NVarChar, trangThai);
+        }
+        
+        const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách báo cáo:', err);
         res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+// API cập nhật trạng thái báo cáo
+app.put('/api/reports/:maBaoCao/status', async (req, res) => {
+    const { maBaoCao } = req.params;
+    const { trangThai } = req.body;
+    
+    try {
+        console.log('=== Bắt đầu xử lý cập nhật trạng thái báo cáo ===');
+        console.log('Mã báo cáo:', maBaoCao);
+        console.log('Trạng thái mới:', trangThai);
+        
+        const pool = await connectToDB();
+        console.log('Đã kết nối database');
+        
+        // Kiểm tra xem báo cáo có tồn tại không
+        const checkResult = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
+            
+        console.log('Kết quả kiểm tra báo cáo:', checkResult.recordset);
+            
+        if (checkResult.recordset.length === 0) {
+            console.log('Không tìm thấy báo cáo');
+            return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
+        }
+        
+        // Cập nhật trạng thái
+        const updateResult = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .input('trangThai', sql.NVarChar, trangThai)
+            .query(`
+                UPDATE BaoCao
+                SET TrangThai = @trangThai
+                WHERE MaBaoCao = @maBaoCao
+            `);
+            
+        console.log('Kết quả cập nhật:', updateResult);
+        console.log('=== Kết thúc xử lý cập nhật trạng thái báo cáo ===');
+        
+        res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 

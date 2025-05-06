@@ -141,20 +141,42 @@
             <!-- Reports Section -->
             <div id="reports" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Các báo cáo</h2>
-                <table class="w-full border bg-white shadow-md rounded">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-2">Mã báo cáo</th>
-                            <th class="p-2">Người báo cáo</th>
-                            <th class="p-2">Ngày báo cáo</th>
-                            <th class="p-2">Nội dung báo cáo</th>
-                            <th class="p-2">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reportTable">
-                        <!-- Reports will be populated by JS -->
-                    </tbody>
-                </table>
+                <div class="mb-4">
+                    <button onclick="showReportTab('unprocessed')" class="bg-gray-500 text-white px-4 py-2 rounded-l hover:bg-gray-600">Báo cáo chưa xử lý</button>
+                    <button onclick="showReportTab('processed')" class="bg-gray-500 text-white px-4 py-2 rounded-r hover:bg-gray-600">Báo cáo đã xử lý</button>
+                </div>
+                <div id="unprocessedReports" class="report-tab">
+                    <table class="w-full border bg-white shadow-md rounded">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="p-2">Mã báo cáo</th>
+                                <th class="p-2">Người báo cáo</th>
+                                <th class="p-2">Ngày báo cáo</th>
+                                <th class="p-2">Nội dung báo cáo</th>
+                                <th class="p-2">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="unprocessedReportTable">
+                            <!-- Unprocessed reports will be populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="processedReports" class="report-tab hidden">
+                    <table class="w-full border bg-white shadow-md rounded">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="p-2">Mã báo cáo</th>
+                                <th class="p-2">Người báo cáo</th>
+                                <th class="p-2">Ngày báo cáo</th>
+                                <th class="p-2">Nội dung báo cáo</th>
+                                <th class="p-2">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="processedReportTable">
+                            <!-- Processed reports will be populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
     <!-- Modal for Adding/Editing -->
