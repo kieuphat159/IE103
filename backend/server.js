@@ -23,18 +23,11 @@ app.use((err, req, res, next) => {
 
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
-<<<<<<< HEAD
-    user: 'sa',
-    password: '23520989',
-    server: 'localhost',
-    database: 'QLdatve',
-=======
     user: "sa",
     password: DatabasePassword,
     server: "localhost",
     port: 1433,
     database: "QLdatve",
->>>>>>> 541fab0efa6e5c71e140a1b89e62d0c929f5fb2c
     options: {
         encrypt: false,
         trustServerCertificate: true
@@ -764,6 +757,32 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
     } catch (err) {
         console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
+// API lấy danh sách nhân viên kiểm soát
+app.get('/api/control-staff', async (req, res) => {
+    try {
+        console.log('Nhận được yêu cầu GET /api/control-staff');
+        const pool = await connectToDB();
+        const result = await pool.request().query(`
+            SELECT 
+                nv.MaNV as maNV,
+                nd.Ten as ten,
+                nd.TaiKhoan as taiKhoan,
+                nd.Email as email,
+                nd.Sdt as sdt,
+                nd.NgaySinh as ngaySinh,
+                nd.GioiTinh as gioiTinh,
+                nd.SoCCCD as soCCCD
+            FROM NhanVienKiemSoat nv
+            JOIN NguoiDung nd ON nv.TaiKhoan = nd.TaiKhoan
+        `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách nhân viên kiểm soát:', err);
+        res.status(500).json({ error: 'Lỗi server' });
     }
 });
 

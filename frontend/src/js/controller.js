@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function fetchControllers() {
     try {
         console.log('Fetching controllers...');
-        const response = await fetch('http://localhost:3000/api/controllers', {
+        const response = await fetch('http://localhost:3000/api/control-staff', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -51,6 +51,7 @@ async function fetchControllers() {
 
 // Display controllers in the table
 function displayControllers(controllers) {
+    console.log('Displaying controllers:', controllers);
     const table = document.getElementById('controllerTable');
     if (!table) {
         console.error('Controller table element not found');
@@ -67,18 +68,19 @@ function displayControllers(controllers) {
     }
 
     controllers.forEach(controller => {
+        console.log('Processing controller:', controller);
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td class="p-2 border">${controller.MaNV || ''}</td>
-            <td class="p-2 border">${controller.Ten || ''}</td>
-            <td class="p-2 border">${controller.Email || ''}</td>
-            <td class="p-2 border">${controller.Sdt || ''}</td>
-            <td class="p-2 border">${controller.NgaySinh ? new Date(controller.NgaySinh).toLocaleDateString() : ''}</td>
-            <td class="p-2 border">${controller.GioiTinh || ''}</td>
-            <td class="p-2 border">${controller.SoCCCD || ''}</td>
+            <td class="p-2 border">${controller.maNV || ''}</td>
+            <td class="p-2 border">${controller.ten || ''}</td>
+            <td class="p-2 border">${controller.email || ''}</td>
+            <td class="p-2 border">${controller.sdt || ''}</td>
+            <td class="p-2 border">${controller.ngaySinh ? new Date(controller.ngaySinh).toLocaleDateString() : ''}</td>
+            <td class="p-2 border">${controller.gioiTinh || ''}</td>
+            <td class="p-2 border">${controller.soCCCD || ''}</td>
             <td class="p-2 border">
-                <button onclick="editController('${controller.MaNV}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Sửa</button>
-                <button onclick="deleteController('${controller.MaNV}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
+                <button onclick="editController('${controller.maNV}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Sửa</button>
+                <button onclick="deleteController('${controller.maNV}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
             </td>
         `;
         table.appendChild(row);
