@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Load dữ liệu ngay khi trang được tải
-  fetchBookings();
+  // fetchBookings();
   
   // Gọi lại khi nhấn tab "Thông tin đặt vé"
   const bookingTabButton = document.querySelector("button[onclick*='bookings']");
@@ -49,8 +49,10 @@ function renderBookingTable(bookings) {
         <td class="p-2">${b.soGhe}</td>
         <td class="p-2">${b.soTien}</td>
         <td class="p-2">
-          <button onclick="editItem('bookings', '${b.maDatVe}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-          <button onclick="deleteItem('bookings', '${b.maDatVe}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
+          <div class="flex gap-2 max-w-xs">
+            <button onclick="editItem('bookings', '${b.maDatVe}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
+            <button onclick="deleteItem('bookings', '${b.maDatVe}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+          </div>
         </td>
       </tr>
     `;
@@ -72,4 +74,26 @@ function capNhatThongTin() {
 function xoaDatVe() {
   console.log("Xóa thông tin đặt vé");
   // Implementation for deleting booking information
+}
+
+function searchBooking() {
+    const searchInput = document.getElementById('searchBookingInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const tableBody = document.getElementById('bookingTable');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
 }

@@ -7,6 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (flightTabButton) {
       flightTabButton.addEventListener("click", fetchFlights);
     }
+
+    // Add event listener for enter key on search input
+    const searchInput = document.getElementById('searchFlightInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchFlight();
+            }
+        });
+    }
   });
   
   async function fetchFlights() {
@@ -204,4 +214,26 @@ document.addEventListener("DOMContentLoaded", () => {
           alert('Dữ liệu đã được lưu thành công!');
           closeModal();
       }
+  }
+
+  function searchFlight() {
+    const searchInput = document.getElementById('searchFlightInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const tableBody = document.getElementById('flightTable');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
   }

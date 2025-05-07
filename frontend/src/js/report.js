@@ -64,9 +64,11 @@ function renderReportTable(reports, status) {
                 <td class="p-2">${r.noiDungBaoCao}</td>
                 ${status === 'unprocessed' ? `
                     <td class="p-2">
-                        <button onclick="editItem('reports', '${r.maBaoCao}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-                        <button onclick="markAsProcessed('${r.maBaoCao}')" class="bg-green-500 text-white px-2 py-1 rounded mr-1">Đánh dấu đã xử lý</button>
-                        <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
+                        <div class="flex gap-2 max-w-xs">
+                            <button onclick="editItem('reports', '${r.maBaoCao}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
+                            <button onclick="markAsProcessed('${r.maBaoCao}')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Đánh dấu đã xử lý</button>
+                            <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+                        </div>
                     </td>
                 ` : `
                     <td class="p-2">${r.trangThai}</td>
@@ -101,5 +103,41 @@ async function markAsProcessed(maBaoCao) {
     } catch (error) {
         console.error('Lỗi khi cập nhật trạng thái:', error);
         alert(error.message || 'Không thể cập nhật trạng thái báo cáo. Vui lòng thử lại.');
+    }
+}
+
+function searchReport() {
+    const searchInput = document.getElementById('searchReportInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    // Search in both processed and unprocessed tables
+    const unprocessedTableBody = document.getElementById('unprocessedReportTable');
+    const processedTableBody = document.getElementById('processedReportTable');
+    
+    if (unprocessedTableBody) {
+        const unprocessedRows = unprocessedTableBody.getElementsByTagName('tr');
+        searchInTable(unprocessedRows, searchTerm);
+    }
+    
+    if (processedTableBody) {
+        const processedRows = processedTableBody.getElementsByTagName('tr');
+        searchInTable(processedRows, searchTerm);
+    }
+}
+
+function searchInTable(rows, searchTerm) {
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchTerm)) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
     }
 }

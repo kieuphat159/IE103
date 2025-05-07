@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Quản lý</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #4a6987);
+            color: white;
+            padding: 20px 30px;
+            font-size: 26px;
+            font-weight: 600;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .register-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 400px;
+            text-align: center;
+        }
+        .register-container h2 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a6987;
+            box-shadow: 0 0 5px rgba(74, 105, 135, 0.3);
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .password-container input:focus + .toggle-password {
+            display: none;
+        }
+        .register-container button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+        }
+        .register-container button:hover {
+            background: linear-gradient(90deg, #5a6268, #4a6987);
+        }
+        .login-link {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .login-link a {
+            color: #4a6987;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        Airline Management
+    </div>
+    <div class="main-content">
+        <div class="register-container">
+            <h2>ĐĂNG KÝ TÀI KHOẢN</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="ten">Họ và tên</label>
+                    <input type="text" id="ten" name="ten" required>
+                </div>
+                <div class="form-group">
+                    <label for="taiKhoan">Tên đăng nhập</label>
+                    <input type="text" id="taiKhoan" name="taiKhoan" required>
+                </div>
+                <div class="form-group">
+                    <label for="matKhau">Mật khẩu</label>
+                    <div class="password-container">
+                        <input type="password" id="matKhau" name="matKhau" required>
+                        <span class="toggle-password" onclick="togglePassword('matKhau')">Show</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="sdt">Số điện thoại</label>
+                    <input type="tel" id="sdt" name="sdt" required>
+                </div>
+                <div class="form-group">
+                    <label for="ngaySinh">Ngày sinh</label>
+                    <input type="date" id="ngaySinh" name="ngaySinh" required>
+                </div>
+                <div class="form-group">
+                    <label for="gioiTinh">Giới tính</label>
+                    <select id="gioiTinh" name="gioiTinh" required>
+                        <option value="">Chọn giới tính</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="soCCCD">Số CCCD</label>
+                    <input type="text" id="soCCCD" name="soCCCD" required>
+                </div>
+                <div class="form-group">
+                    <label for="passport">Passport (nếu có)</label>
+                    <input type="text" id="passport" name="passport">
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+                <button type="submit">Đăng ký</button>
+            </form>
+            <div class="login-link">
+                Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleText = document.querySelector(`#${inputId} + .toggle-password`);
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleText.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleText.textContent = 'Show';
+            }
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                ten: document.getElementById('ten').value,
+                taiKhoan: document.getElementById('taiKhoan').value,
+                matKhau: document.getElementById('matKhau').value,
+                email: document.getElementById('email').value,
+                sdt: document.getElementById('sdt').value,
+                ngaySinh: document.getElementById('ngaySinh').value,
+                gioiTinh: document.getElementById('gioiTinh').value,
+                soCCCD: document.getElementById('soCCCD').value,
+                passport: document.getElementById('passport').value,
+                maKH: 'KH' + Math.floor(1000 + Math.random() * 9000) // Tạo mã khách hàng ngẫu nhiên
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/customers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Đăng ký thành công!');
+                    window.location.href = 'login.html';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('errorMessage').textContent = error.error || 'Đăng ký thất bại';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Lỗi kết nối server';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html> 

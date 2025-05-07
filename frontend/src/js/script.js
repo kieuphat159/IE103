@@ -306,10 +306,56 @@ async function deleteItem(section, id) {
 }
 }
 
-// search user add enter key
-document.getElementById('searchInput').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        searchUser();
+// Add event listeners for enter key on all search inputs
+document.addEventListener('DOMContentLoaded', () => {
+    // User search
+    const userSearchInput = document.getElementById('searchInput');
+    if (userSearchInput) {
+        userSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchUser();
+            }
+        });
+    }
+
+    // Booking search
+    const bookingSearchInput = document.getElementById('searchBookingInput');
+    if (bookingSearchInput) {
+        bookingSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchBooking();
+            }
+        });
+    }
+
+    // Invoice search
+    const invoiceSearchInput = document.getElementById('searchInvoiceInput');
+    if (invoiceSearchInput) {
+        invoiceSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchInvoice();
+            }
+        });
+    }
+
+    // Seat search
+    const seatSearchInput = document.getElementById('searchSeatInput');
+    if (seatSearchInput) {
+        seatSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchSeat();
+            }
+        });
+    }
+
+    // Report search
+    const reportSearchInput = document.getElementById('searchReportInput');
+    if (reportSearchInput) {
+        reportSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchReport();
+            }
+        });
     }
 });
 
@@ -394,5 +440,24 @@ function searchUser() {
     for (let i = 0; i < cccdRows.length; i++) {
         const cccdCells = cccdRows[i].getElementsByTagName('td');
     }
+}
+
+function logout() {
+    const dialog = document.getElementById('confirmDialog');
+    dialog.classList.remove('hidden');
+}
+
+function closeConfirmDialog() {
+    const dialog = document.getElementById('confirmDialog');
+    dialog.classList.add('hidden');
+}
+
+function confirmLogout() {
+    // Clear any session data if needed
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    
+    // Redirect to login page
+    window.location.href = 'login.html';
 }
 

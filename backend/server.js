@@ -40,6 +40,52 @@ const connectToDB = async () => {
     }
 };
 
+// API đăng nhập
+app.post('/api/login', async (req, res) => {
+    const { taiKhoan, matKhau } = req.body;
+    console.log('Nhận được yêu cầu đăng nhập:', { taiKhoan });
+
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query(`
+                SELECT taiKhoan, matKhau, ten
+                FROM NguoiDung
+                WHERE taiKhoan = @taiKhoan
+            `);
+
+        if (result.recordset.length === 0) {
+            console.log('Tài khoản không tồn tại:', taiKhoan);
+            return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+        }
+
+        const user = result.recordset[0];
+        const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau);
+
+        if (!isPasswordValid) {
+            console.log('Mật khẩu không đúng cho tài khoản:', taiKhoan);
+            return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+        }
+
+        // Kiểm tra nếu là admin
+        const isAdmin = taiKhoan === 'admin';
+        console.log('Đăng nhập thành công:', { taiKhoan, isAdmin });
+        
+        res.json({
+            message: 'Đăng nhập thành công',
+            user: {
+                taiKhoan: user.taiKhoan,
+                ten: user.ten,
+                isAdmin: isAdmin
+            }
+        });
+    } catch (err) {
+        console.error('Lỗi khi đăng nhập:', err);
+        res.status(500).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+    }
+});
+
 // API lấy danh sách khách hàng
 app.get('/api/customers', async (req, res) => {
     try {

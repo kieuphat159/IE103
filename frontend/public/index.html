@@ -18,26 +18,143 @@
                 <li class="menu-item" data-content="booked-tickets">Các chuyến bay</li>
                 <li class="menu-item" data-content="flight-list">Các vé đã đặt</li>
                 <li class="menu-item" data-content="customer-info">Thông Tin</li>
-                </ul>
+                <li class="menu-item" data-content="logout">Đăng xuất</li>
+            </ul>
         </aside>
         <main class="main-content">
             <div class="main-content-header">
                 <h1 class="main-content-title">Quản Lý Khách Hàng</h1>
             </div>
-            <div id="customer-info" class="tab-content">
-
-            </div>
-            <div id="flight-list" class="tab-content">
-                
-            </div>
-            <div id="booked-tickets" class="tab-content">
-            </div>
-            <div style="height: 1000px;"> <p>Nội dung dài để kiểm tra thanh cuộn...</p>
-                <p>...</p>
-                </div>
+            <div id="customer-info" class="tab-content"></div>
+            <div id="flight-list" class="tab-content"></div>
+            <div id="booked-tickets" class="tab-content"></div>
         </main>
     </div>
 
+    <!-- Dialog xác nhận đăng xuất -->
+    <div id="confirmDialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Xác nhận đăng xuất</h3>
+            <p>Bạn có chắc chắn muốn đăng xuất?</p>
+            <div class="modal-buttons">
+                <button onclick="closeConfirmDialog()" class="cancel-btn">Hủy</button>
+                <button onclick="confirmLogout()" class="confirm-btn">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../src/js/index.js"></script>
+    <script>
+        // Hiển thị tên người dùng
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('userName').textContent = `Xin chào, ${user.ten}`;
+            }
+
+            // Xử lý click menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const content = item.getAttribute('data-content');
+                    if (content === 'logout') {
+                        showConfirmDialog();
+                    }
+                });
+            });
+        });
+
+        // Xử lý đăng xuất
+        function showConfirmDialog() {
+            const dialog = document.getElementById('confirmDialog');
+            dialog.style.display = 'flex';
+        }
+
+        function closeConfirmDialog() {
+            const dialog = document.getElementById('confirmDialog');
+            dialog.style.display = 'none';
+        }
+
+        function confirmLogout() {
+            // Xóa thông tin người dùng
+            localStorage.removeItem('user');
+            
+            // Chuyển về trang đăng nhập
+            window.location.href = 'login.html';
+        }
+
+        // Đóng dialog khi click bên ngoài
+        window.onclick = function(event) {
+            const dialog = document.getElementById('confirmDialog');
+            if (event.target === dialog) {
+                dialog.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        /* Styles cho dialog xác nhận đăng xuất */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .cancel-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .confirm-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .confirm-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
 </body>
 </html>

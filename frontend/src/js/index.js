@@ -3,6 +3,125 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContent = document.querySelector('.main-content');
     const mainContentTitle = document.querySelector('.main-content-title');
 
+    // Thêm modal xác nhận đăng xuất vào body
+    const logoutModal = document.createElement('div');
+    logoutModal.id = 'logoutModal';
+    logoutModal.className = 'modal';
+    logoutModal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Xác nhận đăng xuất</h3>
+                <span class="close" onclick="closeLogoutModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn đăng xuất?</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeLogoutModal()" class="cancel-btn">Hủy</button>
+                <button onclick="confirmLogout()" class="confirm-btn">Đăng xuất</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(logoutModal);
+
+    // Thêm CSS cho modal
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+        .close {
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #333;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-body p {
+            margin: 0;
+            color: #666;
+            font-size: 1.1em;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-footer button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .cancel-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+        .confirm-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .confirm-btn:hover {
+            background-color: #c82333;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Hàm hiển thị modal đăng xuất
+    window.showLogoutModal = function() {
+        document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    // Hàm đóng modal đăng xuất
+    window.closeLogoutModal = function() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    // Hàm xác nhận đăng xuất
+    window.confirmLogout = function() {
+        localStorage.removeItem('currentUser');
+        window.location.href = '../public/login.html';
+    }
+
     // hàm lấy khách hàng
     async function fetchCustomerByTaiKhoan(taiKhoan) {
         try {
@@ -144,9 +263,17 @@ document.addEventListener('DOMContentLoaded', function() {
         mainContent.appendChild(table);
     }
 
+    // Hàm xử lý đăng xuất
+    function handleLogout() {
+        showLogoutModal();
+    }
+
     // Hàm để hiển thị nội dung tương ứng
     function showContent(contentId) {
         switch (contentId) {
+            case 'logout':
+                handleLogout();
+                break;
             case 'booked-tickets':
                 fetch('http://localhost:3000/api/flights')
                 .then(res => res.json())
