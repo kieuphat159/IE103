@@ -6,7 +6,162 @@
     <title>Quản Lý Khách Hàng</title>
     <link rel="stylesheet" href="../src/css/customer.css">
     <style>
-        /* ... (CSS cho trang đăng nhập nếu bạn vẫn giữ) ... */
+        /* Styles cho dialog xác nhận đăng xuất */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            position: relative;
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .cancel-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .confirm-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .book-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .confirm-btn:hover {
+            background-color: #218838;
+        }
+
+        .book-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Styles for booking modal */
+        .booking-modal-content {
+            width: 500px;
+        }
+
+        .booking-modal-content select, .booking-modal-content input {
+            width: 100%; /* Đảm bảo tất cả đều bằng nhau và bằng chiều rộng của dropdown */
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Bao gồm padding trong chiều rộng */
+        }
+
+        .booking-modal-content select:focus, .booking-modal-content input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Updated styles for search filters */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-container label {
+            font-weight: bold;
+        }
+
+        .search-container select {
+            padding: 6px;
+            width: 150px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .search-container select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .search-btn {
+            padding: 6px 12px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            background-color: #218838;
+        }
+
+        .search-btn::before {
+            content: '\1F50D';
+            font-size: 16px;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -43,13 +198,37 @@
         </div>
     </div>
 
+    <!-- Dialog đặt vé -->
+    <div id="bookingModal" class="modal" style="display: none;">
+        <div class="modal-content booking-modal-content">
+            <button class="close-btn" onclick="closeBookingModal()">×</button>
+            <h3>Đặt Vé Chuyến Bay</h3>
+            <p id="flightInfo"></p>
+            <label for="seatClass">Chọn hạng:</label>
+            <select id="seatClass" required>
+                <option value="">Chọn hạng</option>
+                <option value="Economy">Economy</option>
+                <option value="Business">Business</option>
+                <option value="First Class">First Class</option>
+            </select>
+            <label for="seatCount">Chọn số ghế:</label>
+            <input type="number" id="seatCount" min="1" value="1" required>
+            <label for="amount">Thành tiền:</label>
+            <input type="number" id="amount" readonly>
+            <div class="modal-buttons">
+                <button onclick="closeBookingModal()" class="cancel-btn">Hủy</button>
+                <button onclick="confirmBooking()" class="confirm-btn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../src/js/index.js"></script>
     <script>
         // Hiển thị tên người dùng
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user'));
             if (user) {
-                document.getElementById('userName').textContent = `Xin chào, ${user.ten}`;
+                document.getElementById('userName')?.textContent = `Xin chào, ${user.ten}`;
             }
 
             // Xử lý click menu item
@@ -75,86 +254,21 @@
         }
 
         function confirmLogout() {
-            // Xóa thông tin người dùng
             localStorage.removeItem('user');
-            
-            // Chuyển về trang đăng nhập
             window.location.href = 'login.html';
         }
 
         // Đóng dialog khi click bên ngoài
         window.onclick = function(event) {
             const dialog = document.getElementById('confirmDialog');
+            const bookingModal = document.getElementById('bookingModal');
             if (event.target === dialog) {
                 dialog.style.display = 'none';
             }
+            if (event.target === bookingModal) {
+                bookingModal.style.display = 'none';
+            }
         }
     </script>
-
-    <style>
-        /* Styles cho dialog xác nhận đăng xuất */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 300px;
-            text-align: center;
-        }
-
-        .modal-content h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .modal-content p {
-            margin-bottom: 20px;
-            color: #666;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .modal-buttons button {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .cancel-btn {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .confirm-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .cancel-btn:hover {
-            background-color: #d0d0d0;
-        }
-
-        .confirm-btn:hover {
-            background-color: #c82333;
-        }
-    </style>
 </body>
 </html>

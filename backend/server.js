@@ -17,7 +17,7 @@ app.use((err, req, res, next) => {
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: 'sa',
-    password: DatabasePassword,
+    password: '23520989',
     server: 'localhost',
     database: 'QLdatve',
     options: {
@@ -128,7 +128,7 @@ app.post('/api/customers', async (req, res) => {
 
         await pool.request()
             .input('maKH', sql.VarChar, maKH)
-            .input('passport', sql.VarChar, passport)
+            .input('passport' | sql.VarChar, passport)
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query(`
                 INSERT INTO KhachHang (maKH, passport, taiKhoan)
@@ -442,6 +442,30 @@ app.get('/api/bookings', async (req, res) => {
     } catch (err) {
         console.error('Lỗi khi lấy danh sách thông tin đặt vé:', err);
         res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+// API tạo thông tin đặt vé
+app.post('/api/bookings', async (req, res) => {
+    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH } = req.body;
+
+    try {
+        const pool = await connectToDB();
+        await pool.request()
+            .input('MaDatVe', sql.VarChar, MaDatVe)
+            .input('NgayDatVe', sql.Date, NgayDatVe)
+            .input('NgayBay', sql.Date, NgayBay)
+            .input('TrangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
+            .input('SoGhe', sql.VarChar, SoGhe)
+            .input('SoTien', sql.Decimal(18, 2), SoTien)
+            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('MaKH', sql.VarChar, MaKH)
+            .execute('sp_ThemDatVe');
+
+        res.status(201).json({ message: 'Đặt vé thành công' });
+    } catch (err) {
+        console.error('Lỗi khi đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi khi đặt vé: ' + err.message });
     }
 });
 
