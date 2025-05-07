@@ -83,6 +83,9 @@
             color: #6c757d;
             font-weight: 500;
         }
+        .password-container input:focus + .toggle-password {
+            display: none;
+        }
         .forgot-password {
             margin-top: 15px;
             font-size: 12px;
@@ -168,13 +171,19 @@
     <div class="main-content">
         <div class="login-container">
             <h2>ĐĂNG NHẬP</h2>
-            <input type="text" placeholder="Tên đăng nhập" required>
-            <div class="password-container">
-                <input type="password" id="password" placeholder="Mật khẩu" required>
-                <span class="toggle-password" onclick="togglePassword()">Show</span>
-            </div>
-            <button>Đăng nhập</button>
+            <form id="loginForm">
+                <input type="text" id="taiKhoan" placeholder="Tên đăng nhập" required>
+                <div class="password-container">
+                    <input type="password" id="matKhau" placeholder="Mật khẩu" required>
+                    <span class="toggle-password" onclick="togglePassword()">Show</span>
+                </div>
+                <div class="error-message" id="errorMessage" style="color: #dc3545; font-size: 14px; margin-top: 5px; display: none;"></div>
+                <button type="submit">Đăng nhập</button>
+            </form>
             <div class="forgot-password" onclick="openModal()">Quên mật khẩu?</div>
+            <div class="login-link" style="margin-top: 15px; font-size: 12px; color: #6c757d;">
+                Chưa có tài khoản? <a href="register.html" style="color: #4a6987; text-decoration: none; font-weight: 500;">Đăng ký</a>
+            </div>
         </div>
     </div>
 
@@ -190,7 +199,7 @@
 
     <script>
         function togglePassword() {
-            const passwordInput = document.getElementById('password');
+            const passwordInput = document.getElementById('matKhau');
             const toggleText = document.querySelector('.toggle-password');
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
@@ -216,6 +225,45 @@
                 modal.style.display = 'none';
             }
         }
+
+        // Xử lý đăng nhập
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const taiKhoan = document.getElementById('taiKhoan').value;
+            const matKhau = document.getElementById('matKhau').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ taiKhoan, matKhau })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Lưu thông tin người dùng vào localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Chuyển hướng dựa vào vai trò
+                    if (data.user.isAdmin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Lỗi kết nối server';
+                errorMessage.style.display = 'block';
+            }
+        });
     </script>
 </body>
 </html>

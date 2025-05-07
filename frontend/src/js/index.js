@@ -14,13 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return null;
         }
     }
+
     // Dữ liệu chuyến bay mẫu
-    const flightData = [
-    ];
+    const flightData = [];
 
     // Dữ liệu vé đã đặt mẫu
-    const bookedTicketsData = [
-    ];
+    const bookedTicketsData = [];
 
     // Hàm để lọc dữ liệu chuyến bay
     function filterFlights(searchTerm) {
@@ -43,14 +42,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hàm để hiển thị bảng dữ liệu
     function displayTable(dataArray, columns, titleText, showSearch = false) {
-        mainContent.innerHTML = '';
+        const tabContent = document.getElementById(titleText.toLowerCase().replace(/\s+/g, '-'));
+        if (!tabContent) return;
+        
+        tabContent.innerHTML = '';
 
         const headerDiv = document.createElement('div');
         headerDiv.classList.add('main-content-header');
         const infoText = document.createElement('p');
         infoText.textContent = titleText;
         headerDiv.appendChild(infoText);
-        mainContent.appendChild(headerDiv);
+        tabContent.appendChild(headerDiv);
 
         if (showSearch) {
             const searchContainer = document.createElement('div');
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             searchInput.addEventListener('input', handleSearchInput);
             searchContainer.appendChild(searchInputLabel);
             searchContainer.appendChild(searchInput);
-            mainContent.appendChild(searchContainer);
+            tabContent.appendChild(searchContainer);
         }
 
         const table = document.createElement('table');
@@ -80,12 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
         table.appendChild(thead);
         table.appendChild(tbody);
 
-        mainContent.appendChild(table);
+        tabContent.appendChild(table);
 
         if (!dataArray || dataArray.length === 0) {
             const noDataMessage = document.createElement('p');
             noDataMessage.textContent = 'Không có dữ liệu.';
-            mainContent.appendChild(noDataMessage);
+            tabContent.appendChild(noDataMessage);
         } else {
             dataArray.forEach(item => {
                 const row = document.createElement('tr');
@@ -101,14 +103,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hàm để hiển thị dữ liệu dạng bảng đứng
     function displayVerticalTable(data) {
-        mainContent.innerHTML = '';
+        const tabContent = document.getElementById('customer-info');
+        if (!tabContent) return;
+        
+        tabContent.innerHTML = '';
 
         const headerDiv = document.createElement('div');
         headerDiv.classList.add('main-content-header');
         const infoText = document.createElement('p');
         infoText.textContent = 'Thông tin khách hàng';
         headerDiv.appendChild(infoText);
-        mainContent.appendChild(headerDiv);
+        tabContent.appendChild(headerDiv);
 
         const table = document.createElement('table');
         table.classList.add('vertical-table');
@@ -118,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!data || Object.keys(data).length === 0) {
             const noDataMessage = document.createElement('p');
             noDataMessage.textContent = 'Không có dữ liệu khách hàng.';
-            mainContent.appendChild(noDataMessage);
+            tabContent.appendChild(noDataMessage);
 
             headers.forEach(header => {
                 const row = document.createElement('tr');
@@ -141,17 +146,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 table.appendChild(row);
             });
         }
-        mainContent.appendChild(table);
+        tabContent.appendChild(table);
     }
 
     // Hàm để hiển thị nội dung tương ứng
     function showContent(contentId) {
+        // Ẩn tất cả các tab content
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+
         switch (contentId) {
             case 'booked-tickets':
+                mainContentTitle.textContent = 'Danh Sách Các chuyến bay';
                 fetch('http://localhost:3000/api/flights')
                 .then(res => res.json())
                 .then(data => {
-                    flightData.length = 0; // Clear cũ
+                    flightData.length = 0;
                     data.forEach(f => {
                         flightData.push({
                             'Mã chuyến bay ': f.maChuyenBay,
@@ -159,69 +170,91 @@ document.addEventListener('DOMContentLoaded', function() {
                             'Điểm khởi hành': f.diaDiemDau,
                             'Điểm đến': f.diaDiemCuoi,
                             'Trạng thái': f.tinhTrangChuyenBay,
-                            'Số chỗ còn trống': 'N/A' // Nếu chưa xử lý số ghế trống
+                            'Số chỗ còn trống': 'N/A'
                         });
                     });
-        
                     displayTable(flightData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống'], 'Danh Sách Các chuyến bay', true);
                 })
                 .catch(err => {
                     console.error('Lỗi gọi API /flights:', err);
-                    mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách chuyến bay</p>';
+                    const tabContent = document.getElementById('booked-tickets');
+                    if (tabContent) {
+                        tabContent.innerHTML = '<p style="color:red">Không thể tải danh sách chuyến bay</p>';
+                    }
                 });
                 break;
-                case 'flight-list':
-                    mainContentTitle.textContent = 'Vé đã đặt';
-                    const currentUsername = localStorage.getItem('currentUser') || "user1";
-                    fetch(`http://localhost:3000/api/bookings?username=${currentUsername}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log("Dữ liệu từ API /bookings:", data);
-                            bookedTicketsData.length = 0;
-                
-                            data.forEach(v => {
-                                bookedTicketsData.push({
-                                    'Mã khách hàng': v.maKH ?? 'Không có',
-                                    'Mã vé': v.maDatVe ?? 'Không rõ',
-                                    'Mã chuyến bay': v.maChuyenBay ?? 'Không có',
-                                    'Ngày mua': v.ngayDatVe ? new Date(v.ngayDatVe).toLocaleDateString() : 'Không rõ',
-                                    'Số ghế': v.soGhe ?? '?',
-                                    'Hạng ghế': 'N/A',
-                                    'Tình trạng vé': v.trangThaiThanhToan ?? 'Không rõ'
-                                });
+
+            case 'flight-list':
+                mainContentTitle.textContent = 'Vé đã đặt';
+                fetch(`http://localhost:3000/api/bookings?username=user1`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Dữ liệu từ API /bookings:", data);
+                        bookedTicketsData.length = 0;
+                        data.forEach(v => {
+                            bookedTicketsData.push({
+                                'Mã khách hàng': v.maKH ?? 'Không có',
+                                'Mã vé': v.maDatVe ?? 'Không rõ',
+                                'Mã chuyến bay': v.maChuyenBay ?? 'Không có',
+                                'Ngày mua': v.ngayDatVe ? new Date(v.ngayDatVe).toLocaleDateString() : 'Không rõ',
+                                'Số ghế': v.soGhe ?? '?',
+                                'Hạng ghế': 'N/A',
+                                'Tình trạng vé': v.trangThaiThanhToan ?? 'Không rõ'
                             });
-                
-                            displayTable(
-                                bookedTicketsData,
-                                ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'],
-                                'Danh sách vé đã đặt'
-                            );
-                        })
-                        .catch(err => {
-                            console.error('Lỗi API /bookings:', err);
-                            mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách vé đã đặt</p>';
                         });
-                    break;
-                
-                
-                    case 'customer-info':
-                        mainContentTitle.textContent = 'Thông tin khách hàng';
-                        fetchCustomerByTaiKhoan("user1")  // ← dùng tài khoản đang đăng nhập thật
-                            .then(data => {
-                                displayVerticalTable({
-                                    'Mã KH': data?.MaKH || '',
-                                    'Tên': data?.Ten || '',
-                                    'Email': data?.Email || '',
-                                    'Số Điện Thoại': data?.Sdt || '',
-                                    'Địa Chỉ': '',  // chưa có cột này, có thể thêm nếu muốn
-                                    'Passport': data?.Passport || ''
-                                });
-                            });
-                        break;
+                        displayTable(bookedTicketsData, ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'], 'Danh sách vé đã đặt');
+                    })
+                    .catch(err => {
+                        console.error('Lỗi API /bookings:', err);
+                        const tabContent = document.getElementById('flight-list');
+                        if (tabContent) {
+                            tabContent.innerHTML = '<p style="color:red">Không thể tải danh sách vé đã đặt</p>';
+                        }
+                    });
+                break;
+
+            case 'customer-info':
+                mainContentTitle.textContent = 'Thông tin khách hàng';
+                fetchCustomerByTaiKhoan("user1")
+                    .then(data => {
+                        if (!data) {
+                            const tabContent = document.getElementById('customer-info');
+                            if (tabContent) {
+                                tabContent.innerHTML = '<p style="color:red">Không thể tải thông tin khách hàng</p>';
+                            }
+                            return;
+                        }
+                        displayVerticalTable({
+                            'Mã KH': data.MaKH || '',
+                            'Tên': data.Ten || '',
+                            'Email': data.Email || '',
+                            'Số Điện Thoại': data.Sdt || '',
+                            'Địa Chỉ': data.DiaChi || '',
+                            'Passport': data.Passport || ''
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Lỗi khi lấy thông tin khách hàng:', err);
+                        const tabContent = document.getElementById('customer-info');
+                        if (tabContent) {
+                            tabContent.innerHTML = '<p style="color:red">Không thể tải thông tin khách hàng</p>';
+                        }
+                    });
+                break;
+
             default:
                 mainContentTitle.textContent = 'Chào mừng';
-                mainContent.innerHTML = '<div class="main-content-header"><p>Chào mừng!</p></div>';
+                const welcomeContent = document.createElement('div');
+                welcomeContent.classList.add('main-content-header');
+                //welcomeContent.innerHTML = '<p>Chào mừng!</p>';
+                mainContent.appendChild(welcomeContent);
                 break;
+        }
+
+        // Hiển thị tab content được chọn
+        const selectedTab = document.getElementById(contentId);
+        if (selectedTab) {
+            selectedTab.style.display = 'block';
         }
     }
 
@@ -229,6 +262,13 @@ document.addEventListener('DOMContentLoaded', function() {
     menuItems.forEach(item => {
         item.addEventListener('click', function() {
             const contentId = this.getAttribute('data-content');
+            
+            // Xử lý đăng xuất
+            if (contentId === 'logout') {
+                showConfirmDialog();
+                return;
+            }
+
             showContent(contentId);
         });
     });
@@ -236,3 +276,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hiển thị trang chào mừng khi tải trang
     showContent('');
 });
+
+// Xử lý đăng xuất
+function showConfirmDialog() {
+    const dialog = document.getElementById('confirmDialog');
+    dialog.style.display = 'flex';
+}
+
+function closeConfirmDialog() {
+    const dialog = document.getElementById('confirmDialog');
+    dialog.style.display = 'none';
+}
+
+function confirmLogout() {
+    // Xóa thông tin người dùng
+    localStorage.removeItem('user');
+    
+    // Chuyển về trang đăng nhập
+    window.location.href = 'login.html';
+}
+
+// Đóng dialog khi click bên ngoài
+window.onclick = function(event) {
+    const dialog = document.getElementById('confirmDialog');
+    if (event.target === dialog) {
+        dialog.style.display = 'none';
+    }
+}
