@@ -77,9 +77,71 @@ document.addEventListener("DOMContentLoaded", () => {
       fetchSeats();
   }
   
+  // Hàm mở modal thêm/sửa chuyến bay
+  function openFlightModal(mode, flight = null) {
+      const modal = document.getElementById('modal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+
+      modalTitle.textContent = mode === 'add' ? 'Thêm chuyến bay' : 'Sửa chuyến bay';
+      
+      modalContent.innerHTML = `
+          <form id="flightForm" class="space-y-4">
+              <div>
+                  <label class="block text-sm font-medium text-gray-700">Mã chuyến bay</label>
+                  <input type="text" id="flightMaChuyenBay" name="maChuyenBay" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                      value="${flight ? flight.maChuyenBay : ''}" ${mode === 'edit' ? 'readonly' : ''}>
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-gray-700">Tình trạng chuyến bay</label>
+                  <select id="flightTinhTrangChuyenBay" name="tinhTrangChuyenBay" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
+                      <option value="Chưa khởi hành" ${flight && flight.tinhTrangChuyenBay === 'Chưa khởi hành' ? 'selected' : ''}>Chưa khởi hành</option>
+                      <option value="Đang bay" ${flight && flight.tinhTrangChuyenBay === 'Đang bay' ? 'selected' : ''}>Đang bay</option>
+                      <option value="Đã hoàn thành" ${flight && flight.tinhTrangChuyenBay === 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
+                      <option value="Đã hủy" ${flight && flight.tinhTrangChuyenBay === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                  </select>
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-gray-700">Giờ bay</label>
+                  <input type="datetime-local" id="flightGioBay" name="gioBay" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                      value="${flight ? new Date(flight.gioBay).toISOString().slice(0, 16) : ''}">
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-gray-700">Giờ đến</label>
+                  <input type="datetime-local" id="flightGioDen" name="gioDen" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                      value="${flight ? new Date(flight.gioDen).toISOString().slice(0, 16) : ''}">
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-gray-700">Địa điểm đầu</label>
+                  <input type="text" id="flightDiaDiemDau" name="diaDiemDau" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                      value="${flight ? flight.diaDiemDau : ''}" placeholder="VD: Hà Nội">
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-gray-700">Địa điểm cuối</label>
+                  <input type="text" id="flightDiaDiemCuoi" name="diaDiemCuoi" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                      value="${flight ? flight.diaDiemCuoi : ''}" placeholder="VD: TP.HCM">
+              </div>
+          </form>
+      `;
+
+      modal.classList.remove('hidden');
+      window.currentMode = mode;
+      window.currentFlight = flight;
+
+      if (mode === 'add') {
+          generateNewFlightCode();
+      }
+  }
+  
   // Hàm tạo mã chuyến bay ngẫu nhiên
   function generateMaChuyenBay() {
-    const randomNum = Math.floor(100 + Math.random() * 900); // Số ngẫu nhiên 3 chữ số
+    const randomNum = Math.floor(100 + Math.random() * 900);
     return `CB${randomNum}`;
   }
   

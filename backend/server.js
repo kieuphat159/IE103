@@ -5,7 +5,14 @@ const cors = require('cors');
 const DatabasePassword = 'Thnguyen_123';
 
 const app = express();
-app.use(cors());
+
+// Configure CORS
+app.use(cors({
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Accept']
+}));
+
 app.use(express.json());
 
 // Middleware để đảm bảo phản hồi luôn là JSON
@@ -16,10 +23,18 @@ app.use((err, req, res, next) => {
 
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
+<<<<<<< HEAD
     user: 'sa',
     password: '23520989',
     server: 'localhost',
     database: 'QLdatve',
+=======
+    user: "sa",
+    password: DatabasePassword,
+    server: "localhost",
+    port: 1433,
+    database: "QLdatve",
+>>>>>>> 541fab0efa6e5c71e140a1b89e62d0c929f5fb2c
     options: {
         encrypt: false,
         trustServerCertificate: true
@@ -69,14 +84,26 @@ app.post('/api/login', async (req, res) => {
 
         // Kiểm tra nếu là admin
         const isAdmin = taiKhoan === 'admin';
-        console.log('Đăng nhập thành công:', { taiKhoan, isAdmin });
+
+        // Kiểm tra nếu là nhân viên kiểm soát
+        const controllerResult = await pool.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query(`
+                SELECT TaiKhoan
+                FROM NhanVienKiemSoat
+                WHERE TaiKhoan = @taiKhoan
+            `);
+        const isController = controllerResult.recordset.length > 0;
+
+        console.log('Đăng nhập thành công:', { taiKhoan, isAdmin, isController });
         
         res.json({
             message: 'Đăng nhập thành công',
             user: {
                 taiKhoan: user.taiKhoan,
                 ten: user.ten,
-                isAdmin: isAdmin
+                isAdmin: isAdmin,
+                isController: isController
             }
         });
     } catch (err) {
@@ -587,8 +614,7 @@ app.get('/api/reports', async (req, res) => {
                 MaBaoCao as maBaoCao,
                 NgayBaoCao as ngayBaoCao,
                 NoiDungBaoCao as noiDungBaoCao,
-                MaNV as maNV,
-                TrangThai as trangThai
+                MaNV as maNV
             FROM BaoCao
         `;
         
@@ -606,6 +632,92 @@ app.get('/api/reports', async (req, res) => {
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+//API lấy báo cáo của controller
+app.get('/api/reports/full', async (req, res) => {
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request().query(`
+            SELECT 
+                MaBaoCao AS maBaoCao,
+                NgayBaoCao AS ngayBaoCao,
+                NoiDungBaoCao AS noiDungBaoCao,
+                MaNV AS maNV,
+                TrangThai AS trangThai
+            FROM BaoCao
+        `);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách báo cáo đầy đủ:', err);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+// API tạo mã báo cáo
+app.get('/api/reports/generate-code', async (req, res) => {
+    try {
+        console.log('Đang tạo mã chuyến bay mới...');
+        const pool = await connectToDB();
+        console.log('Đã kết nối database');
+        
+        // Lấy danh sách mã chuyến bay hiện có
+        const result = await pool.request().query('SELECT MaBaoCao FROM BaoCao');
+        console.log('Đã lấy danh sách mã bao cao hiện có');
+        const existingCodes = result.recordset.map(row => row.maBaoCao);
+        
+        // Tạo mã mới cho đến khi tìm được mã không trùng
+        let newCode;
+        let isUnique = false;
+        let attempts = 0;
+        const maxAttempts = 100; // Giới hạn số lần thử để tránh vòng lặp vô hạn
+        
+        while (!isUnique && attempts < maxAttempts) {
+            // Tạo mã ngẫu nhiên dạng CBxxx (xxx là số từ 100-999)
+            const randomNum = Math.floor(100 + Math.random() * 900);
+            newCode = `CB${randomNum}`;
+            
+            // Kiểm tra xem mã đã tồn tại chưa
+            if (!existingCodes.includes(newCode)) {
+                isUnique = true;
+                console.log('Đã tìm thấy mã bao mới:', newCode);
+            }
+            attempts++;
+        }
+        
+        if (!isUnique) {
+            console.error('Không thể tạo mã chuyến bay mới sau', maxAttempts, 'lần thử');
+            throw new Error('Không thể tạo mã chuyến bay mới');
+        }
+        
+        res.json({ maBaoCao: newCode });
+    } catch (err) {
+        console.error('Lỗi khi tạo mã chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi khi tạo mã chuyến bay: ' + err.message });
+    }
+});
+//
+app.post('/api/reports', async (req, res) => {
+    const { maBaoCao, maNV, ngayBaoCao, noiDungBaoCao, trangThai } = req.body;
+
+    try {
+        const pool = await connectToDB();
+        await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .input('maNV', sql.VarChar, maNV)
+            .input('ngayBaoCao', sql.DateTime, ngayBaoCao)
+            .input('noiDungBaoCao', sql.NVarChar, noiDungBaoCao)
+            .input('trangThai', sql.NVarChar, trangThai || 'Chưa xử lý')
+            .query(`
+                INSERT INTO BaoCao (MaBaoCao, MaNV, NgayBaoCao, NoiDungBaoCao, TrangThai)
+                VALUES (@maBaoCao, @maNV, @ngayBaoCao, @noiDungBaoCao, @trangThai)
+            `);
+
+        res.status(201).json({ message: 'Thêm báo cáo thành công' });
+    } catch (err) {
+        console.error('Lỗi khi thêm báo cáo:', err);
         res.status(500).json({ error: 'Lỗi server' });
     }
 });

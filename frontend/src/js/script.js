@@ -107,13 +107,16 @@ function openModal(modalType) {
     } else if (modalType === 'reportModal') {
         modalTitle.textContent = 'Thêm báo cáo';
         modalContent.innerHTML = `
-            <label class="block mb-2">Mã báo cáo</label>
-            <input id="reportMaBaoCao" type="text" class="w-full p-2 border rounded mb-4">
+            <input id="generatedMaBaoCao" type="hidden"> <!-- giữ mã tạo ra -->
+            <label class="block mb-2">Mã nhân viên</label>
+            <input id="reportMaNV" type="text" class="w-full p-2 border rounded mb-4">
             <label class="block mb-2">Ngày báo cáo</label>
             <input id="reportNgayBaoCao" type="date" class="w-full p-2 border rounded mb-4">
             <label class="block mb-2">Nội dung báo cáo</label>
             <textarea id="reportNoiDung" class="w-full p-2 border rounded mb-4" rows="5"></textarea>
         `;
+        generateNewReportCode();
+        currentSection = 'reports';
     }
 }
 
