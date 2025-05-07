@@ -5,7 +5,14 @@ const cors = require('cors');
 const DatabasePassword = 'Thnguyen_123';
 
 const app = express();
-app.use(cors());
+
+// Configure CORS
+app.use(cors({
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Accept']
+}));
+
 app.use(express.json());
 
 // Middleware để đảm bảo phản hồi luôn là JSON
@@ -17,7 +24,7 @@ app.use((err, req, res, next) => {
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Vtn.2432005",
+    password: DatabasePassword,
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -39,6 +46,64 @@ const connectToDB = async () => {
         throw err;
     }
 };
+
+// API đăng nhập
+app.post('/api/login', async (req, res) => {
+    const { taiKhoan, matKhau } = req.body;
+    console.log('Nhận được yêu cầu đăng nhập:', { taiKhoan });
+
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query(`
+                SELECT taiKhoan, matKhau, ten
+                FROM NguoiDung
+                WHERE taiKhoan = @taiKhoan
+            `);
+
+        if (result.recordset.length === 0) {
+            console.log('Tài khoản không tồn tại:', taiKhoan);
+            return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+        }
+
+        const user = result.recordset[0];
+        const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau);
+
+        if (!isPasswordValid) {
+            console.log('Mật khẩu không đúng cho tài khoản:', taiKhoan);
+            return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+        }
+
+        // Kiểm tra nếu là admin
+        const isAdmin = taiKhoan === 'admin';
+
+        // Kiểm tra nếu là nhân viên kiểm soát
+        const controllerResult = await pool.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query(`
+                SELECT TaiKhoan
+                FROM NhanVienKiemSoat
+                WHERE TaiKhoan = @taiKhoan
+            `);
+        const isController = controllerResult.recordset.length > 0;
+
+        console.log('Đăng nhập thành công:', { taiKhoan, isAdmin, isController });
+        
+        res.json({
+            message: 'Đăng nhập thành công',
+            user: {
+                taiKhoan: user.taiKhoan,
+                ten: user.ten,
+                isAdmin: isAdmin,
+                isController: isController
+            }
+        });
+    } catch (err) {
+        console.error('Lỗi khi đăng nhập:', err);
+        res.status(500).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+    }
+});
 
 // API lấy danh sách khách hàng
 app.get('/api/customers', async (req, res) => {
@@ -625,7 +690,6 @@ app.post('/api/reports', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
-
 
 // API cập nhật trạng thái báo cáo
 app.put('/api/reports/:maBaoCao/status', async (req, res) => {
