@@ -106,18 +106,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const tabContent = document.getElementById('customer-info');
         if (!tabContent) return;
         
-        tabContent.innerHTML = '';
-
-        const headerDiv = document.createElement('div');
-        headerDiv.classList.add('main-content-header');
-        const infoText = document.createElement('p');
-        infoText.textContent = 'Thông tin khách hàng';
-        headerDiv.appendChild(infoText);
-        tabContent.appendChild(headerDiv);
 
         const table = document.createElement('table');
         table.classList.add('vertical-table');
-
         const headers = ['Mã KH', 'Tên', 'Email', 'Số Điện Thoại', 'Địa Chỉ', 'Passport'];
 
         if (!data || Object.keys(data).length === 0) {
