@@ -114,9 +114,9 @@ function openModal(modalType) {
             <input id="reportNgayBaoCao" type="date" class="w-full p-2 border rounded mb-4">
             <label class="block mb-2">Nội dung báo cáo</label>
             <textarea id="reportNoiDung" class="w-full p-2 border rounded mb-4" rows="5"></textarea>
-
         `;
         generateNewReportCode();
+        currentSection = 'reports';
     }
 }
 
