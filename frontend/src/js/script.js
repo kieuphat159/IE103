@@ -7,7 +7,7 @@ function showSection(sectionId) {
     populateTable(sectionId);
 }
 
-function openModal(modalType) {
+function openModal(modalType, data = null) {
     const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modalTitle');
     const modalContent = document.getElementById('modalContent');
@@ -74,26 +74,56 @@ function openModal(modalType) {
             <input id="invoiceNgayThanhToan" type="date" class="w-full p-2 border rounded mb-4">
         `;
     } else if (modalType === 'flightModal') {
-        modalTitle.textContent = 'Thêm chuyến bay';
+        modalTitle.textContent = data ? 'Sửa chuyến bay' : 'Thêm chuyến bay';
+        currentSection = 'flights';
         modalContent.innerHTML = `
-            <input id="flightMaChuyenBay" type="hidden">
-            <label class="block mb-2">Tình trạng chuyến bay</label>
-            <select id="flightTinhTrangChuyenBay" class="w-full p-2 border rounded mb-4">
-                <option value="Chưa khởi hành">Chưa khởi hành</option>
-                <option value="Đang bay">Đang bay</option>
-                <option value="Đã hoàn thành">Đã hoàn thành</option>
-                <option value="Đã hủy">Đã hủy</option>
-            </select>
-            <label class="block mb-2">Giờ bay</label>
-            <input id="flightGioBay" type="datetime-local" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Giờ đến</label>
-            <input id="flightGioDen" type="datetime-local" class="w-full p-2 border rounded mb-4">
-            <label class="block mb-2">Địa điểm đầu</label>
-            <input id="flightDiaDiemDau" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: Hà Nội">
-            <label class="block mb-2">Địa điểm cuối</label>
-            <input id="flightDiaDiemCuoi" type="text" class="w-full p-2 border rounded mb-4" placeholder="VD: TP.HCM">
+            <form id="flightForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Mã chuyến bay</label>
+                    <input type="text" id="flightMaChuyenBay" name="maChuyenBay" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                        value="${data ? data.maChuyenBay : ''}" ${data ? 'readonly' : ''}>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tình trạng chuyến bay</label>
+                    <select id="flightTinhTrangChuyenBay" name="tinhTrangChuyenBay" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
+                        <option value="Chưa khởi hành" ${data && data.tinhTrangChuyenBay === 'Chưa khởi hành' ? 'selected' : ''}>Chưa khởi hành</option>
+                        <option value="Đang bay" ${data && data.tinhTrangChuyenBay === 'Đang bay' ? 'selected' : ''}>Đang bay</option>
+                        <option value="Đã hoàn thành" ${data && data.tinhTrangChuyenBay === 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
+                        <option value="Đã hủy" ${data && data.tinhTrangChuyenBay === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Giờ bay</label>
+                    <input type="datetime-local" id="flightGioBay" name="gioBay" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                        value="${data ? new Date(data.gioBay).toISOString().slice(0, 16) : ''}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Giờ đến</label>
+                    <input type="datetime-local" id="flightGioDen" name="gioDen" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                        value="${data ? new Date(data.gioDen).toISOString().slice(0, 16) : ''}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Địa điểm đầu</label>
+                    <input type="text" id="flightDiaDiemDau" name="diaDiemDau" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                        value="${data ? data.diaDiemDau : ''}" placeholder="VD: Hà Nội">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Địa điểm cuối</label>
+                    <input type="text" id="flightDiaDiemCuoi" name="diaDiemCuoi" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                        value="${data ? data.diaDiemCuoi : ''}" placeholder="VD: TP.HCM">
+                </div>
+            </form>
         `;
-        generateNewFlightCode();
+
+        if (!data) {
+            generateNewFlightCode();
+        }
     } else if (modalType === 'seatModal') {
         modalTitle.textContent = 'Thêm vị trí ghế';
         modalContent.innerHTML = `
@@ -127,6 +157,8 @@ function closeModal() {
 function saveData() {
     if (currentSection === 'users') {
         saveCustomerData();
+    } else if (currentSection === 'flights') {
+        saveFlightData();
     } else {
         alert('Dữ liệu đã được lưu thành công!');
         closeModal();
@@ -164,28 +196,6 @@ function populateTable(sectionId) {
     }
 }
 
-function populateUserTable(tableBody) {
-    userData.forEach(user => {
-        const row = document.createElement('tr');
-        row.classList.add('hover:bg-gray-100');
-        row.innerHTML = `
-            <td class="p-2">${user.maKH}</td>
-            <td class="p-2">${user.ten}</td>
-            <td class="p-2">${user.taiKhoan}</td>
-            <td class="p-2">${user.matKhau}</td>
-            <td class="p-2">${user.email}</td>
-            <td class="p-2">${user.sdt}</td>
-            <td class="p-2">${user.ngaySinh}</td>
-            <td class="p-2">${user.gioiTinh}</td>
-            <td class="p-2">${user.cccd}</td>
-            <td class="p-2">
-                <button onclick="editItem('users', '${user.maKH}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-1">Sửa</button>
-                <button onclick="deleteItem('users', '${user.maKH}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
 
 function populateBookingTable(tableBody) {
     bookingData.forEach(booking => {
@@ -262,14 +272,29 @@ function populateReportTable(tableBody) {
     });
 }
 
-function editItem(section, id) {
-    alert(`Đang chỉnh sửa ${section} với ID: ${id}`);
-    // Implementation for editing items would go here
-    // This would typically involve opening the modal and populating it with data
+
+
+async function editItem(section, id) {
+    if (section === 'flights') {
+        try {
+            const response = await fetch(`http://localhost:3000/api/flights/${id}`);
+            if (!response.ok) {
+                throw new Error('Không thể lấy thông tin chuyến bay');
+            }
+            const flightData = await response.json();
+            openModal('flightModal', flightData);
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Không thể lấy thông tin chuyến bay để sửa');
+        }
+    } else {
+        alert(`Đang chỉnh sửa ${section} với ID: ${id}`);
+    }
 }
 
 async function deleteItem(section, id) {
     if (section === 'users') {
+        alert(`Đang xóa khách hàng với ID: ${id}`);
         if (confirm(`Bạn có chắc chắn muốn xóa khách hàng với ID: ${id}?`)) {
             try {
                 // Gửi yêu cầu DELETE tới API

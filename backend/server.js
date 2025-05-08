@@ -290,6 +290,34 @@ app.get('/api/flights', async (req, res) => {
     }
 });
 
+// API lấy thông tin chuyến bay theo maChuyenBay
+app.get('/api/flights/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query(`
+                SELECT 
+                    MaChuyenBay AS maChuyenBay,
+                    TinhTrangChuyenBay AS tinhTrangChuyenBay,
+                    FORMAT(GioBay, 'yyyy-MM-ddTHH:mm:ssZ') AS gioBay,
+                    FORMAT(GioDen, 'yyyy-MM-ddTHH:mm:ssZ') AS gioDen,
+                    DiaDiemDau AS diaDiemDau,
+                    DiaDiemCuoi AS diaDiemCuoi
+                FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay
+            `);
+        if (result.recordset.length === 0) {
+            console.log(`Không tìm thấy chuyến bay với mã: ${maChuyenBay}`);
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+        console.log('Dữ liệu trả về:', result.recordset[0]);
+        res.json(result.recordset[0]);
+    } catch (err) {
+        console.error('Lỗi khi lấy thông tin chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
 // API thêm chuyến bay mới
 app.post('/api/flights', async (req, res) => {
     console.log('Nhận được yêu cầu POST /api/flights với dữ liệu:', req.body);
@@ -317,6 +345,38 @@ app.post('/api/flights', async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi thêm chuyến bay: ' + err.message });
     }
 });
+
+// API sửa chuyến bay
+app.put('/api/flights/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    const { tinhTrangChuyenBay, gioBay, gioDen, diaDiemDau, diaDiemCuoi } = req.body;
+
+    try {
+        const pool = await connectToDB();
+        await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .input('tinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
+            .input('gioBay', sql.DateTime, gioBay)
+            .input('gioDen', sql.DateTime, gioDen)
+            .input('diaDiemDau', sql.NVarChar, diaDiemDau)
+            .input('diaDiemCuoi', sql.NVarChar, diaDiemCuoi)
+            .query(`
+                UPDATE ChuyenBay
+                SET TinhTrangChuyenBay = @tinhTrangChuyenBay,
+                    GioBay = @gioBay,
+                    GioDen = @gioDen,
+                    DiaDiemDau = @diaDiemDau,
+                    DiaDiemCuoi = @diaDiemCuoi
+                WHERE MaChuyenBay = @maChuyenBay
+            `);
+
+        res.json({ message: 'Cập nhật chuyến bay thành công' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật chuyến bay: ' + err.message });
+    }
+});
+
 
 // API xóa chuyến bay
 app.delete('/api/flights/:maChuyenBay', async (req, res) => {
