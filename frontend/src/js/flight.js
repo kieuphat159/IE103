@@ -17,6 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Thêm hàm này để đảm bảo saveFlightData được gọi khi nhấn nút lưu
+    const saveButton = document.querySelector('button[onclick="saveData()"]');
+    if (saveButton) {
+        saveButton.addEventListener('click', () => {
+            if (currentSection === 'flights') {
+                saveFlightData();
+            }
+        });
+    }
   });
   
   async function fetchFlights() {
@@ -79,65 +89,65 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Hàm mở modal thêm/sửa chuyến bay
   function openFlightModal(mode, flight = null) {
-      const modal = document.getElementById('modal');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalContent = document.getElementById('modalContent');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
 
-      modalTitle.textContent = mode === 'add' ? 'Thêm chuyến bay' : 'Sửa chuyến bay';
-      
-      modalContent.innerHTML = `
-          <form id="flightForm" class="space-y-4">
-              <div>
-                  <label class="block text-sm font-medium text-gray-700">Mã chuyến bay</label>
-                  <input type="text" id="flightMaChuyenBay" name="maChuyenBay" required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                      value="${flight ? flight.maChuyenBay : ''}" ${mode === 'edit' ? 'readonly' : ''}>
-              </div>
-              <div>
-                  <label class="block text-sm font-medium text-gray-700">Tình trạng chuyến bay</label>
-                  <select id="flightTinhTrangChuyenBay" name="tinhTrangChuyenBay" required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
-                      <option value="Chưa khởi hành" ${flight && flight.tinhTrangChuyenBay === 'Chưa khởi hành' ? 'selected' : ''}>Chưa khởi hành</option>
-                      <option value="Đang bay" ${flight && flight.tinhTrangChuyenBay === 'Đang bay' ? 'selected' : ''}>Đang bay</option>
-                      <option value="Đã hoàn thành" ${flight && flight.tinhTrangChuyenBay === 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
-                      <option value="Đã hủy" ${flight && flight.tinhTrangChuyenBay === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
-                  </select>
-              </div>
-              <div>
-                  <label class="block text-sm font-medium text-gray-700">Giờ bay</label>
-                  <input type="datetime-local" id="flightGioBay" name="gioBay" required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                      value="${flight ? new Date(flight.gioBay).toISOString().slice(0, 16) : ''}">
-              </div>
-              <div>
-                  <label class="block text-sm font-medium text-gray-700">Giờ đến</label>
-                  <input type="datetime-local" id="flightGioDen" name="gioDen" required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                      value="${flight ? new Date(flight.gioDen).toISOString().slice(0, 16) : ''}">
-              </div>
-              <div>
-                  <label class="block text-sm font-medium text-gray-700">Địa điểm đầu</label>
-                  <input type="text" id="flightDiaDiemDau" name="diaDiemDau" required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                      value="${flight ? flight.diaDiemDau : ''}" placeholder="VD: Hà Nội">
-              </div>
-              <div>
-                  <label class="block text-sm font-medium text-gray-700">Địa điểm cuối</label>
-                  <input type="text" id="flightDiaDiemCuoi" name="diaDiemCuoi" required
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                      value="${flight ? flight.diaDiemCuoi : ''}" placeholder="VD: TP.HCM">
-              </div>
-          </form>
-      `;
+    modalTitle.textContent = mode === 'add' ? 'Thêm chuyến bay' : 'Sửa chuyến bay';
+    
+    modalContent.innerHTML = `
+        <form id="flightForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Mã chuyến bay</label>
+                <input type="text" id="flightMaChuyenBay" name="maChuyenBay" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                    value="${flight ? flight.maChuyenBay : ''}" ${mode === 'edit' ? 'readonly' : ''}>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Tình trạng chuyến bay</label>
+                <select id="flightTinhTrangChuyenBay" name="tinhTrangChuyenBay" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
+                    <option value="Chưa khởi hành" ${flight && flight.tinhTrangChuyenBay === 'Chưa khởi hành' ? 'selected' : ''}>Chưa khởi hành</option>
+                    <option value="Đang bay" ${flight && flight.tinhTrangChuyenBay === 'Đang bay' ? 'selected' : ''}>Đang bay</option>
+                    <option value="Đã hoàn thành" ${flight && flight.tinhTrangChuyenBay === 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
+                    <option value="Đã hủy" ${flight && flight.tinhTrangChuyenBay === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Giờ bay</label>
+                <input type="datetime-local" id="flightGioBay" name="gioBay" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                    value="${flight ? flight.gioBay : ''}">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Giờ đến</label>
+                <input type="datetime-local" id="flightGioDen" name="gioDen" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                    value="${flight ? flight.gioDen : ''}">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Địa điểm đầu</label>
+                <input type="text" id="flightDiaDiemDau" name="diaDiemDau" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                    value="${flight ? flight.diaDiemDau : ''}" placeholder="VD: Hà Nội">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Địa điểm cuối</label>
+                <input type="text" id="flightDiaDiemCuoi" name="diaDiemCuoi" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                    value="${flight ? flight.diaDiemCuoi : ''}" placeholder="VD: TP.HCM">
+            </div>
+        </form>
+    `;
 
-      modal.classList.remove('hidden');
-      window.currentMode = mode;
-      window.currentFlight = flight;
+    modal.classList.remove('hidden');
+    window.currentMode = mode;
+    window.currentFlight = flight;
 
-      if (mode === 'add') {
-          generateNewFlightCode();
-      }
-  }
+    if (mode === 'add') {
+        generateNewFlightCode();
+    }
+}
   
   // Hàm tạo mã chuyến bay ngẫu nhiên
   function generateMaChuyenBay() {
@@ -172,8 +182,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
   
-    // Kiểm tra mã chuyến bay có trùng lặp
-    if (!(await isMaChuyenBayUnique(maChuyenBay))) {
+    // Kiểm tra mã chuyến bay có trùng lặp (chỉ khi thêm mới)
+    if (!window.currentFlight && !(await isMaChuyenBayUnique(maChuyenBay))) {
         alert("Mã chuyến bay đã tồn tại!");
         return;
     }
@@ -200,9 +210,14 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   
     try {
-        console.log('Đang gửi yêu cầu POST /api/flights:', flightData);
-        const response = await fetch('http://localhost:3000/api/flights', {
-            method: 'POST',
+        const method = window.currentFlight ? 'PUT' : 'POST';
+        const url = window.currentFlight 
+            ? `http://localhost:3000/api/flights/${maChuyenBay}`
+            : 'http://localhost:3000/api/flights';
+
+        console.log(`Đang gửi yêu cầu ${method} ${url}:`, flightData);
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -210,18 +225,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
   
         const result = await response.json();
-        console.log('Kết quả POST /api/flights:', result);
+        console.log(`Kết quả ${method} ${url}:`, result);
   
         if (!response.ok) {
-            throw new Error(result.error || 'Lỗi khi thêm chuyến bay');
+            throw new Error(result.error || `Lỗi khi ${window.currentFlight ? 'cập nhật' : 'thêm'} chuyến bay`);
         }
   
-        alert(result.message || 'Thêm chuyến bay thành công!');
+        alert(result.message || `${window.currentFlight ? 'Cập nhật' : 'Thêm'} chuyến bay thành công!`);
+        window.currentFlight = null; // Reset currentFlight sau khi lưu thành công
         closeModal();
         fetchFlights();
     } catch (error) {
         console.error('Lỗi:', error);
-        alert(`Không thể thêm chuyến bay: ${error.message}`);
+        alert(`Không thể ${window.currentFlight ? 'cập nhật' : 'thêm'} chuyến bay: ${error.message}`);
     }
   }
   
@@ -299,3 +315,29 @@ document.addEventListener("DOMContentLoaded", () => {
         rows[i].style.display = found ? '' : 'none';
     }
   }
+  async function editItem(section, id) {
+    if (section === 'flights') {
+        try {
+            console.log(`Đang gửi yêu cầu GET /api/flights/${id}`);
+            const response = await fetch(`http://localhost:3000/api/flights/${id}`);
+            if (!response.ok) {
+                throw new Error(`Lỗi khi lấy thông tin chuyến bay: ${response.status} ${response.statusText}`);
+            }
+            const flightData = await response.json();
+            if (!flightData || (typeof flightData === 'object' && Object.keys(flightData).length === 0)) {
+                throw new Error('Không tìm thấy chuyến bay với mã này');
+            }
+            // Kiểm tra và định dạng lại thời gian nếu cần
+            const safeFlightData = {
+                ...flightData,
+                gioBay: flightData.gioBay ? new Date(flightData.gioBay).toISOString().slice(0, 16) : '',
+                gioDen: flightData.gioDen ? new Date(flightData.gioDen).toISOString().slice(0, 16) : ''
+            };
+            window.currentFlight = safeFlightData;
+            openFlightModal('edit', window.currentFlight);
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert(`Không thể lấy thông tin chuyến bay để sửa: ${error.message}`);
+        }
+    }
+}

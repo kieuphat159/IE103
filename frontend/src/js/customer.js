@@ -52,7 +52,7 @@ function renderCustomerTable(customers) {
         <td class="p-2">
           <div class="flex gap-2 max-w-xs">
             <button onclick="editItem('users', '${c.maKH}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
-            <button onclick="deleteItem('users', '${c.maKH}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+            <button onclick="deleteUser('users', '${c.maKH}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
           </div>
         </td>
       </tr>
@@ -175,4 +175,42 @@ function saveData() {
     alert('Dữ liệu đã được lưu thành công!');
     closeModal();
   }
+}
+async function deleteUser(section, id) {
+  if (section === 'users') {
+      //alert(`Đang xóa khách hàng với ID: ${id}`);
+      if (confirm(`Bạn có chắc chắn muốn xóa khách hàng với ID: ${id}?`)) {
+          try {
+              // Gửi yêu cầu DELETE tới API
+              const response = await fetch(`http://localhost:3000/api/customers/${id}`, {
+                  method: 'DELETE',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              });
+
+              // Lấy dữ liệu JSON từ response
+              const data = await response.json();
+
+              // Kiểm tra xem yêu cầu có thành công không
+              if (!response.ok) {
+                  throw new Error(data.error || 'Lỗi khi xóa khách hàng');
+              }
+
+              // Hiển thị thông báo thành công
+              alert(data.message || `Đã xóa khách hàng với ID: ${id}`);
+
+              // Cập nhật lại bảng khách hàng
+              if (currentSection === 'users') {
+                  fetchCustomers(); // Gọi hàm từ customer.js để tải lại danh sách
+              }
+          } catch (error) {
+              console.error('Lỗi:', error);
+              alert(`Không thể xóa khách hàng: ${error.message}`);
+          }
+      }
+  } else  {
+      if (confirm(`Bạn có chắc chắn muốn xóa ${section} với ID: ${id}?`)) {
+  }
+}
 }
