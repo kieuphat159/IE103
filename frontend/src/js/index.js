@@ -5,6 +5,36 @@ document.addEventListener('DOMContentLoaded', function() {
     let departureSelect, destinationSelect, timeSelect;
     let currentFlight;
 
+    // Kiểm tra session khi tải trang
+    async function checkSession() {
+        try {
+            const response = await fetch('http://localhost:3000/api/session', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            if (!data.isAuthenticated) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('sessionId');
+                window.location.href = 'login.html';
+            } else {
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
+        } catch (error) {
+            console.error('Lỗi kiểm tra session:', error);
+            alert('Không thể kết nối đến server. Vui lòng thử lại sau.');
+            localStorage.removeItem('user');
+            localStorage.removeItem('sessionId');
+            window.location.href = 'login.html';
+        }
+    }
+
+    checkSession();
+
     // Thêm modal xác nhận đăng xuất vào body
     const logoutModal = document.createElement('div');
     logoutModal.id = 'logoutModal';
@@ -119,15 +149,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Hàm xác nhận đăng xuất
-    window.confirmLogout = function() {
-        localStorage.removeItem('currentUser');
-        window.location.href = '../public/login.html';
+    window.confirmLogout = async function() {
+        try {
+            const response = await fetch('http://localhost:3000/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('sessionId');
+                window.location.href = 'login.html';
+            } else {
+                alert(data.error || 'Lỗi khi đăng xuất');
+            }
+        } catch (error) {
+            console.error('Lỗi khi đăng xuất:', error);
+            alert('Lỗi khi đăng xuất');
+        }
     }
 
     // Hàm lấy khách hàng
     async function fetchCustomerByTaiKhoan(taiKhoan) {
         try {
-            const response = await fetch(`http://localhost:3000/api/customers/by-username/${taiKhoan}`);
+            const response = await fetch(`http://localhost:3000/api/customers/by-username/${taiKhoan}`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
             if (!response.ok) throw new Error("Không tìm thấy khách hàng");
             return await response.json();
         } catch (err) {
@@ -204,8 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const seatClassSelect = document.getElementById('seatClass');
         const seatCountInput = document.getElementById('seatCount');
         const amountInput = document.getElementById('amount');
-        const currentUsername = localStorage.getItem('currentUser') || "user1";
-        const customer = await fetchCustomerByTaiKhoan(currentUsername);
+        const user = JSON.parse(localStorage.getItem('user'));
 
         if (!seatClassSelect.value) {
             alert('Vui lòng chọn hạng.');
@@ -217,13 +270,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        const customer = await fetchCustomerByTaiKhoan(user.taiKhoan);
+        if (!customer) {
+            alert('Không tìm thấy thông tin khách hàng.');
+            return;
+        }
+
         const bookingData = {
             MaDatVe: `DV${Math.floor(1000 + Math.random() * 9000)}`,
             NgayDatVe: new Date().toISOString().split('T')[0],
             NgayBay: new Date(currentFlight['Thời gian bay'].split(' - ')[0]).toISOString().split('T')[0],
             TrangThaiThanhToan: 'Chưa thanh toán',
-            HangGhe: seatClassSelect.value,
-            SoLuongGhe: seatCount,
+            SoGhe: seatClassSelect.value,
             SoTien: parseFloat(amountInput.value),
             MaChuyenBay: currentFlight['Mã chuyến bay '],
             MaKH: customer.MaKH
@@ -233,13 +291,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('http://localhost:3000/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(bookingData)
             });
 
             if (!response.ok) throw new Error('Lỗi khi đặt vé');
             alert('Đặt vé thành công!');
             closeBookingModal();
-            showContent('booked-tickets'); // Refresh flight list
+            showContent('booked-tickets');
         } catch (err) {
             console.error('Lỗi khi đặt vé:', err);
             alert('Không thể đặt vé. Vui lòng thử lại.');
@@ -344,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Hàm để hiển thị dữ liệu dạng bảng đứng
+    // Hàm để hiển thị bảng dữ liệu đứng
     function displayVerticalTable(data) {
         mainContent.innerHTML = '';
 
@@ -360,9 +419,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const headers = ['Mã KH', 'Tên', 'Email', 'Số Điện Thoại', 'Địa Chỉ', 'Passport'];
 
-        if (!data || Object.keys(data).length === 0) {
+        if (!data) {
             const noDataMessage = document.createElement('p');
-            noDataMessage.textContent = 'Không có dữ liệu khách hàng.';
+            noDataMessage.textContent = 'Không tìm thấy thông tin khách hàng.';
             mainContent.appendChild(noDataMessage);
 
             headers.forEach(header => {
@@ -370,6 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const th = document.createElement('th');
                 th.textContent = header;
                 const td = document.createElement('td');
+                td.textContent = 'N/A';
                 row.appendChild(th);
                 row.appendChild(td);
                 table.appendChild(row);
@@ -380,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const th = document.createElement('th');
                 th.textContent = header;
                 const td = document.createElement('td');
-                td.textContent = data[header] || '';
+                td.textContent = data[header] || 'N/A';
                 row.appendChild(th);
                 row.appendChild(td);
                 table.appendChild(row);
@@ -401,10 +461,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 handleLogout();
                 break;
             case 'booked-tickets':
-                fetch('http://localhost:3000/api/flights')
+                fetch('http://localhost:3000/api/flights', {
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                })
                 .then(res => res.json())
                 .then(data => {
-                    flightData.length = 0; // Clear cũ
+                    flightData.length = 0;
                     data.forEach(f => {
                         flightData.push({
                             'Mã chuyến bay ': f.maChuyenBay,
@@ -412,10 +475,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             'Điểm khởi hành': f.diaDiemDau,
                             'Điểm đến': f.diaDiemCuoi,
                             'Trạng thái': f.tinhTrangChuyenBay,
-                            'Số chỗ còn trống': 'N/A' // Nếu chưa xử lý số ghế trống
+                            'Số chỗ còn trống': 'N/A'
                         });
                     });
-        
                     displayTable(flightData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống', 'Hành động'], 'Danh Sách Các chuyến bay', true);
                 })
                 .catch(err => {
@@ -425,25 +487,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'flight-list':
                 mainContentTitle.textContent = 'Vé đã đặt';
-                const currentUsername = localStorage.getItem('currentUser') || "user1";
-                fetch(`http://localhost:3000/api/bookings?username=${currentUsername}`)
-                    .then(res => res.json())
+                const user = JSON.parse(localStorage.getItem('user'));
+                fetch(`http://localhost:3000/api/bookings?username=${user.taiKhoan}`, {
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Lỗi khi gọi API /bookings');
+                        return res.json();
+                    })
                     .then(data => {
                         console.log("Dữ liệu từ API /bookings:", data);
                         bookedTicketsData.length = 0;
-                
+
+                        if (!data || data.length === 0) {
+                            displayTable([], ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'], 'Danh sách vé đã đặt');
+                            return;
+                        }
+
                         data.forEach(v => {
                             bookedTicketsData.push({
                                 'Mã khách hàng': v.maKH ?? 'Không có',
                                 'Mã vé': v.maDatVe ?? 'Không rõ',
                                 'Mã chuyến bay': v.maChuyenBay ?? 'Không có',
                                 'Ngày mua': v.ngayDatVe ? new Date(v.ngayDatVe).toLocaleDateString() : 'Không rõ',
-                                'Số ghế': v.soLuongGhe ?? '?',
-                                'Hạng ghế': v.hangGhe ?? 'N/A',
+                                'Số ghế': v.soGhe ?? '?',
+                                'Hạng ghế': v.soGhe ?? 'N/A', // Thay bằng v.hangGhe nếu API cung cấp
                                 'Tình trạng vé': v.trangThaiThanhToan ?? 'Không rõ'
                             });
                         });
-                
+
                         displayTable(
                             bookedTicketsData,
                             ['Mã khách hàng', 'Mã vé', 'Mã chuyến bay', 'Ngày mua', 'Số ghế', 'Hạng ghế', 'Tình trạng vé'],
@@ -457,14 +530,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'customer-info':
                 mainContentTitle.textContent = 'Thông tin khách hàng';
-                fetchCustomerByTaiKhoan("user1")  // ← dùng tài khoản đang đăng nhập thật
+                const userData = JSON.parse(localStorage.getItem('user'));
+                fetchCustomerByTaiKhoan(userData.taiKhoan)
                     .then(data => {
                         displayVerticalTable({
                             'Mã KH': data?.MaKH || '',
                             'Tên': data?.Ten || '',
                             'Email': data?.Email || '',
                             'Số Điện Thoại': data?.Sdt || '',
-                            'Địa Chỉ': '',  // chưa có cột này, có thể thêm nếu muốn
+                            'Địa Chỉ': '',
                             'Passport': data?.Passport || ''
                         });
                     });

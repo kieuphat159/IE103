@@ -2,15 +2,28 @@ const express = require('express');
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const session = require('express-session'); // Thêm express-session
 const DatabasePassword = 'Thnguyen_123';
 
 const app = express();
+
+// Cấu hình session middleware
+app.use(session({
+    secret: 'your-secret-key', // Thay bằng một secret key mạnh hơn trong production
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // Đặt thành true nếu dùng HTTPS
+        maxAge: 24 * 60 * 60 * 1000 // Session hết hạn sau 24 giờ
+    }
+}));
 
 // Configure CORS
 app.use(cors({
     origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Accept']
+    allowedHeaders: ['Content-Type', 'Accept'],
+    credentials: true // Cho phép gửi cookie/session
 }));
 
 app.use(express.json());
@@ -24,7 +37,7 @@ app.use((err, req, res, next) => {
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: DatabasePassword,
+    password: "Vtn.2432005",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -88,22 +101,68 @@ app.post('/api/login', async (req, res) => {
             `);
         const isController = controllerResult.recordset.length > 0;
 
+        // Lưu thông tin người dùng vào session
+        req.session.user = {
+            taiKhoan: user.taiKhoan,
+            ten: user.ten,
+            isAdmin: isAdmin,
+            isController: isController
+        };
+
         console.log('Đăng nhập thành công:', { taiKhoan, isAdmin, isController });
 
         res.json({
             message: 'Đăng nhập thành công',
-            user: {
-                taiKhoan: user.taiKhoan,
-                ten: user.ten,
-                isAdmin: isAdmin,
-                isController: isController
-            }
+            user: req.session.user,
+            sessionId: req.sessionID // Trả về session ID
         });
     } catch (err) {
         console.error('Lỗi khi đăng nhập:', err);
         res.status(500).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
     }
 });
+
+// API kiểm tra session
+app.get('/api/session', (req, res) => {
+    if (req.session.user) {
+        res.json({
+            isAuthenticated: true,
+            user: req.session.user
+        });
+    } else {
+        res.status(401).json({ isAuthenticated: false });
+    }
+});
+
+// API đăng xuất
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Lỗi khi hủy session:', err);
+            return res.status(500).json({ error: 'Lỗi khi đăng xuất' });
+        }
+        res.json({ message: 'Đăng xuất thành công' });
+    });
+});
+
+// Các API khác giữ nguyên
+app.get('/api/customers', async (req, res) => {
+    try {
+        console.log('Nhận được yêu cầu GET /api/customers');
+        const pool = await connectToDB();
+        const result = await pool.request().query(`
+            SELECT k.maKH, nd.ten, nd.taiKhoan, nd.email, nd.sdt, nd.ngaySinh, nd.gioiTinh, nd.soCCCD
+            FROM KhachHang k
+            JOIN NguoiDung nd ON k.taiKhoan = nd.taiKhoan
+        `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách khách hàng:', err);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
 
 // API lấy danh sách khách hàng
 app.get('/api/customers', async (req, res) => {
@@ -290,34 +349,6 @@ app.get('/api/flights', async (req, res) => {
     }
 });
 
-// API lấy thông tin chuyến bay theo maChuyenBay
-app.get('/api/flights/:maChuyenBay', async (req, res) => {
-    const { maChuyenBay } = req.params;
-    try {
-        const pool = await connectToDB();
-        const result = await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query(`
-                SELECT 
-                    MaChuyenBay AS maChuyenBay,
-                    TinhTrangChuyenBay AS tinhTrangChuyenBay,
-                    FORMAT(GioBay, 'yyyy-MM-ddTHH:mm:ssZ') AS gioBay,
-                    FORMAT(GioDen, 'yyyy-MM-ddTHH:mm:ssZ') AS gioDen,
-                    DiaDiemDau AS diaDiemDau,
-                    DiaDiemCuoi AS diaDiemCuoi
-                FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay
-            `);
-        if (result.recordset.length === 0) {
-            console.log(`Không tìm thấy chuyến bay với mã: ${maChuyenBay}`);
-            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
-        }
-        console.log('Dữ liệu trả về:', result.recordset[0]);
-        res.json(result.recordset[0]);
-    } catch (err) {
-        console.error('Lỗi khi lấy thông tin chuyến bay:', err);
-        res.status(500).json({ error: 'Lỗi server: ' + err.message });
-    }
-});
 // API thêm chuyến bay mới
 app.post('/api/flights', async (req, res) => {
     console.log('Nhận được yêu cầu POST /api/flights với dữ liệu:', req.body);
@@ -346,38 +377,6 @@ app.post('/api/flights', async (req, res) => {
     }
 });
 
-// API sửa chuyến bay
-app.put('/api/flights/:maChuyenBay', async (req, res) => {
-    const { maChuyenBay } = req.params;
-    const { tinhTrangChuyenBay, gioBay, gioDen, diaDiemDau, diaDiemCuoi } = req.body;
-
-    try {
-        const pool = await connectToDB();
-        await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .input('tinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
-            .input('gioBay', sql.DateTime, gioBay)
-            .input('gioDen', sql.DateTime, gioDen)
-            .input('diaDiemDau', sql.NVarChar, diaDiemDau)
-            .input('diaDiemCuoi', sql.NVarChar, diaDiemCuoi)
-            .query(`
-                UPDATE ChuyenBay
-                SET TinhTrangChuyenBay = @tinhTrangChuyenBay,
-                    GioBay = @gioBay,
-                    GioDen = @gioDen,
-                    DiaDiemDau = @diaDiemDau,
-                    DiaDiemCuoi = @diaDiemCuoi
-                WHERE MaChuyenBay = @maChuyenBay
-            `);
-
-        res.json({ message: 'Cập nhật chuyến bay thành công' });
-    } catch (err) {
-        console.error('Lỗi khi cập nhật chuyến bay:', err);
-        res.status(500).json({ error: 'Lỗi khi cập nhật chuyến bay: ' + err.message });
-    }
-});
-
-
 // API xóa chuyến bay
 app.delete('/api/flights/:maChuyenBay', async (req, res) => {
     const { maChuyenBay } = req.params;
@@ -385,7 +384,7 @@ app.delete('/api/flights/:maChuyenBay', async (req, res) => {
 
     try {
         const pool = await connectToDB();
-
+        
         // Kiểm tra xem chuyến bay có tồn tại không
         const flightCheck = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
@@ -457,7 +456,7 @@ app.get('/api/seats', async (req, res) => {
         console.log('Nhận được yêu cầu GET /api/seats');
         const { maChuyenBay } = req.query;
         const pool = await connectToDB();
-
+        
         let query = `
             SELECT 
                 SoGhe AS soGhe,
@@ -466,16 +465,16 @@ app.get('/api/seats', async (req, res) => {
                 TinhTrangGhe AS tinhTrangGhe
             FROM ThongTinGhe
         `;
-
+        
         if (maChuyenBay) {
             query += ' WHERE MaChuyenBay = @maChuyenBay';
         }
-
+        
         const request = pool.request();
         if (maChuyenBay) {
             request.input('maChuyenBay', sql.VarChar, maChuyenBay);
         }
-
+        
         const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
@@ -555,23 +554,23 @@ app.get('/api/flights/generate-code', async (req, res) => {
         console.log('Đang tạo mã chuyến bay mới...');
         const pool = await connectToDB();
         console.log('Đã kết nối database');
-
+        
         // Lấy danh sách mã chuyến bay hiện có
         const result = await pool.request().query('SELECT MaChuyenBay FROM ChuyenBay');
         console.log('Đã lấy danh sách mã chuyến bay hiện có');
         const existingCodes = result.recordset.map(row => row.MaChuyenBay);
-
+        
         // Tạo mã mới cho đến khi tìm được mã không trùng
         let newCode;
         let isUnique = false;
         let attempts = 0;
         const maxAttempts = 100; // Giới hạn số lần thử để tránh vòng lặp vô hạn
-
+        
         while (!isUnique && attempts < maxAttempts) {
             // Tạo mã ngẫu nhiên dạng CBxxx (xxx là số từ 100-999)
             const randomNum = Math.floor(100 + Math.random() * 900);
             newCode = `CB${randomNum}`;
-
+            
             // Kiểm tra xem mã đã tồn tại chưa
             if (!existingCodes.includes(newCode)) {
                 isUnique = true;
@@ -579,12 +578,12 @@ app.get('/api/flights/generate-code', async (req, res) => {
             }
             attempts++;
         }
-
+        
         if (!isUnique) {
             console.error('Không thể tạo mã chuyến bay mới sau', maxAttempts, 'lần thử');
             throw new Error('Không thể tạo mã chuyến bay mới');
         }
-
+        
         res.json({ maChuyenBay: newCode });
     } catch (err) {
         console.error('Lỗi khi tạo mã chuyến bay:', err);
@@ -625,17 +624,17 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
         console.log('Nhận được yêu cầu GET /api/seats/' + maChuyenBay);
         const pool = await connectToDB();
         console.log('Đã kết nối database, đang thực hiện truy vấn...');
-
+        
         // Kiểm tra xem chuyến bay có tồn tại không
         const flightCheck = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
-
+            
         if (flightCheck.recordset.length === 0) {
             console.log('Không tìm thấy chuyến bay:', maChuyenBay);
             return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
         }
-
+        
         const result = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query(`
@@ -661,7 +660,7 @@ app.get('/api/reports', async (req, res) => {
         console.log('Nhận được yêu cầu GET /api/reports');
         const { trangThai } = req.query;
         const pool = await connectToDB();
-
+        
         let query = `
             SELECT 
                 MaBaoCao as maBaoCao,
@@ -670,16 +669,16 @@ app.get('/api/reports', async (req, res) => {
                 MaNV as maNV
             FROM BaoCao
         `;
-
+        
         if (trangThai) {
             query += ' WHERE TrangThai = @trangThai';
         }
-
+        
         const request = pool.request();
         if (trangThai) {
             request.input('trangThai', sql.NVarChar, trangThai);
         }
-
+        
         const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
@@ -715,23 +714,23 @@ app.get('/api/reports/generate-code', async (req, res) => {
         console.log('Đang tạo mã chuyến bay mới...');
         const pool = await connectToDB();
         console.log('Đã kết nối database');
-
+        
         // Lấy danh sách mã chuyến bay hiện có
         const result = await pool.request().query('SELECT MaBaoCao FROM BaoCao');
         console.log('Đã lấy danh sách mã bao cao hiện có');
         const existingCodes = result.recordset.map(row => row.maBaoCao);
-
+        
         // Tạo mã mới cho đến khi tìm được mã không trùng
         let newCode;
         let isUnique = false;
         let attempts = 0;
         const maxAttempts = 100; // Giới hạn số lần thử để tránh vòng lặp vô hạn
-
+        
         while (!isUnique && attempts < maxAttempts) {
             // Tạo mã ngẫu nhiên dạng CBxxx (xxx là số từ 100-999)
             const randomNum = Math.floor(100 + Math.random() * 900);
             newCode = `CB${randomNum}`;
-
+            
             // Kiểm tra xem mã đã tồn tại chưa
             if (!existingCodes.includes(newCode)) {
                 isUnique = true;
@@ -739,12 +738,12 @@ app.get('/api/reports/generate-code', async (req, res) => {
             }
             attempts++;
         }
-
+        
         if (!isUnique) {
             console.error('Không thể tạo mã chuyến bay mới sau', maxAttempts, 'lần thử');
             throw new Error('Không thể tạo mã chuyến bay mới');
         }
-
+        
         res.json({ maBaoCao: newCode });
     } catch (err) {
         console.error('Lỗi khi tạo mã chuyến bay:', err);
@@ -779,27 +778,27 @@ app.post('/api/reports', async (req, res) => {
 app.put('/api/reports/:maBaoCao/status', async (req, res) => {
     const { maBaoCao } = req.params;
     const { trangThai } = req.body;
-
+    
     try {
         console.log('=== Bắt đầu xử lý cập nhật trạng thái báo cáo ===');
         console.log('Mã báo cáo:', maBaoCao);
         console.log('Trạng thái mới:', trangThai);
-
+        
         const pool = await connectToDB();
         console.log('Đã kết nối database');
-
+        
         // Kiểm tra xem báo cáo có tồn tại không
         const checkResult = await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
-
+            
         console.log('Kết quả kiểm tra báo cáo:', checkResult.recordset);
-
+            
         if (checkResult.recordset.length === 0) {
             console.log('Không tìm thấy báo cáo');
             return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
         }
-
+        
         // Cập nhật trạng thái
         const updateResult = await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
@@ -809,10 +808,10 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
                 SET TrangThai = @trangThai
                 WHERE MaBaoCao = @maBaoCao
             `);
-
+            
         console.log('Kết quả cập nhật:', updateResult);
         console.log('=== Kết thúc xử lý cập nhật trạng thái báo cáo ===');
-
+        
         res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
     } catch (err) {
         console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
