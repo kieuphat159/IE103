@@ -2,7 +2,6 @@ const express = require('express');
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
-const DatabasePassword = 'Thnguyen_123';
 
 const app = express();
 
@@ -14,18 +13,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-app.post('/api/staff', (req, res) => {
-    const { maNV, hoTen, email, sdt } = req.body;
-    // Logic lưu vào database
-    res.json({ message: 'Nhân viên đã được thêm' });
-});
-
-// Middleware để đảm bảo phản hồi luôn là JSON
-app.use((err, req, res, next) => {
-    console.error('Lỗi middleware:', err.stack);
-    res.status(500).json({ error: 'Đã xảy ra lỗi server' });
-});
 
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
@@ -56,7 +43,7 @@ const connectToDB = async () => {
 // API đăng nhập
 app.post('/api/login', async (req, res) => {
     const { taiKhoan, matKhau } = req.body;
-    console.log('Nhận được yêu cầu đăng nhập:', { taiKhoan });
+    console.log('Nhận được yêu cầu đăng nhập:', { taiKhoan, matKhau });
 
     try {
         const pool = await connectToDB();
@@ -70,21 +57,21 @@ app.post('/api/login', async (req, res) => {
 
         if (result.recordset.length === 0) {
             console.log('Tài khoản không tồn tại:', taiKhoan);
-            return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+            return res.status(401).json({ error: 'Tài khoản không tồn tại' });
         }
 
         const user = result.recordset[0];
-        const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau);
+        console.log('Mật khẩu trong DB:', user.matKhau);
+
+        const isPasswordValid = matKhau === user.matKhau;
+        console.log('Kết quả so sánh mật khẩu:', isPasswordValid);
 
         if (!isPasswordValid) {
             console.log('Mật khẩu không đúng cho tài khoản:', taiKhoan);
-            return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+            return res.status(401).json({ error: 'Mật khẩu không đúng' });
         }
 
-        // Kiểm tra nếu là admin
         const isAdmin = taiKhoan === 'admin';
-
-        // Kiểm tra nếu là nhân viên kiểm soát
         const controllerResult = await pool.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query(`
@@ -107,7 +94,31 @@ app.post('/api/login', async (req, res) => {
         });
     } catch (err) {
         console.error('Lỗi khi đăng nhập:', err);
-        res.status(500).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+        res.status(500).json({ error: 'Lỗi server khi đăng nhập' });
+    }
+});
+
+app.use((err, req, res, next) => {
+    console.error('Lỗi middleware:', err.stack);
+    res.status(500).json({ error: 'Đã xảy ra lỗi server' });
+});
+
+// API thêm nhân viên
+app.post('/api/staff', async (req, res) => {
+    const { maNV, hoTen, email, sdt, taiKhoan } = req.body;
+    try {
+        const pool = await connectToDB();
+        await pool.request()
+            .input('maNV', sql.VarChar, maNV)
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query(`
+                INSERT INTO NhanVienKiemSoat (MaNV, TaiKhoan)
+                VALUES (@maNV, @taiKhoan)
+            `);
+        res.json({ message: 'Nhân viên đã được thêm' });
+    } catch (err) {
+        console.error('Lỗi khi thêm nhân viên:', err);
+        res.status(500).json({ error: 'Lỗi khi thêm nhân viên' });
     }
 });
 
@@ -154,7 +165,7 @@ app.post('/api/customers', async (req, res) => {
 
         await pool.request()
             .input('maKH', sql.VarChar, maKH)
-            .input('passport' | sql.VarChar, passport)
+            .input('passport', sql.VarChar, passport)
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query(`
                 INSERT INTO KhachHang (maKH, passport, taiKhoan)
@@ -324,6 +335,7 @@ app.get('/api/flights/:maChuyenBay', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
+
 // API thêm chuyến bay mới
 app.post('/api/flights', async (req, res) => {
     console.log('Nhận được yêu cầu POST /api/flights với dữ liệu:', req.body);
@@ -382,7 +394,6 @@ app.put('/api/flights/:maChuyenBay', async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi cập nhật chuyến bay: ' + err.message });
     }
 });
-
 
 // API xóa chuyến bay
 app.delete('/api/flights/:maChuyenBay', async (req, res) => {
@@ -562,23 +573,19 @@ app.get('/api/flights/generate-code', async (req, res) => {
         const pool = await connectToDB();
         console.log('Đã kết nối database');
         
-        // Lấy danh sách mã chuyến bay hiện có
         const result = await pool.request().query('SELECT MaChuyenBay FROM ChuyenBay');
         console.log('Đã lấy danh sách mã chuyến bay hiện có');
         const existingCodes = result.recordset.map(row => row.MaChuyenBay);
         
-        // Tạo mã mới cho đến khi tìm được mã không trùng
         let newCode;
         let isUnique = false;
         let attempts = 0;
-        const maxAttempts = 100; // Giới hạn số lần thử để tránh vòng lặp vô hạn
+        const maxAttempts = 100;
         
         while (!isUnique && attempts < maxAttempts) {
-            // Tạo mã ngẫu nhiên dạng CBxxx (xxx là số từ 100-999)
             const randomNum = Math.floor(100 + Math.random() * 900);
             newCode = `CB${randomNum}`;
             
-            // Kiểm tra xem mã đã tồn tại chưa
             if (!existingCodes.includes(newCode)) {
                 isUnique = true;
                 console.log('Đã tìm thấy mã chuyến bay mới:', newCode);
@@ -632,7 +639,6 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
         const pool = await connectToDB();
         console.log('Đã kết nối database, đang thực hiện truy vấn...');
         
-        // Kiểm tra xem chuyến bay có tồn tại không
         const flightCheck = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
@@ -695,7 +701,7 @@ app.get('/api/reports', async (req, res) => {
     }
 });
 
-//API lấy báo cáo của controller
+// API lấy báo cáo đầy đủ
 app.get('/api/reports/full', async (req, res) => {
     try {
         const pool = await connectToDB();
@@ -718,46 +724,43 @@ app.get('/api/reports/full', async (req, res) => {
 // API tạo mã báo cáo
 app.get('/api/reports/generate-code', async (req, res) => {
     try {
-        console.log('Đang tạo mã chuyến bay mới...');
+        console.log('Đang tạo mã báo cáo mới...');
         const pool = await connectToDB();
         console.log('Đã kết nối database');
         
-        // Lấy danh sách mã chuyến bay hiện có
         const result = await pool.request().query('SELECT MaBaoCao FROM BaoCao');
-        console.log('Đã lấy danh sách mã bao cao hiện có');
-        const existingCodes = result.recordset.map(row => row.maBaoCao);
+        console.log('Đã lấy danh sách mã báo cáo hiện có');
+        const existingCodes = result.recordset.map(row => row.MaBaoCao);
         
-        // Tạo mã mới cho đến khi tìm được mã không trùng
         let newCode;
         let isUnique = false;
         let attempts = 0;
-        const maxAttempts = 100; // Giới hạn số lần thử để tránh vòng lặp vô hạn
+        const maxAttempts = 100;
         
         while (!isUnique && attempts < maxAttempts) {
-            // Tạo mã ngẫu nhiên dạng CBxxx (xxx là số từ 100-999)
             const randomNum = Math.floor(100 + Math.random() * 900);
-            newCode = `CB${randomNum}`;
+            newCode = `BC${randomNum}`; // Sửa thành BCxxx cho báo cáo
             
-            // Kiểm tra xem mã đã tồn tại chưa
             if (!existingCodes.includes(newCode)) {
                 isUnique = true;
-                console.log('Đã tìm thấy mã bao mới:', newCode);
+                console.log('Đã tìm thấy mã báo cáo mới:', newCode);
             }
             attempts++;
         }
         
         if (!isUnique) {
-            console.error('Không thể tạo mã chuyến bay mới sau', maxAttempts, 'lần thử');
-            throw new Error('Không thể tạo mã chuyến bay mới');
+            console.error('Không thể tạo mã báo cáo mới sau', maxAttempts, 'lần thử');
+            throw new Error('Không thể tạo mã báo cáo mới');
         }
         
         res.json({ maBaoCao: newCode });
     } catch (err) {
-        console.error('Lỗi khi tạo mã chuyến bay:', err);
-        res.status(500).json({ error: 'Lỗi khi tạo mã chuyến bay: ' + err.message });
+        console.error('Lỗi khi tạo mã báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi khi tạo mã báo cáo: ' + err.message });
     }
 });
-//
+
+// API thêm báo cáo
 app.post('/api/reports', async (req, res) => {
     const { maBaoCao, maNV, ngayBaoCao, noiDungBaoCao, trangThai } = req.body;
 
@@ -794,7 +797,6 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
         const pool = await connectToDB();
         console.log('Đã kết nối database');
         
-        // Kiểm tra xem báo cáo có tồn tại không
         const checkResult = await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
@@ -806,7 +808,6 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
         }
         
-        // Cập nhật trạng thái
         const updateResult = await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .input('trangThai', sql.NVarChar, trangThai)

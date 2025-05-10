@@ -165,4 +165,25 @@ th {
     scrollbar-width: none; /* Firefox */
 }
 
+#userCircle {
+    width: 48px;
+    height: 48px;
+    background-color: #3b82f6; /* Màu xanh dương (blue-500) */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: default;
+}
+
+#userCircle:hover {
+    background-color: #33f515; /* Màu xanh đậm hơn khi hover (blue-600) */
+}
 /* Các CSS khác của bạn */
