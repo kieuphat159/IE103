@@ -1,4 +1,17 @@
+// controller.js
+import controllerSession from './controllersession.js';
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Kiểm tra đăng nhập và vai trò controller
+    if (!controllerSession.isLoggedInAsController()) {
+        alert('Bạn cần đăng nhập với vai trò nhân viên kiểm soát để truy cập trang này.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Cập nhật thông tin người dùng trên giao diện
+    controllerSession.updateUserInterface();
+
     // Load dữ liệu ngay khi trang được tải
     fetchControllers();
     
@@ -17,6 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Thêm sự kiện cho nút đăng xuất
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            const dialog = document.getElementById('confirmDialog');
+            if (dialog) dialog.classList.remove('hidden');
+        });
+    }
 });
 
 // Fetch all controllers
@@ -30,9 +52,6 @@ async function fetchControllers() {
                 'Content-Type': 'application/json'
             }
         });
-        
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -124,45 +143,45 @@ function openControllerModal(mode, controller = null) {
                 <label class="block text-sm font-medium text-gray-700">Mã nhân viên</label>
                 <input type="text" id="controllerMaNV" name="maNV" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.MaNV : ''}" ${mode === 'edit' ? 'readonly' : ''}>
+                    value="${controller ? controller.maNV : ''}" ${mode === 'edit' ? 'readonly' : ''}>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Họ tên</label>
                 <input type="text" id="controllerHoTen" name="hoTen" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.Ten : ''}">
+                    value="${controller ? controller.ten : ''}">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="controllerEmail" name="email" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.Email : ''}">
+                    value="${controller ? controller.email : ''}">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
                 <input type="tel" id="controllerSoDienThoai" name="soDienThoai" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.Sdt : ''}">
+                    value="${controller ? controller.sdt : ''}">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Ngày sinh</label>
                 <input type="date" id="controllerNgaySinh" name="ngaySinh" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? new Date(controller.NgaySinh).toISOString().split('T')[0] : ''}">
+                    value="${controller ? new Date(controller.ngaySinh).toISOString().split('T')[0] : ''}">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Giới tính</label>
                 <select id="controllerGioiTinh" name="gioiTinh" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
-                    <option value="Nam" ${controller && controller.GioiTinh === 'Nam' ? 'selected' : ''}>Nam</option>
-                    <option value="Nữ" ${controller && controller.GioiTinh === 'Nữ' ? 'selected' : ''}>Nữ</option>
+                    <option value="Nam" ${controller && controller.gioiTinh === 'Nam' ? 'selected' : ''}>Nam</option>
+                    <option value="Nữ" ${controller && controller.gioiTinh === 'Nữ' ? 'selected' : ''}>Nữ</option>
                 </select>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Số CCCD</label>
                 <input type="text" id="controllerCMND_CCCD" name="CMND_CCCD" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.SoCCCD : ''}">
+                    value="${controller ? controller.soCCCD : ''}">
             </div>
             ${mode === 'add' ? `
             <div>
@@ -232,6 +251,7 @@ async function saveController() {
         alert('Có lỗi xảy ra khi lưu dữ liệu: ' + error.message);
     }
 }
+
 // Edit controller
 async function editController(maNV) {
     try {
@@ -265,4 +285,19 @@ async function deleteController(maNV) {
         console.error('Error deleting controller:', error);
         alert('Có lỗi xảy ra khi xóa nhân viên kiểm soát');
     }
-} 
+}
+
+// Đăng xuất
+function logout() {
+    const dialog = document.getElementById('confirmDialog');
+    if (dialog) dialog.classList.remove('hidden');
+}
+
+function closeConfirmDialog() {
+    const dialog = document.getElementById('confirmDialog');
+    if (dialog) dialog.classList.add('hidden');
+}
+
+function confirmLogout() {
+    controllerSession.logout();
+}

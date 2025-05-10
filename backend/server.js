@@ -2,31 +2,24 @@ const express = require('express');
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
-const session = require('express-session'); // Thêm express-session
 const DatabasePassword = 'Thnguyen_123';
 
 const app = express();
 
-// Cấu hình session middleware
-app.use(session({
-    secret: 'your-secret-key', // Thay bằng một secret key mạnh hơn trong production
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false, // Đặt thành true nếu dùng HTTPS
-        maxAge: 24 * 60 * 60 * 1000 // Session hết hạn sau 24 giờ
-    }
-}));
-
 // Configure CORS
 app.use(cors({
-    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'http://127.0.0.1:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Accept'],
-    credentials: true // Cho phép gửi cookie/session
+    allowedHeaders: ['Content-Type', 'Accept']
 }));
 
 app.use(express.json());
+
+app.post('/api/staff', (req, res) => {
+    const { maNV, hoTen, email, sdt } = req.body;
+    // Logic lưu vào database
+    res.json({ message: 'Nhân viên đã được thêm' });
+});
 
 // Middleware để đảm bảo phản hồi luôn là JSON
 app.use((err, req, res, next) => {
@@ -101,68 +94,22 @@ app.post('/api/login', async (req, res) => {
             `);
         const isController = controllerResult.recordset.length > 0;
 
-        // Lưu thông tin người dùng vào session
-        req.session.user = {
-            taiKhoan: user.taiKhoan,
-            ten: user.ten,
-            isAdmin: isAdmin,
-            isController: isController
-        };
-
         console.log('Đăng nhập thành công:', { taiKhoan, isAdmin, isController });
-
+        
         res.json({
             message: 'Đăng nhập thành công',
-            user: req.session.user,
-            sessionId: req.sessionID // Trả về session ID
+            user: {
+                taiKhoan: user.taiKhoan,
+                ten: user.ten,
+                isAdmin: isAdmin,
+                isController: isController
+            }
         });
     } catch (err) {
         console.error('Lỗi khi đăng nhập:', err);
         res.status(500).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
     }
 });
-
-// API kiểm tra session
-app.get('/api/session', (req, res) => {
-    if (req.session.user) {
-        res.json({
-            isAuthenticated: true,
-            user: req.session.user
-        });
-    } else {
-        res.status(401).json({ isAuthenticated: false });
-    }
-});
-
-// API đăng xuất
-app.post('/api/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error('Lỗi khi hủy session:', err);
-            return res.status(500).json({ error: 'Lỗi khi đăng xuất' });
-        }
-        res.json({ message: 'Đăng xuất thành công' });
-    });
-});
-
-// Các API khác giữ nguyên
-app.get('/api/customers', async (req, res) => {
-    try {
-        console.log('Nhận được yêu cầu GET /api/customers');
-        const pool = await connectToDB();
-        const result = await pool.request().query(`
-            SELECT k.maKH, nd.ten, nd.taiKhoan, nd.email, nd.sdt, nd.ngaySinh, nd.gioiTinh, nd.soCCCD
-            FROM KhachHang k
-            JOIN NguoiDung nd ON k.taiKhoan = nd.taiKhoan
-        `);
-        console.log('Dữ liệu trả về:', result.recordset);
-        res.json(result.recordset);
-    } catch (err) {
-        console.error('Lỗi khi lấy danh sách khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
-});
-
 
 // API lấy danh sách khách hàng
 app.get('/api/customers', async (req, res) => {
@@ -349,6 +296,34 @@ app.get('/api/flights', async (req, res) => {
     }
 });
 
+// API lấy thông tin chuyến bay theo maChuyenBay
+app.get('/api/flights/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query(`
+                SELECT 
+                    MaChuyenBay AS maChuyenBay,
+                    TinhTrangChuyenBay AS tinhTrangChuyenBay,
+                    FORMAT(GioBay, 'yyyy-MM-ddTHH:mm:ssZ') AS gioBay,
+                    FORMAT(GioDen, 'yyyy-MM-ddTHH:mm:ssZ') AS gioDen,
+                    DiaDiemDau AS diaDiemDau,
+                    DiaDiemCuoi AS diaDiemCuoi
+                FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay
+            `);
+        if (result.recordset.length === 0) {
+            console.log(`Không tìm thấy chuyến bay với mã: ${maChuyenBay}`);
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+        console.log('Dữ liệu trả về:', result.recordset[0]);
+        res.json(result.recordset[0]);
+    } catch (err) {
+        console.error('Lỗi khi lấy thông tin chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
 // API thêm chuyến bay mới
 app.post('/api/flights', async (req, res) => {
     console.log('Nhận được yêu cầu POST /api/flights với dữ liệu:', req.body);
@@ -376,6 +351,38 @@ app.post('/api/flights', async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi thêm chuyến bay: ' + err.message });
     }
 });
+
+// API sửa chuyến bay
+app.put('/api/flights/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    const { tinhTrangChuyenBay, gioBay, gioDen, diaDiemDau, diaDiemCuoi } = req.body;
+
+    try {
+        const pool = await connectToDB();
+        await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .input('tinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
+            .input('gioBay', sql.DateTime, gioBay)
+            .input('gioDen', sql.DateTime, gioDen)
+            .input('diaDiemDau', sql.NVarChar, diaDiemDau)
+            .input('diaDiemCuoi', sql.NVarChar, diaDiemCuoi)
+            .query(`
+                UPDATE ChuyenBay
+                SET TinhTrangChuyenBay = @tinhTrangChuyenBay,
+                    GioBay = @gioBay,
+                    GioDen = @gioDen,
+                    DiaDiemDau = @diaDiemDau,
+                    DiaDiemCuoi = @diaDiemCuoi
+                WHERE MaChuyenBay = @maChuyenBay
+            `);
+
+        res.json({ message: 'Cập nhật chuyến bay thành công' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật chuyến bay: ' + err.message });
+    }
+});
+
 
 // API xóa chuyến bay
 app.delete('/api/flights/:maChuyenBay', async (req, res) => {
