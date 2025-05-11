@@ -187,3 +187,7 @@ th {
     background-color: #33f515; /* Màu xanh đậm hơn khi hover (blue-600) */
 }
 /* Các CSS khác của bạn */
+.vertical-table td {
+    color: #333;
+    font-size: 1em;
+}

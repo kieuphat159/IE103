@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Vtn.2432005",
+    password: "Thnguyen_123",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -63,7 +63,8 @@ app.post('/api/login', async (req, res) => {
         const user = result.recordset[0];
         console.log('Mật khẩu trong DB:', user.matKhau);
 
-        const isPasswordValid = matKhau === user.matKhau;
+        // Sử dụng bcrypt để so sánh mật khẩu
+        const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau);
         console.log('Kết quả so sánh mật khẩu:', isPasswordValid);
 
         if (!isPasswordValid) {
@@ -96,11 +97,6 @@ app.post('/api/login', async (req, res) => {
         console.error('Lỗi khi đăng nhập:', err);
         res.status(500).json({ error: 'Lỗi server khi đăng nhập' });
     }
-});
-
-app.use((err, req, res, next) => {
-    console.error('Lỗi middleware:', err.stack);
-    res.status(500).json({ error: 'Đã xảy ra lỗi server' });
 });
 
 // API thêm nhân viên
@@ -830,9 +826,11 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
 // API lấy danh sách nhân viên kiểm soát
 app.get('/api/control-staff', async (req, res) => {
     try {
-        console.log('Nhận được yêu cầu GET /api/control-staff');
+        console.log('Nhận được yêu cầu GET /api/control-staff với taiKhoan:', req.query.taiKhoan);
+        const { taiKhoan } = req.query;
         const pool = await connectToDB();
-        const result = await pool.request().query(`
+        
+        let query = `
             SELECT 
                 nv.MaNV as maNV,
                 nd.Ten as ten,
@@ -844,7 +842,18 @@ app.get('/api/control-staff', async (req, res) => {
                 nd.SoCCCD as soCCCD
             FROM NhanVienKiemSoat nv
             JOIN NguoiDung nd ON nv.TaiKhoan = nd.TaiKhoan
-        `);
+        `;
+        
+        if (taiKhoan) {
+            query += ' WHERE nd.TaiKhoan = @taiKhoan';
+        }
+        
+        const request = pool.request();
+        if (taiKhoan) {
+            request.input('taiKhoan', sql.VarChar, taiKhoan);
+        }
+        
+        const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {

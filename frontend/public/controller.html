@@ -1,4 +1,3 @@
-<!-- controller.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,14 +14,15 @@
             <nav>
                 <ul>
                     <li><button onclick="showSection('reports')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Báo cáo</button></li>
+                    <li><button onclick="showSection('personal-info')" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded">Thông tin</button></li>
                     <li class="mt-auto"><button onclick="logout()" class="w-full text-left py-2 px-4 hover:bg-gray-600 rounded text-red-400">Đăng xuất</button></li>
                 </ul>
             </nav>
         </div>
         <div class="flex-1 p-6 overflow-auto bg-gray-100 relative">
             <!-- Ô tròn hiển thị tên nhân viên -->
-            <div id="userCircle" class="absolute top-4 right-4 w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold"></div>
-            <div id="reports" class="section">
+        <!-- -->
+            <div id="reports" class="section hidden">
                 <h2 class="text-2xl font-bold mb-4">Quản lý báo cáo</h2>
                 <button onclick="openModal('reportModal')" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600">Thêm báo cáo</button>
                 <table class="w-full border bg-white shadow-md rounded">
@@ -36,6 +36,13 @@
                         </tr>
                     </thead>
                     <tbody id="reportTable">
+                    </tbody>
+                </table>
+            </div>
+            <div id="personal-info" class="section hidden">
+                <h2 class="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
+                <table class="w-full border bg-white shadow-md rounded vertical-table">
+                    <tbody id="personalInfoTable">
                     </tbody>
                 </table>
             </div>
@@ -65,7 +72,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             showSection('reports');
-            fetchReports(); // Gọi fetchReports() khi trang được tải
+            fetchReports();
         });
 
         function logout() {

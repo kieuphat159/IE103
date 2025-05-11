@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', sans-serif, Arial, Helvetica;
             background-color: #f0f2f5;
             height: 100vh;
             display: flex;
@@ -83,9 +83,6 @@
             color: #6c757d;
             font-weight: 500;
         }
-        .password-container input:focus + .toggle-password {
-            display: none;
-        }
         .forgot-password {
             margin-top: 15px;
             font-size: 12px;
@@ -97,7 +94,6 @@
             color: #4a6987;
             text-decoration: underline;
         }
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -164,89 +160,6 @@
         }
     </style>
 </head>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập</title>
-    <link rel="stylesheet" href="/src/css/customer.css">
-</head>
-<body>
-    <div class="login-container">
-        <h1>ĐĂNG NHẬP</h1>
-        <form id="loginForm">
-            <input type="text" id="taiKhoan" placeholder="Tài khoản" required>
-            <input type="password" id="matKhau" placeholder="Mật khẩu" required>
-            <button type="submit">Đăng nhập</button>
-        </form>
-        <p id="errorMessage" style="color: red; display: none;"></p>
-        <p>Quên mật khẩu?</p>
-        <p>Chưa có tài khoản? Đăng ký</p>
-    </div>
-
-    <script>
-        // Tự động đăng nhập user1
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('http://localhost:3000/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ taiKhoan: 'user1', matKhau: 'P123456' })
-                });
-                const data = await response.json();
-                console.log('Phản hồi từ server:', data); // Debug
-                if (response.ok) {
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    if (data.user.isController) {
-                        window.location.href = 'controller.html';
-                    }
-                } else {
-                    console.error('Đăng nhập tự động thất bại:', data.error);
-                    document.getElementById('errorMessage').textContent = data.error || 'Lỗi không xác định';
-                    document.getElementById('errorMessage').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Lỗi khi gọi API:', error);
-                document.getElementById('errorMessage').textContent = 'Lỗi kết nối server';
-                document.getElementById('errorMessage').style.display = 'block';
-            }
-        });
-
-        // Đăng nhập thủ công
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const taiKhoan = document.getElementById('taiKhoan').value;
-            const matKhau = document.getElementById('matKhau').value;
-            const errorMessage = document.getElementById('errorMessage');
-
-            try {
-                const response = await fetch('http://localhost:3000/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ taiKhoan, matKhau })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    if (data.user.isController) {
-                        window.location.href = 'controller.html';
-                    }
-                } else {
-                    errorMessage.textContent = data.error;
-                    errorMessage.style.display = 'block';
-                }
-            } catch (error) {
-                errorMessage.textContent = 'Lỗi kết nối server';
-                errorMessage.style.display = 'block';
-            }
-        });
-    </script>
-</body>
-</html>
 <body>
     <div class="header">
         Airline Management
@@ -301,7 +214,6 @@
             document.getElementById('forgotPasswordModal').style.display = 'none';
         }
 
-        // Close modal when clicking outside of it
         window.onclick = function(event) {
             const modal = document.getElementById('forgotPasswordModal');
             if (event.target == modal) {
@@ -329,10 +241,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Lưu thông tin người dùng vào localStorage
                     localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // Chuyển hướng dựa vào vai trò
                     if (data.user.isAdmin) {
                         window.location.href = 'admin.html';
                     } else if (data.user.isController) {
@@ -349,46 +258,31 @@
                 errorMessage.style.display = 'block';
             }
         });
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const taiKhoan = document.getElementById('taiKhoan').value;
-        const matKhau = document.getElementById('matKhau').value;
-        const errorMessage = document.getElementById('errorMessage');
 
-        try {
-            const response = await fetch('http://localhost:3000/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ taiKhoan, matKhau })
-            });
+        // Tự động đăng nhập user1 (tùy chọn, có thể xóa nếu không cần)
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const user = localStorage.getItem('user');
+                if (user) return; // Bỏ qua nếu đã đăng nhập
 
-            const data = await response.json();
-
-            if (response.ok) {
-                // Lưu thông tin người dùng vào localStorage
-                localStorage.setItem('user', JSON.stringify(data.user));
-                
-                // Chuyển hướng dựa vào vai trò
-                if (data.user.isAdmin) {
-                    window.location.href = 'admin.html';
-                } else if (data.user.isController) {
-                    window.location.href = 'controller.html';
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ taiKhoan: 'user1', matKhau: 'P123456' })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    if (data.user.isController) {
+                        window.location.href = 'controller.html';
+                    }
                 } else {
-                    window.location.href = 'index.html';
+                    console.error('Đăng nhập tự động thất bại:', data.error);
                 }
-            } else {
-                errorMessage.textContent = data.error;
-                errorMessage.style.display = 'block';
+            } catch (error) {
+                console.error('Lỗi khi gọi API:', error);
             }
-        } catch (error) {
-            errorMessage.textContent = 'Lỗi kết nối server';
-            errorMessage.style.display = 'block';
-        }
-    });
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93c1e7ce1df4b03d',t:'MTc0NjYzMzM2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>

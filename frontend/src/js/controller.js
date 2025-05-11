@@ -1,4 +1,3 @@
-// controller.js
 import controllerSession from './controllersession.js';
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,34 +11,105 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cập nhật thông tin người dùng trên giao diện
     controllerSession.updateUserInterface();
 
-    // Load dữ liệu ngay khi trang được tải
-    fetchControllers();
-    
-    // Gọi lại khi nhấn tab "Nhân viên kiểm soát"
-    const controllerTabButton = document.querySelector("button[onclick*='controllers']");
-    if (controllerTabButton) {
-        controllerTabButton.addEventListener("click", fetchControllers);
-    }
+    // Load dữ liệu báo cáo
+    fetchReports();
 
-    // Add event listener for enter key on search input
-    const searchInput = document.getElementById('searchControllerInput');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchController();
-            }
-        });
+    // Gọi lại khi nhấn tab "Thông tin"
+    const personalInfoTabButton = document.querySelector("button[onclick*='personal-info']");
+    if (personalInfoTabButton) {
+        personalInfoTabButton.addEventListener("click", fetchPersonalInfo);
     }
 
     // Thêm sự kiện cho nút đăng xuất
-    const logoutButton = document.getElementById('logoutButton');
+    const logoutButton = document.querySelector("button[onclick='logout()']");
     if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
+        logoutButton.addEventListener("click", () => {
             const dialog = document.getElementById('confirmDialog');
             if (dialog) dialog.classList.remove('hidden');
         });
     }
 });
+
+// Hiển thị section
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+}
+
+// Lấy thông tin cá nhân
+async function fetchPersonalInfo() {
+    try {
+        const user = controllerSession.getUser();
+        if (!user || !user.taiKhoan) {
+            alert('Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const response = await fetch(`http://localhost:3000/api/control-staff?taiKhoan=${user.taiKhoan}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.length === 0) {
+            throw new Error('Không tìm thấy thông tin nhân viên kiểm soát');
+        }
+
+        displayPersonalInfo(data[0]);
+    } catch (error) {
+        console.error('Error fetching personal info:', error);
+        alert('Có lỗi xảy ra khi tải thông tin cá nhân: ' + error.message);
+        displayPersonalInfo({});
+    }
+}
+
+// Hiển thị thông tin cá nhân trong bảng đứng
+function displayPersonalInfo(controller) {
+    const tableBody = document.getElementById('personalInfoTable');
+    tableBody.innerHTML = '';
+
+    const fields = [
+        { label: 'Mã NV', key: 'maNV' },
+        { label: 'Họ tên', key: 'ten' },
+        { label: 'Email', key: 'email' },
+        { label: 'Số điện thoại', key: 'sdt' },
+        { label: 'Ngày sinh', key: 'ngaySinh', format: (value) => value ? new Date(value).toLocaleDateString() : '' },
+        { label: 'Giới tính', key: 'gioiTinh' },
+        { label: 'Số CCCD', key: 'soCCCD' }
+    ];
+
+    if (!controller || Object.keys(controller).length === 0) {
+        fields.forEach(field => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <th class="p-2 border font-bold">${field.label}</th>
+                <td class="p-2 border"></td>
+            `;
+            tableBody.appendChild(row);
+        });
+        return;
+    }
+
+    fields.forEach(field => {
+        const value = field.format ? field.format(controller[field.key]) : controller[field.key] || '';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <th class="p-2 border font-bold">${field.label}</th>
+            <td class="p-2 border">${value}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
 
 // Fetch all controllers
 async function fetchControllers() {

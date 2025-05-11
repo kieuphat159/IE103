@@ -455,19 +455,32 @@ document.addEventListener('DOMContentLoaded', function() {
                         mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách vé đã đặt</p>';
                     });
                 break;
-            case 'customer-info':
-                mainContentTitle.textContent = 'Thông tin khách hàng';
-                fetchCustomerByTaiKhoan("user1")  // ← dùng tài khoản đang đăng nhập thật
-                    .then(data => {
-                        displayVerticalTable({
-                            'Mã KH': data?.MaKH || '',
-                            'Tên': data?.Ten || '',
-                            'Email': data?.Email || '',
-                            'Số Điện Thoại': data?.Sdt || '',
-                            'Địa Chỉ': '',  // chưa có cột này, có thể thêm nếu muốn
-                            'Passport': data?.Passport || ''
-                        });
-                    });
+                case 'customer-info':
+                    mainContentTitle.textContent = 'Thông tin khách hàng';
+                    const currentUser = JSON.parse(localStorage.getItem('user')); // Lấy thông tin người dùng từ localStorage
+                    if (currentUser) {
+                        // Gọi API để lấy thông tin chi tiết khách hàng
+                        fetchCustomerByTaiKhoan(currentUser.taiKhoan)
+                            .then(data => {
+                                displayVerticalTable({
+                                    'Mã KH': data?.MaKH || '',
+                                    'Tên': data?.Ten || currentUser.ten || '',
+                                    'Email': data?.Email || '',
+                                    'Số Điện Thoại': data?.Sdt || '',
+                                    'Địa Chỉ': '', // Có thể thêm nếu API trả về
+                                    'Passport': data?.Passport || '',
+                                    'CCCD': data?.SoCCCD || ''
+                                });
+                            })
+                            .catch(err => {
+                                console.error('Lỗi khi lấy thông tin khách hàng:', err);
+                                displayVerticalTable({}); // Hiển thị bảng rỗng nếu có lỗi
+                            });
+                    } else {
+                        // Nếu không có thông tin người dùng, hiển thị thông báo
+                        mainContent.innerHTML = '<p style="color:red">Vui lòng đăng nhập để xem thông tin</p>';
+                    }
+                    break;
                 break;
             default:
                 mainContentTitle.textContent = 'Chào mừng';
