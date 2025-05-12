@@ -430,7 +430,7 @@ app.delete('/api/flights/:maChuyenBay', async (req, res) => {
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ThongTinGhe WHERE MaChuyenBay = @maChuyenBay');
 
-        // Xóa chuyến bay
+        // Xóa chuyến bayDeux
         await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
@@ -440,6 +440,69 @@ app.delete('/api/flights/:maChuyenBay', async (req, res) => {
     } catch (err) {
         console.error('Lỗi khi xóa chuyến bay:', err);
         res.status(500).json({ error: 'Lỗi khi xóa chuyến bay: ' + err.message });
+    }
+});
+
+// API xóa ghế
+app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
+    const { soGhe, maChuyenBay } = req.params;
+    console.log(`Nhận được yêu cầu DELETE /api/seats/${soGhe}/${maChuyenBay}`);
+
+    let pool;
+    let transaction;
+
+    try {
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Kiểm tra xem ghế có tồn tại không
+        const seatCheck = await transaction.request()
+            .input('soGhe', sql.VarChar, soGhe)
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query(`
+                SELECT SoGhe, TinhTrangGhe 
+                FROM ThongTinGhe 
+                WHERE SoGhe = @soGhe AND MaChuyenBay = @maChuyenBay
+            `);
+
+        if (seatCheck.recordset.length === 0) {
+            console.log(`Không tìm thấy ghế ${soGhe} cho chuyến bay ${maChuyenBay}`);
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy ghế' });
+        }
+
+        // Kiểm tra trạng thái ghế
+        if (seatCheck.recordset[0].TinhTrangGhe === 'đã đặt') {
+            console.log(`Ghế ${soGhe} đã được đặt, không thể xóa`);
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Không thể xóa ghế đã được đặt' });
+        }
+
+        // Xóa ghế và kiểm tra số hàng bị ảnh hưởng
+        const deleteResult = await transaction.request()
+            .input('soGhe', sql.VarChar, soGhe)
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query(`
+                DELETE FROM ThongTinGhe 
+                WHERE SoGhe = @soGhe AND MaChuyenBay = @maChuyenBay
+            `);
+
+        if (deleteResult.rowsAffected[0] === 0) {
+            console.log(`Không có ghế nào bị xóa cho SoGhe: ${soGhe}, MaChuyenBay: ${maChuyenBay}`);
+            await transaction.rollback();
+            return res.status(500).json({ error: 'Không thể xóa ghế: Không có hàng nào bị ảnh hưởng' });
+        }
+
+        await transaction.commit();
+        console.log(`Xóa ghế ${soGhe} thành công cho chuyến bay ${maChuyenBay}`);
+        res.json({ message: 'Xóa ghế thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa ghế:', err);
+        if (transaction) {
+            await transaction.rollback();
+        }
+        res.status(500).json({ error: 'Lỗi khi xóa ghế: ' + err.message });
     }
 });
 
@@ -822,6 +885,49 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
+
+app.put('/api/reports/:maBaoCao/status1', async (req, res) => {
+    const { maBaoCao } = req.params;
+    const { trangThai } = req.body;
+    
+    try {
+        console.log('=== Bắt đầu xử lý cập nhật trạng thái báo cáo ===');
+        console.log('Mã báo cáo:', maBaoCao);
+        console.log('Trạng thái mới:', trangThai);
+        
+        const pool = await connectToDB();
+        console.log('Đã kết nối database');
+        
+        const checkResult = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
+            
+        console.log('Kết quả kiểm tra báo cáo:', checkResult.recordset);
+            
+        if (checkResult.recordset.length === 0) {
+            console.log('Không tìm thấy báo cáo');
+            return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
+        }
+        
+        const updateResult = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .input('trangThai', sql.NVarChar, trangThai)
+            .query(`
+                UPDATE BaoCao
+                SET TrangThai = @trangThai
+                WHERE MaBaoCao = @maBaoCao
+            `);
+            
+        console.log('Kết quả cập nhật:', updateResult);
+        console.log('=== Kết thúc xử lý cập nhật trạng thái báo cáo ===');
+        
+        res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
 
 // API lấy danh sách nhân viên kiểm soát
 app.get('/api/control-staff', async (req, res) => {

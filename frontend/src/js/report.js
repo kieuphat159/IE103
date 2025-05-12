@@ -65,13 +65,17 @@ function renderReportTable(reports, status) {
                 ${status === 'unprocessed' ? `
                     <td class="p-2">
                         <div class="flex gap-2 max-w-xs">
-                            <button onclick="editItem('reports', '${r.maBaoCao}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
                             <button onclick="markAsProcessed('${r.maBaoCao}')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Đánh dấu đã xử lý</button>
                             <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
                         </div>
                     </td>
                 ` : `
-                    <td class="p-2">${r.trangThai}</td>
+                    <td class="p-2">
+                        <div class="flex gap-2 max-w-xs">
+                           <button onclick="markAsUnprocessed('${r.maBaoCao}')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-teal-700 hover:shadow-md transition">Đánh dấu chưa xử lý</button>
+                            <button onclick="deleteItem('reports', '${r.maBaoCao}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+                        </div>
+                    </td>
                 `}
             </tr>
         `;
@@ -99,6 +103,35 @@ async function markAsProcessed(maBaoCao) {
         const data = await response.json();
         console.log('Cập nhật trạng thái thành công:', data);
         alert('Đã đánh dấu báo cáo là đã xử lý');
+        fetchReports('processed');
+        fetchReports('unprocessed');
+    } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái:', error);
+        alert(error.message || 'Không thể cập nhật trạng thái báo cáo. Vui lòng thử lại.');
+    }
+}
+
+async function markAsUnprocessed(maBaoCao) {
+    try {
+        console.log('Đang cập nhật trạng thái báo cáo:', maBaoCao);
+        const response = await fetch(`http://localhost:3000/api/reports/${maBaoCao}/status1`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ trangThai: 'Chưa xử lý' })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Lỗi khi cập nhật trạng thái báo cáo');
+        }
+
+        const data = await response.json();
+        console.log('Cập nhật trạng thái thành công:', data);
+        alert('Đã đánh dấu báo cáo là chưa xử lý');
+        fetchReports('processed');
         fetchReports('unprocessed');
     } catch (error) {
         console.error('Lỗi khi cập nhật trạng thái:', error);

@@ -51,7 +51,7 @@ function renderBookingTable(bookings) {
         <td class="p-2">
           <div class="flex gap-2 max-w-xs">
             <button onclick="editItem('bookings', '${b.maDatVe}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
-            <button onclick="deleteItem('bookings', '${b.maDatVe}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
+            <button onclick="xoaDatVe('${b.maDatVe}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
           </div>
         </td>
       </tr>
@@ -60,11 +60,6 @@ function renderBookingTable(bookings) {
   });
 }
 
-// Implement methods from the class diagram
-function themChongTinDatVe() {
-  console.log("Thêm thông tin đặt vé");
-  // Implementation for adding booking information
-}
 
 function capNhatThongTin() {
   console.log("Cập nhật thông tin đặt vé");

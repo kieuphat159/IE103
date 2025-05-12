@@ -52,7 +52,6 @@ function renderReportTable(reports) {
                 <td class="p-2">${r.maNV}</td>
                 <td class="p-2">${new Date(r.ngayBaoCao).toLocaleString()}</td>
                 <td class="p-2">${r.noiDungBaoCao}</td>
-                <td class="p-2">${r.trangThai}</td>
             </tr>
         `;
         tbody.insertAdjacentHTML("beforeend", row);

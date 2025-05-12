@@ -61,9 +61,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   
-  function themGhe() {
-    console.log("Thêm ghế mới");
-    // Implementation for adding a new seat
+  async function deleteItem(section, id) {
+    const flightCode = document.getElementById('flightCode').textContent;
+      if (section === 'seats') {
+          if (confirm(`Bạn có chắc chắn muốn xóa chỗ ngồi với ID: ${id}?`)) {
+              try {
+                  console.log(`Đang gửi yêu cầu DELETE /api/seats/${id}/${flightCode}`);
+                  const response = await fetch(`http://localhost:3000/api/seats/${id}/${flightCode}`, {
+                      method: 'DELETE',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      }
+                  });
+  
+                  const data = await response.json();
+                  console.log(`Kết quả DELETE /api/seats/${id}:`, data);
+  
+                  if (!response.ok) {
+                      throw new Error(data.error || `Lỗi khi xóa chỗ ngồi: ${response.status} ${response.statusText}`);
+                  }
+  
+                  alert(data.message || `Đã xóa chỗ ngồi với ID: ${id}`);
+                  fetchSeats();
+              } catch (error) {
+                  console.error('Lỗi:', error);
+                  alert(`Không thể xóa chô ngồi: ${error.message}`);
+              }
+          }
+      }
   }
 
   function searchSeat() {
