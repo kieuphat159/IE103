@@ -1,4 +1,3 @@
-drop database QLdatve
 -- Tạo cơ sở dữ liệu
 CREATE DATABASE QLdatve;
 GO
@@ -8,7 +7,7 @@ USE QLdatve;
 GO
 
 -- Bảng NguoiDung
- CREATE TABLE NguoiDung (
+CREATE TABLE NguoiDung (
     TaiKhoan VARCHAR(50) PRIMARY KEY,
     Ten NVARCHAR(100) NOT NULL,
     MatKhau VARCHAR(255) NOT NULL,
@@ -19,6 +18,7 @@ GO
     SoCCCD VARCHAR(20)
 );
 GO
+
 -- Bảng KhachHang
 CREATE TABLE KhachHang (
     MaKH VARCHAR(20) PRIMARY KEY,
@@ -48,6 +48,7 @@ CREATE TABLE BaoCao (
     CONSTRAINT FK_BaoCao_NhanVienKiemSoat FOREIGN KEY (MaNV) REFERENCES NhanVienKiemSoat(MaNV),
     CONSTRAINT CK_TrangThai_Valid CHECK (TrangThai IN (N'Đã xử lý', N'Chưa xử lý')) 
 );
+GO
 
 -- Bảng ChuyenBay
 CREATE TABLE ChuyenBay (
@@ -86,9 +87,9 @@ CREATE TABLE ThongTinDatVe (
     MaKH VARCHAR(20) NOT NULL,
     CONSTRAINT FK_ThongTinDatVe_ChuyenBay FOREIGN KEY (MaChuyenBay) REFERENCES ChuyenBay(MaChuyenBay),
     CONSTRAINT FK_ThongTinDatVe_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
-    CONSTRAINT CK_SoTien_Positive CHECK (SoTien > 0)
+    CONSTRAINT CK_SoTien_Positive CHECK (SoTien > 0),
+    CONSTRAINT CK_TrangThaiThanhToan CHECK (TrangThaiThanhToan IN ('Chưa thanh toán', 'Đã thanh toán'))
 );
--- CHECK (TrangThaiThanhToan IN ('Chưa thanh toán', 'Đã thanh toán'))
 GO
 
 -- Bảng ThanhToan
@@ -115,8 +116,6 @@ CREATE TABLE HoaDon (
 );
 GO
 
--- Triggers
-
 -- Trigger kiểm tra ngày đặt vé phải trước ngày bay của chuyến bay
 CREATE TRIGGER trg_NgayDatVe_Before_GioBay
 ON ThongTinDatVe
@@ -136,10 +135,10 @@ BEGIN
 END;
 GO
 
--- Trigger kiểm tra số lượng hành khách không vượt quá số ghế trống
+-- Trigger kiểm tra số lượng ghế trống trước khi đặt vé
 CREATE TRIGGER trg_Check_Available_Seats
 ON ThongTinDatVe
-AFTER INSERT, UPDATE
+AFTER INSERT
 AS
 BEGIN
     DECLARE @MaChuyenBay VARCHAR(20), @SoGhe INT, @AvailableSeats INT;
@@ -153,7 +152,7 @@ BEGIN
 
     IF @SoGhe > @AvailableSeats
     BEGIN
-        RAISERROR ('Số lượng hành khách vượt quá số ghế trống!', 16, 1);
+        RAISERROR ('Số lượng ghế yêu cầu vượt quá số ghế trống!', 16, 1);
         ROLLBACK TRANSACTION;
     END
 END;
@@ -165,25 +164,27 @@ ON ThongTinDatVe
 AFTER INSERT
 AS
 BEGIN
+    SET NOCOUNT ON;
     DECLARE @MaChuyenBay VARCHAR(20), @SoGhe INT;
 
     SELECT @MaChuyenBay = MaChuyenBay, @SoGhe = SoGhe
     FROM inserted;
 
-    -- Cập nhật trạng thái ghế (đặt số ghế tương ứng với SoCong)
+    -- Cập nhật trạng thái ghế thành 'đã đặt' cho số ghế tương ứng
     WITH AvailableSeats AS (
         SELECT TOP (@SoGhe) SoGhe
         FROM ThongTinGhe
         WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn'
+        ORDER BY SoGhe
     )
-    UPDATE ThongTinGhe
+    UPDATE tg
     SET TinhTrangGhe = 'đã đặt'
     FROM ThongTinGhe tg
     INNER JOIN AvailableSeats s ON tg.SoGhe = s.SoGhe AND tg.MaChuyenBay = @MaChuyenBay;
 END;
 GO
 
--- Trigger đảm bảo số tiền thanh toán khớp với số tiền đặt vé
+-- Trigger kiểm tra số tiền thanh toán khớp với số tiền đặt vé
 CREATE TRIGGER trg_Check_Payment_Amount
 ON ThanhToan
 AFTER INSERT, UPDATE
@@ -211,28 +212,12 @@ BEGIN
     UPDATE ThongTinDatVe
     SET TrangThaiThanhToan = 'Đã thanh toán'
     FROM ThongTinDatVe dv
-    INNER JOIN inserted i ON dv.MaDatVe = i.MaDatVe;
+    INNER JOIN inserted i ON dv.MaDatVe = i.MaDatVe
+    WHERE dv.TrangThaiThanhToan = 'Chưa thanh toán';
 END;
 GO
 
-ALTER TRIGGER [dbo].[trg_Update_Seat_Status]
-ON [dbo].[ThongTinDatVe]
-AFTER INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Cập nhật trạng thái từng ghế được đặt là 'đã đặt'
-    UPDATE tg
-    SET TinhTrangGhe = 'đã đặt'
-    FROM ThongTinGhe tg
-    INNER JOIN inserted i
-        ON tg.SoGhe = i.SoGhe AND tg.MaChuyenBay = i.MaChuyenBay;
-END;
-
--- Stored Procedures
-
--- SP thêm người dùng
+-- Stored Procedure thêm người dùng
 CREATE PROCEDURE sp_ThemNguoiDung
     @TaiKhoan VARCHAR(50),
     @Ten NVARCHAR(100),
@@ -249,19 +234,20 @@ BEGIN
 END;
 GO
 
--- SP xóa người dùng
+-- Stored Procedure xóa người dùng
 CREATE PROCEDURE sp_XoaNguoiDung
     @TaiKhoan VARCHAR(50)
 AS
 BEGIN
-    -- Xóa các bản ghi liên quan trước
+    BEGIN TRANSACTION;
     DELETE FROM KhachHang WHERE TaiKhoan = @TaiKhoan;
     DELETE FROM NhanVienKiemSoat WHERE TaiKhoan = @TaiKhoan;
     DELETE FROM NguoiDung WHERE TaiKhoan = @TaiKhoan;
+    COMMIT TRANSACTION;
 END;
 GO
 
--- SP đăng ký khách hàng
+-- Stored Procedure đăng ký khách hàng
 CREATE PROCEDURE sp_DangKyKhachHang
     @TaiKhoan VARCHAR(50),
     @Ten NVARCHAR(100),
@@ -284,13 +270,12 @@ BEGIN
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR (@ErrorMessage, 16, 1);
+        THROW;
     END CATCH
 END;
 GO
 
--- SP thêm chuyến bay
+-- Stored Procedure thêm chuyến bay
 CREATE PROCEDURE sp_ThemChuyenBay
     @MaChuyenBay VARCHAR(20),
     @TinhTrangChuyenBay NVARCHAR(50),
@@ -305,7 +290,27 @@ BEGIN
 END;
 GO
 
--- SP thêm ghế
+-- Stored Procedure cập nhật chuyến bay
+CREATE PROCEDURE sp_CapNhatChuyenBay
+    @MaChuyenBay VARCHAR(20),
+    @TinhTrangChuyenBay NVARCHAR(50),
+    @GioBay DATETIME,
+    @GioDen DATETIME,
+    @DiaDiemDau NVARCHAR(100),
+    @DiaDiemCuoi NVARCHAR(100)
+AS
+BEGIN
+    UPDATE ChuyenBay
+    SET TinhTrangChuyenBay = @TinhTrangChuyenBay,
+        GioBay = @GioBay,
+        GioDen = @GioDen,
+        DiaDiemDau = @DiaDiemDau,
+        DiaDiemCuoi = @DiaDiemCuoi
+    WHERE MaChuyenBay = @MaChuyenBay;
+END;
+GO
+
+-- Stored Procedure thêm ghế
 CREATE PROCEDURE sp_ThemGhe
     @SoGhe VARCHAR(10),
     @MaChuyenBay VARCHAR(20),
@@ -319,7 +324,7 @@ BEGIN
 END;
 GO
 
--- SP thêm đặt vé
+-- Stored Procedure thêm đặt vé
 CREATE PROCEDURE sp_ThemDatVe
     @MaDatVe VARCHAR(20),
     @NgayDatVe DATE,
@@ -336,7 +341,7 @@ BEGIN
 END;
 GO
 
--- SP thêm thanh toán
+-- Stored Procedure thêm thanh toán
 CREATE PROCEDURE sp_ThemThanhToan
     @MaTT VARCHAR(20),
     @NgayTT DATE,
@@ -350,7 +355,7 @@ BEGIN
 END;
 GO
 
--- SP thêm hóa đơn
+-- Stored Procedure thêm hóa đơn
 CREATE PROCEDURE sp_ThemHoaDon
     @MaHoaDon VARCHAR(20),
     @NgayXuatHD DATE,
@@ -364,49 +369,90 @@ BEGIN
 END;
 GO
 
--- Thêm dữ liệu mẫu
+-- Stored Procedure kiểm tra ghế trống
+CREATE PROCEDURE sp_KiemTraGheTrong
+    @MaChuyenBay VARCHAR(20)
+AS
+BEGIN
+    SELECT COUNT(*) AS SoGheTrong
+    FROM ThongTinGhe
+    WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn';
+END;
+GO
 
--- Thêm người dùng
+-- Function tính tổng doanh thu theo chuyến bay
+CREATE FUNCTION fn_TongDoanhThuChuyenBay (@MaChuyenBay VARCHAR(20))
+RETURNS DECIMAL(18, 2)
+AS
+BEGIN
+    DECLARE @TongDoanhThu DECIMAL(18, 2);
+    SELECT @TongDoanhThu = SUM(t.SoTien)
+    FROM ThongTinDatVe t
+    JOIN ThanhToan tt ON t.MaDatVe = tt.MaDatVe
+    WHERE t.MaChuyenBay = @MaChuyenBay AND t.TrangThaiThanhToan = 'Đã thanh toán';
+    RETURN ISNULL(@TongDoanhThu, 0);
+END;
+GO
+
+-- View báo cáo doanh thu theo chuyến bay
+CREATE VIEW vw_BaoCaoDoanhThu AS
+SELECT 
+    cb.MaChuyenBay,
+    cb.DiaDiemDau,
+    cb.DiaDiemCuoi,
+    cb.GioBay,
+    cb.GioDen,
+    COUNT(t.MaDatVe) AS SoVeDaDat,
+    dbo.fn_TongDoanhThuChuyenBay(cb.MaChuyenBay) AS TongDoanhThu
+FROM ChuyenBay cb
+LEFT JOIN ThongTinDatVe t ON cb.MaChuyenBay = t.MaChuyenBay
+GROUP BY cb.MaChuyenBay, cb.DiaDiemDau, cb.DiaDiemCuoi, cb.GioBay, cb.GioDen;
+GO
+
+-- View báo cáo ghế trống
+CREATE VIEW vw_GheTrong AS
+SELECT 
+    tg.MaChuyenBay,
+    cb.DiaDiemDau,
+    cb.DiaDiemCuoi,
+    COUNT(*) AS SoGheTrong
+FROM ThongTinGhe tg
+JOIN ChuyenBay cb ON tg.MaChuyenBay = cb.MaChuyenBay
+WHERE tg.TinhTrangGhe = 'có sẵn'
+GROUP BY tg.MaChuyenBay, cb.DiaDiemDau, cb.DiaDiemCuoi;
+GO
+
+-- Thêm dữ liệu mẫu
+-- (Giữ nguyên dữ liệu mẫu như trong tệp gốc)
 EXEC sp_ThemNguoiDung 'user1', N'Nguyễn Văn A', 'hashed_password1', 'a@example.com', '0123456789', '1990-01-01', 'Nam', '123456789012';
 EXEC sp_ThemNguoiDung 'user2', N'Trần Thị B', 'hashed_password2', 'b@example.com', '0987654321', '1995-05-15', 'Nữ', '098765432109';
 EXEC sp_ThemNguoiDung 'nv1', N'Lê Văn C', 'hashed_password3', 'c@example.com', '0912345678', '1985-03-10', 'Nam', '112233445566';
 
--- Thêm khách hàng
 INSERT INTO KhachHang (MaKH, Passport, TaiKhoan)
-VALUES ('KH001', 'P123456', 'user1'),
-       ('KH002', 'P654321', 'user2');
+VALUES ('KH001', 'P123456', 'user1'), ('KH002', 'P654321', 'user2');
 
--- Thêm nhân viên kiểm soát
 INSERT INTO NhanVienKiemSoat (MaNV, TaiKhoan)
 VALUES ('NV001', 'nv1');
 
--- Thêm báo cáo
-INSERT INTO BaoCao
+INSERT INTO BaoCao (MaBaoCao, NgayBaoCao, NoiDungBaoCao, MaNV, TrangThai)
 VALUES ('BC001', '2025-04-12', N'Khách hàng không mang hộ chiếu', 'NV001', N'Đã xử lý'),
        ('BC002', '2025-04-14', N'Khách hàng yêu cầu đổi giờ bay', 'NV001', N'Chưa xử lý');
 
--- Thêm chuyến bay
 EXEC sp_ThemChuyenBay 'CB001', 'Chưa khởi hành', '2025-04-15 08:00:00', '2025-04-15 10:30:00', N'Hà Nội', N'Hồ Chí Minh';
 EXEC sp_ThemChuyenBay 'CB002', 'Chưa khởi hành', '2025-04-16 10:30:00', '2025-04-16 12:15:00', N'Hồ Chí Minh', N'Đà Nẵng';
 
--- Thêm ghế
 EXEC sp_ThemGhe '01', 'CB001', 1500000, 'Phổ thông', 'có sẵn';
 EXEC sp_ThemGhe '02', 'CB001', 1500000, 'Phổ thông', 'có sẵn';
 EXEC sp_ThemGhe '03', 'CB001', 2500000, 'Thương gia', 'có sẵn';
 EXEC sp_ThemGhe '04', 'CB002', 1200000, 'Phổ thông', 'có sẵn';
 EXEC sp_ThemGhe '05', 'CB002', 1200000, 'Phổ thông', 'có sẵn';
 
-
--- Thêm thông tin đặt vé
 EXEC sp_ThemDatVe 'DV001', '2025-04-10', '2025-04-15', 'Chưa thanh toán', 1, 1500000, 'CB001', 'KH001';
 EXEC sp_ThemDatVe 'DV002', '2025-04-11', '2025-04-16', 'Chưa thanh toán', 2, 2400000, 'CB002', 'KH002';
 
--- Thêm thanh toán
 EXEC sp_ThemThanhToan 'TT001', '2025-04-10', 1500000, 'Thẻ tín dụng', 'DV001';
 EXEC sp_ThemThanhToan 'TT002', '2025-04-12', 2400000, 'Chuyển khoản', 'DV002';
 
--- Thêm hóa đơn
 EXEC sp_ThemHoaDon 'HD001', '2025-04-10', 'Thẻ tín dụng', '2025-04-10', 'TT001';
 EXEC sp_ThemHoaDon 'HD002', '2025-04-12', 'Chuyển khoản', '2025-04-12', 'TT002';
-
-
+GO
