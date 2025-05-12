@@ -1,4 +1,4 @@
-import controllerSession from './controllersession.js';
+// import controllerSession from './controllersession.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     // Kiểm tra đăng nhập và vai trò controller
@@ -36,6 +36,9 @@ function showSection(sectionId) {
         section.classList.add('hidden');
     });
     document.getElementById(sectionId).classList.remove('hidden');
+    if (sectionId === 'controllers') {
+        fetchControllers(); // Tải danh sách nhân viên kiểm soát
+    }
 }
 
 // Lấy thông tin cá nhân

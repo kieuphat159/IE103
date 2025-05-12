@@ -968,6 +968,47 @@ app.get('/api/control-staff', async (req, res) => {
     }
 });
 
+// API cập nhật nhân viên kiểm soát
+app.put('/api/control-staff/:maNV', async (req, res) => {
+    const { maNV } = req.params;
+    const { ten, email, sdt, ngaySinh, gioiTinh, soCCCD } = req.body;
+
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('maNV', sql.VarChar, maNV)
+            .input('ten', sql.NVarChar, ten)
+            .input('email', sql.VarChar, email)
+            .input('sdt', sql.VarChar, sdt)
+            .input('ngaySinh', sql.Date, ngaySinh)
+            .input('gioiTinh', sql.NVarChar, gioiTinh)
+            .input('soCCCD', sql.VarChar, soCCCD)
+            .query(`
+                UPDATE NguoiDung
+                SET ten = @ten,
+                    email = @email,
+                    sdt = @sdt,
+                    ngaySinh = @ngaySinh,
+                    gioiTinh = @gioiTinh,
+                    soCCCD = @soCCCD
+                FROM NguoiDung nd
+                JOIN NhanVienKiemSoat nv ON nd.taiKhoan = nv.TaiKhoan
+                WHERE nv.MaNV = @maNV
+            `);
+
+        if (result.rowsAffected[0] === 0) {
+            console.log(`Không tìm thấy nhân viên kiểm soát với mã: ${maNV}`);
+            return res.status(404).json({ error: 'Không tìm thấy nhân viên kiểm soát' });
+        }
+
+        console.log(`Cập nhật nhân viên kiểm soát thành công: ${maNV}`);
+        res.json({ message: 'Cập nhật nhân viên kiểm soát thành công' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật nhân viên kiểm soát:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật nhân viên kiểm soát: ' + err.message });
+    }
+});
+
 // Xử lý các route không tồn tại
 app.use((req, res) => {
     console.log(`Route không tồn tại: ${req.method} ${req.url}`);
