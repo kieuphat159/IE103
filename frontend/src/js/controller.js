@@ -219,6 +219,12 @@ function openControllerModal(mode, controller = null) {
                     value="${controller ? controller.maNV : ''}" ${mode === 'edit' ? 'readonly' : ''}>
             </div>
             <div>
+                <label class="block text-sm font-medium text-gray-700">Tài khoản</label>
+                <input type="text" id="controllerTaiKhoan" name="taiKhoan" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
+                    value="${controller ? controller.taiKhoan : ''}" ${mode === 'edit' ? 'readonly' : ''}>
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-gray-700">Họ tên</label>
                 <input type="text" id="controllerHoTen" name="hoTen" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
@@ -260,7 +266,7 @@ function openControllerModal(mode, controller = null) {
             <div>
                 <label class="block text-sm font-medium text-gray-700">Mật khẩu</label>
                 <input type="password" id="matKhau" name="matKhau" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
             </div>
             ` : ''}
         </form>
@@ -272,6 +278,7 @@ function openControllerModal(mode, controller = null) {
 }
 
 // Save controller data
+// controller.js
 async function saveController() {
     const form = document.getElementById('controllerForm');
     const formData = new FormData(form);
@@ -287,11 +294,21 @@ async function saveController() {
         return;
     }
 
-    // Định dạng ngày sinh
-    data.ngaySinh = new Date(data.ngaySinh).toISOString().split('T')[0];
+    // Định dạng dữ liệu gửi đi
+    const payload = {
+        maNV: data.maNV,
+        ten: data.hoTen,
+        email: data.email,
+        sdt: data.soDienThoai,
+        ngaySinh: new Date(data.ngaySinh).toISOString().split('T')[0],
+        gioiTinh: data.gioiTinh,
+        soCCCD: data.CMND_CCCD,
+        taiKhoan: data.maNV, // Giả sử taiKhoan trùng với maNV, hoặc lấy từ input riêng
+        matKhau: data.matKhau || undefined
+    };
 
     try {
-        const url = window.currentMode === 'add' ? '/api/controllers' : `/api/controllers/${data.maNV}`;
+        const url = window.currentMode === 'add' ? '/api/controllers' : `/api/control-staff/${data.maNV}`;
         const method = window.currentMode === 'add' ? 'POST' : 'PUT';
 
         const response = await fetch(`http://localhost:3000${url}`, {
@@ -299,16 +316,7 @@ async function saveController() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                maNV: data.maNV,
-                ten: data.hoTen,
-                email: data.email,
-                sdt: data.soDienThoai,
-                ngaySinh: data.ngaySinh,
-                gioiTinh: data.gioiTinh,
-                soCCCD: data.CMND_CCCD,
-                matKhau: data.matKhau || undefined // Chỉ gửi matKhau khi thêm mới
-            })
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {

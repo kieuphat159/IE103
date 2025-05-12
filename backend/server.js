@@ -100,21 +100,86 @@ app.post('/api/login', async (req, res) => {
 });
 
 // API thêm nhân viên
-app.post('/api/staff', async (req, res) => {
-    const { maNV, hoTen, email, sdt, taiKhoan } = req.body;
+app.post('/api/controllers', async (req, res) => {
+    const { maNV, ten, email, sdt, ngaySinh, gioiTinh, soCCCD, taiKhoan, matKhau } = req.body;
+
+    let pool;
+    let transaction;
+
     try {
-        const pool = await connectToDB();
-        await pool.request()
+        // Kiểm tra dữ liệu đầu vào
+        if (!maNV || !ten || !email || !sdt || !ngaySinh || !gioiTinh || !soCCCD || !taiKhoan || !matKhau) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Mã hóa mật khẩu
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
+
+        // Thêm vào bảng NguoiDung
+        await transaction.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .input('ten', sql.NVarChar, ten)
+            .input('matKhau', sql.VarChar, hashedPassword)
+            .input('email', sql.VarChar, email)
+            .input('sdt', sql.VarChar, sdt)
+            .input('ngaySinh', sql.Date, ngaySinh)
+            .input('gioiTinh', sql.NVarChar, gioiTinh)
+            .input('soCCCD', sql.VarChar, soCCCD)
+            .query(`
+                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD)
+                VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
+            `);
+
+        // Thêm vào bảng NhanVienKiemSoat
+        await transaction.request()
             .input('maNV', sql.VarChar, maNV)
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query(`
                 INSERT INTO NhanVienKiemSoat (MaNV, TaiKhoan)
                 VALUES (@maNV, @taiKhoan)
             `);
-        res.json({ message: 'Nhân viên đã được thêm' });
+
+        await transaction.commit();
+        console.log(`Thêm nhân viên kiểm soát thành công: ${maNV}`);
+        res.status(201).json({ message: 'Thêm nhân viên kiểm soát thành công' });
     } catch (err) {
-        console.error('Lỗi khi thêm nhân viên:', err);
-        res.status(500).json({ error: 'Lỗi khi thêm nhân viên' });
+        if (transaction) {
+            await transaction.rollback();
+        }
+        console.error('Lỗi khi thêm nhân viên kiểm soát:', err);
+        res.status(500).json({ error: 'Lỗi khi thêm nhân viên kiểm soát: ' + err.message });
+    }
+    try {
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Kiểm tra trùng taiKhoan
+        const taiKhoanCheck = await transaction.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query('SELECT TaiKhoan FROM NguoiDung WHERE TaiKhoan = @taiKhoan');
+        if (taiKhoanCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
+        }
+
+        // Kiểm tra trùng maNV
+        const maNVCheck = await transaction.request()
+            .input('maNV', sql.VarChar, maNV)
+            .query('SELECT MaNV FROM NhanVienKiemSoat WHERE MaNV = @maNV');
+        if (maNVCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Mã nhân viên đã tồn tại' });
+        }
+
+        // ... (tiếp tục với mã hóa mật khẩu và thêm dữ liệu)
+    } catch (err) {
+        // ... (xử lý lỗi)
     }
 });
 
@@ -759,6 +824,8 @@ app.get('/api/reports', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
+
+
 
 // API lấy báo cáo đầy đủ
 app.get('/api/reports/full', async (req, res) => {

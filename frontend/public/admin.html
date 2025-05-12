@@ -297,7 +297,7 @@
             }
         }
 
-        function saveData() {
+    function saveData() {
         const modalTitle = document.getElementById('modalTitle').textContent;
         if (modalTitle.includes('nhân viên kiểm soát') || window.currentMode === 'add' || window.currentMode === 'edit') {
             saveController(); // Gọi hàm saveController từ controller.js
@@ -307,6 +307,14 @@
             alert('Dữ liệu đã được lưu thành công!');
             closeModal();
         }
+    }
+    function confirmLogout() {
+        // Clear any session data if needed
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
     }
     </script>
 </body>

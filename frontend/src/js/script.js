@@ -477,11 +477,3 @@ function closeConfirmDialog() {
     dialog.classList.add('hidden');
 }
 
-function confirmLogout() {
-    // Clear any session data if needed
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    
-    // Redirect to login page
-    window.location.href = 'login.html';
-}
