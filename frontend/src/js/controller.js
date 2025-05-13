@@ -1,4 +1,4 @@
-// import controllerSession from './controllersession.js';
+import controllerSession from './controllerSession.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     // Kiểm tra đăng nhập và vai trò controller
@@ -36,8 +36,10 @@ function showSection(sectionId) {
         section.classList.add('hidden');
     });
     document.getElementById(sectionId).classList.remove('hidden');
-    if (sectionId === 'controllers') {
-        fetchControllers(); // Tải danh sách nhân viên kiểm soát
+    if (sectionId === 'reports') {
+        fetchReports();
+    } else if (sectionId === 'personal-info') {
+        fetchPersonalInfo();
     }
 }
 
@@ -114,258 +116,188 @@ function displayPersonalInfo(controller) {
     });
 }
 
-// Fetch all controllers
-async function fetchControllers() {
+// Fetch reports
+async function fetchReports() {
     try {
-        console.log('Fetching controllers...');
-        const response = await fetch('http://localhost:3000/api/control-staff', {
+        console.log('Fetching reports...');
+        const user = controllerSession.getUser();
+        if (!user || !user.taiKhoan) {
+            throw new Error('Không tìm thấy thông tin người dùng');
+        }
+
+        // Lấy maNV từ thông tin nhân viên kiểm soát
+        const response = await fetch(`http://localhost:3000/api/control-staff?taiKhoan=${user.taiKhoan}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const staffData = await response.json();
+        if (staffData.length === 0) {
+            throw new Error('Không tìm thấy thông tin nhân viên kiểm soát');
+        }
+        const maNV = staffData[0].maNV;
+
+        // Gửi yêu cầu lấy báo cáo với maNV
+        const reportsResponse = await fetch(`http://localhost:3000/api/reports?maNV=${maNV}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
         });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error response:', errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+
+        if (!reportsResponse.ok) {
+            throw new Error(`HTTP error! status: ${reportsResponse.status}`);
         }
-        
-        const data = await response.json();
-        console.log('Received data:', data);
-        displayControllers(data);
+
+        const reports = await reportsResponse.json();
+        console.log('Received reports:', reports);
+        displayReports(reports);
     } catch (error) {
-        console.error('Error fetching controllers:', error);
-        alert('Có lỗi xảy ra khi tải dữ liệu nhân viên kiểm soát: ' + error.message);
+        console.error('Error fetching reports:', error);
+        alert('Có lỗi xảy ra khi tải dữ liệu báo cáo: ' + error.message);
+        displayReports([]);
     }
 }
 
-// Display controllers in the table
-function displayControllers(controllers) {
-    console.log('Displaying controllers:', controllers);
-    const table = document.getElementById('controllerTable');
-    if (!table) {
-        console.error('Controller table element not found');
-        return;
-    }
-    
-    table.innerHTML = '';
+// Display reports in the table
+function displayReports(reports) {
+    const tableBody = document.getElementById('reportTable');
+    tableBody.innerHTML = '';
 
-    if (!controllers || controllers.length === 0) {
+    if (!reports || reports.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="8" class="p-2 border text-center">Không có dữ liệu</td>';
-        table.appendChild(row);
+        row.innerHTML = '<td colspan="5" class="p-2 border text-center">Không có báo cáo nào</td>';
+        tableBody.appendChild(row);
         return;
     }
 
-    controllers.forEach(controller => {
-        console.log('Processing controller:', controller);
+    reports.forEach(report => {
         const row = document.createElement('tr');
+        row.classList.add('hover:bg-gray-100');
         row.innerHTML = `
-            <td class="p-2 border">${controller.maNV || ''}</td>
-            <td class="p-2 border">${controller.ten || ''}</td>
-            <td class="p-2 border">${controller.email || ''}</td>
-            <td class="p-2 border">${controller.sdt || ''}</td>
-            <td class="p-2 border">${controller.ngaySinh ? new Date(controller.ngaySinh).toLocaleDateString() : ''}</td>
-            <td class="p-2 border">${controller.gioiTinh || ''}</td>
-            <td class="p-2 border">${controller.soCCCD || ''}</td>
-            <td class="p-2 border">
-                <button onclick="editController('${controller.maNV}')" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Sửa</button>
-                <button onclick="deleteController('${controller.maNV}')" class="bg-red-500 text-white px-2 py-1 rounded">Xóa</button>
-            </td>
+            <td class="p-2 border">${report.maBaoCao}</td>
+            <td class="p-2 border">${report.ngayBaoCao ? new Date(report.ngayBaoCao).toLocaleDateString() : ''}</td>
+            <td class="p-2 border">${report.noiDungBaoCao}</td>
+            <td class="p-2 border">${report.maNV}</td>
+            <td class="p-2 border">${report.trangThai}</td>
         `;
-        table.appendChild(row);
+        tableBody.appendChild(row);
     });
 }
 
-// Search controllers
-function searchController() {
-    const searchInput = document.getElementById('searchControllerInput');
+// Search reports
+function searchReport() {
+    const searchInput = document.getElementById('searchReportInput');
     const searchTerm = searchInput.value.toLowerCase();
-    const tableBody = document.getElementById('controllerTable');
+    const tableBody = document.getElementById('reportTable');
     const rows = tableBody.getElementsByTagName('tr');
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName('td');
         let found = false;
-        
-        for (let j = 0; j < cells.length - 1; j++) {
+
+        for (let j = 0; j < cells.length; j++) {
             const cellText = cells[j].textContent.toLowerCase();
             if (cellText.includes(searchTerm)) {
                 found = true;
                 break;
             }
         }
-        
+
         rows[i].style.display = found ? '' : 'none';
     }
 }
 
-// Open modal for adding/editing controller
-function openControllerModal(mode, controller = null) {
+// Open modal for adding report
+function openReportModal() {
     const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modalTitle');
     const modalContent = document.getElementById('modalContent');
 
-    modalTitle.textContent = mode === 'add' ? 'Thêm nhân viên kiểm soát' : 'Sửa nhân viên kiểm soát';
-    
+    modalTitle.textContent = 'Thêm báo cáo';
     modalContent.innerHTML = `
-        <form id="controllerForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Mã nhân viên</label>
-                <input type="text" id="controllerMaNV" name="maNV" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.maNV : ''}" ${mode === 'edit' ? 'readonly' : ''}>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Tài khoản</label>
-                <input type="text" id="controllerTaiKhoan" name="taiKhoan" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.taiKhoan : ''}" ${mode === 'edit' ? 'readonly' : ''}>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Họ tên</label>
-                <input type="text" id="controllerHoTen" name="hoTen" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.ten : ''}">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="controllerEmail" name="email" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.email : ''}">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                <input type="tel" id="controllerSoDienThoai" name="soDienThoai" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.sdt : ''}">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Ngày sinh</label>
-                <input type="date" id="controllerNgaySinh" name="ngaySinh" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? new Date(controller.ngaySinh).toISOString().split('T')[0] : ''}">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Giới tính</label>
-                <select id="controllerGioiTinh" name="gioiTinh" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
-                    <option value="Nam" ${controller && controller.gioiTinh === 'Nam' ? 'selected' : ''}>Nam</option>
-                    <option value="Nữ" ${controller && controller.gioiTinh === 'Nữ' ? 'selected' : ''}>Nữ</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Số CCCD</label>
-                <input type="text" id="controllerCMND_CCCD" name="CMND_CCCD" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3"
-                    value="${controller ? controller.soCCCD : ''}">
-            </div>
-            ${mode === 'add' ? `
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Mật khẩu</label>
-                <input type="password" id="matKhau" name="matKhau" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
-            </div>
-            ` : ''}
-        </form>
+        <input id="generatedMaBaoCao" type="hidden">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Mã nhân viên</label>
+            <input type="text" id="reportMaNV" name="maNV" required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Ngày báo cáo</label>
+            <input type="date" id="reportNgayBaoCao" name="ngayBaoCao" required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-10 px-3">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Nội dung báo cáo</label>
+            <textarea id="reportNoiDung" name="noiDungBaoCao" required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-20 px-3 py-2"></textarea>
+        </div>
     `;
 
     modal.classList.remove('hidden');
-    window.currentMode = mode;
-    window.currentController = controller;
+    generateNewReportCode();
 }
 
-// Save controller data
-// controller.js
-async function saveController() {
-    const form = document.getElementById('controllerForm');
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+// Generate new report code
+async function generateNewReportCode() {
+    try {
+        const response = await fetch('http://localhost:3000/api/reports/generate-code');
+        if (!response.ok) {
+            throw new Error('Không thể tạo mã báo cáo');
+        }
+        const data = await response.json();
+        document.getElementById('generatedMaBaoCao').value = data.maBaoCao;
+    } catch (error) {
+        console.error('Error generating report code:', error);
+        alert('Có lỗi xảy ra khi tạo mã báo cáo');
+    }
+}
 
-    // Kiểm tra dữ liệu
-    if (!data.maNV || !data.hoTen || !data.email || !data.soDienThoai || !data.ngaySinh || !data.gioiTinh || !data.CMND_CCCD) {
+// Save report data
+async function saveReport() {
+    const maBaoCao = document.getElementById('generatedMaBaoCao').value;
+    const maNV = document.getElementById('reportMaNV').value;
+    const ngayBaoCao = document.getElementById('reportNgayBaoCao').value;
+    const noiDungBaoCao = document.getElementById('reportNoiDung').value;
+
+    if (!maBaoCao || !maNV || !ngayBaoCao || !noiDungBaoCao) {
         alert('Vui lòng điền đầy đủ thông tin!');
         return;
     }
-    if (window.currentMode === 'add' && !data.matKhau) {
-        alert('Vui lòng nhập mật khẩu!');
-        return;
-    }
-
-    // Định dạng dữ liệu gửi đi
-    const payload = {
-        maNV: data.maNV,
-        ten: data.hoTen,
-        email: data.email,
-        sdt: data.soDienThoai,
-        ngaySinh: new Date(data.ngaySinh).toISOString().split('T')[0],
-        gioiTinh: data.gioiTinh,
-        soCCCD: data.CMND_CCCD,
-        taiKhoan: data.maNV, // Giả sử taiKhoan trùng với maNV, hoặc lấy từ input riêng
-        matKhau: data.matKhau || undefined
-    };
 
     try {
-        const url = window.currentMode === 'add' ? '/api/controllers' : `/api/control-staff/${data.maNV}`;
-        const method = window.currentMode === 'add' ? 'POST' : 'PUT';
-
-        const response = await fetch(`http://localhost:3000${url}`, {
-            method: method,
+        const response = await fetch('http://localhost:3000/api/reports', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                maBaoCao,
+                maNV,
+                ngayBaoCao,
+                noiDungBaoCao,
+                trangThai: 'Chưa xử lý'
+            })
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Lỗi khi lưu dữ liệu');
+            throw new Error(errorData.error || 'Lỗi khi lưu báo cáo');
         }
 
         closeModal();
-        fetchControllers();
-        alert(window.currentMode === 'add' ? 'Thêm nhân viên kiểm soát thành công' : 'Cập nhật nhân viên kiểm soát thành công');
+        fetchReports();
+        alert('Thêm báo cáo thành công');
     } catch (error) {
-        console.error('Error saving controller:', error);
-        alert('Có lỗi xảy ra khi lưu dữ liệu: ' + error.message);
+        console.error('Error saving report:', error);
+        alert('Có lỗi xảy ra khi lưu báo cáo: ' + error.message);
     }
 }
 
-// Edit controller
-async function editController(maNV) {
-    try {
-        const response = await fetch(`/api/controllers/${maNV}`);
-        const controller = await response.json();
-        openControllerModal('edit', controller);
-    } catch (error) {
-        console.error('Error fetching controller details:', error);
-        alert('Có lỗi xảy ra khi tải thông tin nhân viên kiểm soát');
-    }
-}
-
-// Delete controller
-async function deleteController(maNV) {
-    if (!confirm('Bạn có chắc chắn muốn xóa nhân viên kiểm soát này?')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/controllers/${maNV}`, {
-            method: 'DELETE'
-        });
-
-        if (!response.ok) {
-            throw new Error('Lỗi khi xóa nhân viên kiểm soát');
-        }
-
-        fetchControllers();
-        alert('Xóa nhân viên kiểm soát thành công');
-    } catch (error) {
-        console.error('Error deleting controller:', error);
-        alert('Có lỗi xảy ra khi xóa nhân viên kiểm soát');
-    }
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('modal');
+    modal.classList.add('hidden');
 }
 
 // Đăng xuất
