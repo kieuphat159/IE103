@@ -592,6 +592,63 @@ app.get('/api/invoices', async (req, res) => {
     }
 });
 
+// API xóa hóa đơn theo mã hóa đơn
+app.delete('/api/invoices/:maHoaDon', async (req, res) => {
+    const { maHoaDon } = req.params;
+    console.log(`Nhận được yêu cầu DELETE /api/invoices/${maHoaDon}`);
+    let pool;
+    let transaction;
+    try {
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Tìm MaTT liên quan từ bảng HoaDon
+        const invoiceResult = await transaction.request()
+            .input('maHoaDon', sql.VarChar, maHoaDon)
+            .query('SELECT MaTT FROM HoaDon WHERE MaHoaDon = @maHoaDon');
+
+        if (invoiceResult.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy hóa đơn' });
+        }
+
+        const maTT = invoiceResult.recordset[0].MaTT;
+
+        // Xóa hóa đơn
+        const deleteResult = await transaction.request()
+            .input('maHoaDon', sql.VarChar, maHoaDon)
+            .query('DELETE FROM HoaDon WHERE MaHoaDon = @maHoaDon');
+
+        if (deleteResult.rowsAffected[0] === 0) {
+            throw new Error('Không tìm thấy hóa đơn để xóa');
+        }
+
+        // Cập nhật trạng thái thanh toán trong ThongTinDatVe nếu có MaTT
+        if (maTT) {
+            await transaction.request()
+                .input('maTT', sql.VarChar, maTT)
+                .query(`
+                    UPDATE ThongTinDatVe
+                    SET TrangThaiThanhToan = 'Chưa thanh toán'
+                    FROM ThongTinDatVe ttdv
+                    JOIN ThanhToan tt ON ttdv.MaDatVe = tt.MaDatVe
+                    WHERE tt.MaTT = @maTT
+                `);
+        }
+
+        await transaction.commit();
+        console.log(`Xóa hóa đơn thành công: ${maHoaDon}`);
+        res.json({ message: 'Xóa hóa đơn thành công' });
+    } catch (err) {
+        if (transaction) {
+            await transaction.rollback();
+        }
+        console.error('Lỗi khi xóa hóa đơn:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa hóa đơn: ' + err.message });
+    }
+});
+
 // API lấy danh sách ghế
 app.get('/api/seats', async (req, res) => {
     try {

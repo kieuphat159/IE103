@@ -213,6 +213,22 @@ async function deleteItem(section, id) {
                     fetchReports('unprocessed');
                     fetchReports('processed');
                 }
+            } else if (section === 'invoices') {
+                const response = await fetch(`http://localhost:3000/api/invoices/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi khi xóa hóa đơn');
+                }
+                alert(data.message || `Đã xóa hóa đơn với ID: ${id}`);
+                if (currentSection === 'invoices') {
+                    fetchInvoices();
+                }
             } else {
                 alert(`Chức năng xóa cho ${section} chưa được triển khai`);
             }
