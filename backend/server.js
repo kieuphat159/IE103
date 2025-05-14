@@ -747,6 +747,40 @@ app.post('/api/bookings', async (req, res) => {
     }
 });
 
+// API xóa thông tin đặt vé theo mã đặt vé
+app.delete('/api/bookings/:maDatVe', async (req, res) => {
+    const maDatVe = req.params.maDatVe;
+    console.log(`Nhận được yêu cầu DELETE /api/bookings/${maDatVe}`);
+
+    let pool;
+    try {
+        pool = await connectToDB();
+        
+        // Kiểm tra xem báo cáo có tồn tại không
+        const reportCheck = await pool.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
+
+        if (reportCheck.recordset.length === 0) {
+            console.log(`Không tìm thấy thông tin đặt vé: ${maDatVe}`);
+            return res.status(404).json({ error: 'Không tìm thấy thông tin đặt vé' });
+        }
+
+        // Thực thi stored procedure để xóa
+        await pool.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .execute('sp_XoaDatVe');
+
+        console.log(`Xóa thông tin đặt vé thành công: ${maDatVe}`);
+        res.json({ message: 'Xóa thông tin đặt vé thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa thông tin đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa thông tin đặt vé: ' + err.message });
+    } finally {
+        if (pool) pool.close();
+    }
+});
+
 // API tạo mã chuyến bay mới
 app.get('/api/flights/generate-code', async (req, res) => {
     try {

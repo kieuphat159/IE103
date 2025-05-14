@@ -66,10 +66,30 @@ function capNhatThongTin() {
   // Implementation for updating booking information
 }
 
-function xoaDatVe() {
-  console.log("Xóa thông tin đặt vé");
-  // Implementation for deleting booking information
+async function xoaDatVe(maDatVe) {
+  if (confirm(`Bạn có chắc chắn muốn xóa đặt vé với mã ${maDatVe}?`)) {
+    try {
+      const response = await fetch(`http://localhost:3000/api/bookings/${maDatVe}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Lỗi khi xóa đặt vé');
+      }
+
+      alert(data.message || `Đã xóa đặt vé với mã ${maDatVe}`);
+      fetchBookings(); // Refresh the booking table
+    } catch (error) {
+      console.error('Lỗi:', error);
+      alert(`Không thể xóa đặt vé: ${error.message}`);
+    }
+  }
 }
+
 
 function searchBooking() {
     const searchInput = document.getElementById('searchBookingInput');

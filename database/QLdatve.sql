@@ -341,6 +341,65 @@ BEGIN
 END;
 GO
 
+-- Stored Procedure xóa đặt vé
+CREATE PROCEDURE sp_XoaDatVe
+    @MaDatVe VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Store the MaChuyenBay and SoGhe for updating seat status
+        DECLARE @MaChuyenBay VARCHAR(20);
+        DECLARE @SoGhe INT;
+
+        SELECT @MaChuyenBay = MaChuyenBay, @SoGhe = SoGhe
+        FROM ThongTinDatVe
+        WHERE MaDatVe = @MaDatVe;
+
+        -- Check if the booking exists
+        IF @MaChuyenBay IS NULL
+        BEGIN
+            RAISERROR ('Đặt vé không tồn tại!', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        -- Delete related HoaDon records
+        DELETE FROM HoaDon
+        WHERE MaTT IN (SELECT MaTT FROM ThanhToan WHERE MaDatVe = @MaDatVe);
+
+        -- Delete related ThanhToan records
+        DELETE FROM ThanhToan
+        WHERE MaDatVe = @MaDatVe;
+
+        -- Update seat status to 'có sẵn'
+        WITH BookedSeats AS (
+            SELECT TOP (@SoGhe) SoGhe
+            FROM ThongTinGhe
+            WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'đã đặt'
+            ORDER BY SoGhe
+        )
+        UPDATE tg
+        SET TinhTrangGhe = 'có sẵn'
+        FROM ThongTinGhe tg
+        INNER JOIN BookedSeats s ON tg.SoGhe = s.SoGhe AND tg.MaChuyenBay = @MaChuyenBay;
+
+        -- Delete the booking record
+        DELETE FROM ThongTinDatVe
+        WHERE MaDatVe = @MaDatVe;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
 -- Stored Procedure thêm thanh toán
 CREATE PROCEDURE sp_ThemThanhToan
     @MaTT VARCHAR(20),
