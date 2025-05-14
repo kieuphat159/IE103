@@ -264,28 +264,29 @@ async function editController(maNV) {
 }
 
 // Delete controller
+// Delete controller
 async function deleteController(maNV) {
     if (!confirm('Bạn có chắc chắn muốn xóa nhân viên kiểm soát này?')) {
         return;
     }
 
     try {
-        const response = await fetch(`/api/controllers/${maNV}`, {
+        const response = await fetch(`http://localhost:3000/api/controllers/${maNV}`, {
             method: 'DELETE'
         });
 
         if (!response.ok) {
-            throw new Error('Lỗi khi xóa nhân viên kiểm soát');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Lỗi không xác định từ server');
         }
 
         fetchControllers();
         alert('Xóa nhân viên kiểm soát thành công');
     } catch (error) {
-        console.error('Error deleting controller:', error);
-        alert('Có lỗi xảy ra khi xóa nhân viên kiểm soát');
+        console.error('Error deleting controller:', error.message);
+        alert('Có lỗi xảy ra khi xóa nhân viên kiểm soát: ' + error.message);
     }
 }
-
 // Đăng xuất
 function logout() {
     const dialog = document.getElementById('confirmDialog');

@@ -1107,6 +1107,63 @@ app.put('/api/control-staff/:maNV', async (req, res) => {
     }
 });
 
+app.delete('/api/controllers/:maNV', async (req, res) => {
+    const { maNV } = req.params;
+    console.log(`Nhận được yêu cầu DELETE /api/controllers/${maNV}`);
+
+    let pool;
+    let transaction;
+
+    try {
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Kiểm tra xem nhân viên kiểm soát có tồn tại không
+        const controllerCheck = await transaction.request()
+            .input('maNV', sql.VarChar, maNV)
+            .query('SELECT MaNV, TaiKhoan FROM NhanVienKiemSoat WHERE MaNV = @maNV');
+
+        if (controllerCheck.recordset.length === 0) {
+            console.log(`Không tìm thấy nhân viên kiểm soát: ${maNV}`);
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy nhân viên kiểm soát' });
+        }
+
+        const taiKhoan = controllerCheck.recordset[0].TaiKhoan;
+
+        // Kiểm tra xem nhân viên có báo cáo liên quan không
+        const reportCheck = await transaction.request()
+            .input('maNV', sql.VarChar, maNV)
+            .query('SELECT MaBaoCao FROM BaoCao WHERE MaNV = @maNV');
+
+        if (reportCheck.recordset.length > 0) {
+            console.log(`Không thể xóa nhân viên kiểm soát ${maNV} vì có báo cáo liên quan`);
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Không thể xóa nhân viên kiểm soát vì có báo cáo liên quan' });
+        }
+
+        // Xóa nhân viên kiểm soát
+        await transaction.request()
+            .input('maNV', sql.VarChar, maNV)
+            .query('DELETE FROM NhanVienKiemSoat WHERE MaNV = @maNV');
+
+        // Xóa người dùng liên quan
+        await transaction.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query('DELETE FROM NguoiDung WHERE TaiKhoan = @taiKhoan');
+
+        await transaction.commit();
+        console.log(`Xóa nhân viên kiểm soát thành công: ${maNV}`);
+        res.json({ message: 'Xóa nhân viên kiểm soát thành công' });
+    } catch (err) {
+        if (transaction) {
+            await transaction.rollback();
+        }
+        console.error('Lỗi khi xóa nhân viên kiểm soát:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa nhân viên kiểm soát: ' + err.message });
+    }
+});
 // Xử lý các route không tồn tại
 app.use((req, res) => {
     console.log(`Route không tồn tại: ${req.method} ${req.url}`);
