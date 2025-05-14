@@ -74,9 +74,10 @@ function openModal(modalType, data = null) {
             <input id="invoiceNgayThanhToan" type="date" class="w-full p-2 border rounded mb-4">
         `;
     } else if (modalType === 'flightModal') {
-        modalTitle.textContent = data ? 'Sửa chuyến bay' : 'Thêm chuyến bay';
-        currentSection = 'flights';
-        modalContent.innerHTML = `
+    modalTitle.textContent = data ? 'Sửa chuyến bay' : 'Thêm chuyến bay';
+    currentSection = 'flights';
+    console.log('Modal mở cho chuyến bay, currentSection:', currentSection);
+    modalContent.innerHTML = `
             <form id="flightForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Mã chuyến bay</label>

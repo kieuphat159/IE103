@@ -298,16 +298,20 @@
         }
 
     function saveData() {
-        const modalTitle = document.getElementById('modalTitle').textContent;
-        if (modalTitle.includes('nhân viên kiểm soát') || window.currentMode === 'add' || window.currentMode === 'edit') {
-            saveController(); // Gọi hàm saveController từ controller.js
-        } else if (modalTitle.includes('chuyến bay')) {
-            saveFlightData();
-        } else {
-            alert('Dữ liệu đã được lưu thành công!');
-            closeModal();
-        }
+    const modalTitle = document.getElementById('modalTitle').textContent;
+    
+    if (modalTitle.includes('chuyến bay')) {
+        saveFlightData(); // Gọi saveFlightData nếu modal là "Chuyến bay"
+    } else if (modalTitle.includes('nhân viên kiểm soát')) {
+        saveController(); // Gọi saveController nếu modal là "Nhân viên kiểm soát"
+    } else if (window.currentMode === 'add' || window.currentMode === 'edit') {
+        // Xử lý các trường hợp khác nếu cần
+        saveController(); // Gọi saveController cho các modal khác nếu phù hợp
+    } else {
+        alert('Dữ liệu đã được lưu thành công!');
+        closeModal();
     }
+}
     function confirmLogout() {
         // Clear any session data if needed
         localStorage.removeItem('user');

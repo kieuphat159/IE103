@@ -18,15 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Thêm hàm này để đảm bảo saveFlightData được gọi khi nhấn nút lưu
-    const saveButton = document.querySelector('button[onclick="saveData()"]');
-    if (saveButton) {
-        saveButton.addEventListener('click', () => {
-            if (currentSection === 'flights') {
-                saveFlightData();
-            }
-        });
-    }
   });
   
   async function fetchFlights() {
@@ -163,43 +154,39 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Hàm lưu dữ liệu chuyến bay từ modal
   async function saveFlightData() {
+    console.log('saveFlightData được gọi');
     const maChuyenBay = document.getElementById("flightMaChuyenBay").value.trim();
     const tinhTrangChuyenBay = document.getElementById("flightTinhTrangChuyenBay").value;
     const gioBay = document.getElementById("flightGioBay").value;
     const gioDen = document.getElementById("flightGioDen").value;
     const diaDiemDau = document.getElementById("flightDiaDiemDau").value.trim();
     const diaDiemCuoi = document.getElementById("flightDiaDiemCuoi").value.trim();
-  
-    // Kiểm tra hợp lệ dữ liệu
+
     if (!maChuyenBay || !tinhTrangChuyenBay || !gioBay || !gioDen || !diaDiemDau || !diaDiemCuoi) {
         alert("Vui lòng điền đầy đủ các trường bắt buộc!");
         return;
     }
-  
-    // Kiểm tra định dạng mã chuyến bay (ví dụ: CBxxx)
+
     if (!/^CB\d{3}$/.test(maChuyenBay)) {
         alert("Mã chuyến bay phải có định dạng CBxxx (xxx là 3 chữ số)!");
         return;
     }
-  
-    // Kiểm tra mã chuyến bay có trùng lặp (chỉ khi thêm mới)
+
     if (!window.currentFlight && !(await isMaChuyenBayUnique(maChuyenBay))) {
         alert("Mã chuyến bay đã tồn tại!");
         return;
     }
-  
-    // Kiểm tra giờ đến phải sau giờ bay
+
     if (new Date(gioDen) <= new Date(gioBay)) {
         alert("Giờ đến phải sau giờ bay!");
         return;
     }
-  
-    // Kiểm tra địa điểm đầu và cuối không được trùng
+
     if (diaDiemDau === diaDiemCuoi) {
         alert("Địa điểm đầu và cuối không được trùng nhau!");
         return;
     }
-  
+
     const flightData = {
         maChuyenBay,
         tinhTrangChuyenBay,
@@ -208,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         diaDiemDau,
         diaDiemCuoi
     };
-  
+
     try {
         const method = window.currentFlight ? 'PUT' : 'POST';
         const url = window.currentFlight 
@@ -223,23 +210,24 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: JSON.stringify(flightData)
         });
-  
+
+        console.log('Phản hồi từ server:', response.status, response.statusText);
         const result = await response.json();
         console.log(`Kết quả ${method} ${url}:`, result);
-  
+
         if (!response.ok) {
             throw new Error(result.error || `Lỗi khi ${window.currentFlight ? 'cập nhật' : 'thêm'} chuyến bay`);
         }
-  
+
         alert(result.message || `${window.currentFlight ? 'Cập nhật' : 'Thêm'} chuyến bay thành công!`);
-        window.currentFlight = null; // Reset currentFlight sau khi lưu thành công
+        window.currentFlight = null;
         closeModal();
         fetchFlights();
     } catch (error) {
-        console.error('Lỗi:', error);
+        console.error('Lỗi trong saveFlightData:', error);
         alert(`Không thể ${window.currentFlight ? 'cập nhật' : 'thêm'} chuyến bay: ${error.message}`);
     }
-  }
+}
   
   // Hàm tạo mã chuyến bay mới
   async function generateNewFlightCode() {
