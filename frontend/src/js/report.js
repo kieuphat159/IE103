@@ -47,7 +47,7 @@ async function fetchReports(status) {
         renderReportTable(reports, status);
     } catch (error) {
         console.error('Lỗi:', error);
-        alert('Không thể tải danh sách báo cáo. Vui lòng kiểm tra kết nối.');
+        // alert('Không thể tải danh sách báo cáo. Vui lòng kiểm tra kết nối.');
     }
 }
 

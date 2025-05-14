@@ -476,4 +476,3 @@ function closeConfirmDialog() {
     const dialog = document.getElementById('confirmDialog');
     dialog.classList.add('hidden');
 }
-
