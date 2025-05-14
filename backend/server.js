@@ -953,6 +953,37 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
     }
 });
 
+// API xóa báo cáo
+app.delete('/api/reports/:maBaoCao', async (req, res) => {
+    const { maBaoCao } = req.params;
+    console.log(`Nhận được yêu cầu DELETE /api/reports/${maBaoCao}`);
+
+    try {
+        const pool = await connectToDB();
+        
+        // Kiểm tra xem báo cáo có tồn tại không
+        const reportCheck = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
+
+        if (reportCheck.recordset.length === 0) {
+            console.log(`Không tìm thấy báo cáo: ${maBaoCao}`);
+            return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
+        }
+
+        // Xóa báo cáo
+        await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .query('DELETE FROM BaoCao WHERE MaBaoCao = @maBaoCao');
+
+        console.log(`Xóa báo cáo thành công: ${maBaoCao}`);
+        res.json({ message: 'Xóa báo cáo thành công' });
+    } catch (err) {
+        console.error('Lỗi khi xóa báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa báo cáo: ' + err.message });
+    }
+});
+
 app.put('/api/reports/:maBaoCao/status1', async (req, res) => {
     const { maBaoCao } = req.params;
     const { trangThai } = req.body;

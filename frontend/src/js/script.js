@@ -293,11 +293,10 @@ async function editItem(section, id) {
 }
 
 async function deleteItem(section, id) {
-    if (section === 'users') {
-        alert(`Đang xóa khách hàng với ID: ${id}`);
-        if (confirm(`Bạn có chắc chắn muốn xóa khách hàng với ID: ${id}?`)) {
-            try {
-                // Gửi yêu cầu DELETE tới API
+    if (confirm(`Bạn có chắc chắn muốn xóa ${section} với ID: ${id}?`)) {
+        try {
+            if (section === 'users') {
+                // Xử lý xóa khách hàng
                 const response = await fetch(`http://localhost:3000/api/customers/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -305,30 +304,40 @@ async function deleteItem(section, id) {
                     }
                 });
 
-                // Lấy dữ liệu JSON từ response
                 const data = await response.json();
-
-                // Kiểm tra xem yêu cầu có thành công không
                 if (!response.ok) {
                     throw new Error(data.error || 'Lỗi khi xóa khách hàng');
                 }
-
-                // Hiển thị thông báo thành công
                 alert(data.message || `Đã xóa khách hàng với ID: ${id}`);
-
-                // Cập nhật lại bảng khách hàng
                 if (currentSection === 'users') {
-                    fetchCustomers(); // Gọi hàm từ customer.js để tải lại danh sách
+                    fetchCustomers();
                 }
-            } catch (error) {
-                console.error('Lỗi:', error);
-                alert(`Không thể xóa khách hàng: ${error.message}`);
+            } else if (section === 'reports') {
+                // Xử lý xóa báo cáo
+                const response = await fetch(`http://localhost:3000/api/reports/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi khi xóa báo cáo');
+                }
+                alert(data.message || `Đã xóa báo cáo với ID: ${id}`);
+                if (currentSection === 'reports') {
+                    fetchReports('unprocessed');
+                    fetchReports('processed');
+                }
+            } else {
+                alert(`Chức năng xóa cho ${section} chưa được triển khai`);
             }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert(`Không thể xóa: ${error.message}`);
         }
-    } else  {
-        if (confirm(`Bạn có chắc chắn muốn xóa ${section} với ID: ${id}?`)) {
     }
-}
 }
 
 // Add event listeners for enter key on all search inputs

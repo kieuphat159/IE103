@@ -174,3 +174,51 @@ function searchInTable(rows, searchTerm) {
         rows[i].style.display = found ? '' : 'none';
     }
 }
+
+async function deleteItem(section, id) {
+    if (confirm(`Bạn có chắc chắn muốn xóa ${section} với ID: ${id}?`)) {
+        try {
+            if (section === 'users') {
+                // Xử lý xóa khách hàng
+                const response = await fetch(`http://localhost:3000/api/customers/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi khi xóa khách hàng');
+                }
+                alert(data.message || `Đã xóa khách hàng với ID: ${id}`);
+                if (currentSection === 'users') {
+                    fetchCustomers();
+                }
+            } else if (section === 'reports') {
+                // Xử lý xóa báo cáo
+                const response = await fetch(`http://localhost:3000/api/reports/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi khi xóa báo cáo');
+                }
+                alert(data.message || `Đã xóa báo cáo với ID: ${id}`);
+                if (currentSection === 'reports') {
+                    fetchReports('unprocessed');
+                    fetchReports('processed');
+                }
+            } else {
+                alert(`Chức năng xóa cho ${section} chưa được triển khai`);
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert(`Không thể xóa: ${error.message}`);
+        }
+    }
+}
