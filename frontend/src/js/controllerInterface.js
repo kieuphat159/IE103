@@ -1,6 +1,15 @@
-// import controllerSession from './controllersession.js';
+import controllerSession from './controllersession.js';
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Kiểm tra đăng nhập và vai trò controller
+    if (!controllerSession.isLoggedInAsController()) {
+        alert('Bạn cần đăng nhập với vai trò nhân viên kiểm soát để truy cập trang này.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Cập nhật thông tin người dùng trên giao diện
+    controllerSession.updateUserInterface();
 
     // Load dữ liệu báo cáo
     fetchReports();
@@ -30,6 +39,79 @@ function showSection(sectionId) {
     if (sectionId === 'controllers') {
         fetchControllers(); // Tải danh sách nhân viên kiểm soát
     }
+}
+
+// Lấy thông tin cá nhân
+async function fetchPersonalInfo() {
+    try {
+        const user = controllerSession.getUser();
+        if (!user || !user.taiKhoan) {
+            alert('Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const response = await fetch(`http://localhost:3000/api/control-staff?taiKhoan=${user.taiKhoan}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.length === 0) {
+            throw new Error('Không tìm thấy thông tin nhân viên kiểm soát');
+        }
+
+        displayPersonalInfo(data[0]);
+    } catch (error) {
+        console.error('Error fetching personal info:', error);
+        alert('Có lỗi xảy ra khi tải thông tin cá nhân: ' + error.message);
+        displayPersonalInfo({});
+    }
+}
+
+// Hiển thị thông tin cá nhân trong bảng đứng
+function displayPersonalInfo(controller) {
+    const tableBody = document.getElementById('personalInfoTable');
+    tableBody.innerHTML = '';
+
+    const fields = [
+        { label: 'Mã NV', key: 'maNV' },
+        { label: 'Họ tên', key: 'ten' },
+        { label: 'Email', key: 'email' },
+        { label: 'Số điện thoại', key: 'sdt' },
+        { label: 'Ngày sinh', key: 'ngaySinh', format: (value) => value ? new Date(value).toLocaleDateString() : '' },
+        { label: 'Giới tính', key: 'gioiTinh' },
+        { label: 'Số CCCD', key: 'soCCCD' }
+    ];
+
+    if (!controller || Object.keys(controller).length === 0) {
+        fields.forEach(field => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <th class="p-2 border font-bold">${field.label}</th>
+                <td class="p-2 border"></td>
+            `;
+            tableBody.appendChild(row);
+        });
+        return;
+    }
+
+    fields.forEach(field => {
+        const value = field.format ? field.format(controller[field.key]) : controller[field.key] || '';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <th class="p-2 border font-bold">${field.label}</th>
+            <td class="p-2 border">${value}</td>
+        `;
+        tableBody.appendChild(row);
+    });
 }
 
 // Fetch all controllers

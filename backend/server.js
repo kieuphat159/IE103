@@ -220,7 +220,7 @@ app.post('/api/customers', async (req, res) => {
             .input('gioiTinh', sql.NVarChar, gioiTinh)
             .input('soCCCD', sql.VarChar, soCCCD)
             .query(`
-                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD)
+                INSERT INTO NguoiDung (taiKhoan, ten, matKhau, email, sdt, ngaySinh, gioiTinh, soCCCD)
                 VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
             `);
 
@@ -495,7 +495,7 @@ app.delete('/api/flights/:maChuyenBay', async (req, res) => {
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ThongTinGhe WHERE MaChuyenBay = @maChuyenBay');
 
-        // Xóa chuyến bay
+        // Xóa chuyến bayDeux
         await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
@@ -795,7 +795,7 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
 app.get('/api/reports', async (req, res) => {
     try {
         console.log('Nhận được yêu cầu GET /api/reports');
-        const { trangThai, maNV } = req.query;
+        const { trangThai } = req.query;
         const pool = await connectToDB();
         
         let query = `
@@ -807,24 +807,13 @@ app.get('/api/reports', async (req, res) => {
             FROM BaoCao
         `;
         
-        let conditions = [];
         if (trangThai) {
-            conditions.push('TrangThai = @trangThai');
-        }
-        if (maNV) {
-            conditions.push('MaNV = @maNV');
-        }
-        
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
+            query += ' WHERE TrangThai = @trangThai';
         }
         
         const request = pool.request();
         if (trangThai) {
             request.input('trangThai', sql.NVarChar, trangThai);
-        }
-        if (maNV) {
-            request.input('maNV', sql.VarChar, maNV);
         }
         
         const result = await request.query(query);
@@ -835,6 +824,8 @@ app.get('/api/reports', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
+
+
 
 // API lấy báo cáo đầy đủ
 app.get('/api/reports/full', async (req, res) => {
@@ -961,6 +952,49 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
+
+app.put('/api/reports/:maBaoCao/status1', async (req, res) => {
+    const { maBaoCao } = req.params;
+    const { trangThai } = req.body;
+    
+    try {
+        console.log('=== Bắt đầu xử lý cập nhật trạng thái báo cáo ===');
+        console.log('Mã báo cáo:', maBaoCao);
+        console.log('Trạng thái mới:', trangThai);
+        
+        const pool = await connectToDB();
+        console.log('Đã kết nối database');
+        
+        const checkResult = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
+            
+        console.log('Kết quả kiểm tra báo cáo:', checkResult.recordset);
+            
+        if (checkResult.recordset.length === 0) {
+            console.log('Không tìm thấy báo cáo');
+            return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
+        }
+        
+        const updateResult = await pool.request()
+            .input('maBaoCao', sql.VarChar, maBaoCao)
+            .input('trangThai', sql.NVarChar, trangThai)
+            .query(`
+                UPDATE BaoCao
+                SET TrangThai = @trangThai
+                WHERE MaBaoCao = @maBaoCao
+            `);
+            
+        console.log('Kết quả cập nhật:', updateResult);
+        console.log('=== Kết thúc xử lý cập nhật trạng thái báo cáo ===');
+        
+        res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
 
 // API lấy danh sách nhân viên kiểm soát
 app.get('/api/control-staff', async (req, res) => {
