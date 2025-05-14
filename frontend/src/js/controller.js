@@ -254,16 +254,19 @@ async function saveController() {
 // Edit controller
 async function editController(maNV) {
     try {
-        const response = await fetch(`/api/controllers/${maNV}`);
+        const response = await fetch(`http://localhost:3000/api/controllers/${maNV}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Lỗi không xác định từ server');
+        }
         const controller = await response.json();
         openControllerModal('edit', controller);
     } catch (error) {
-        console.error('Error fetching controller details:', error);
-        alert('Có lỗi xảy ra khi tải thông tin nhân viên kiểm soát');
+        console.error('Error fetching controller details:', error.message);
+        alert('Có lỗi xảy ra khi tải thông tin nhân viên kiểm soát: ' + error.message);
     }
 }
 
-// Delete controller
 // Delete controller
 async function deleteController(maNV) {
     if (!confirm('Bạn có chắc chắn muốn xóa nhân viên kiểm soát này?')) {

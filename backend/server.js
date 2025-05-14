@@ -1066,6 +1066,43 @@ app.get('/api/control-staff', async (req, res) => {
     }
 });
 
+app.get('/api/controllers/:maNV', async (req, res) => {
+    const { maNV } = req.params;
+    console.log(`Nhận được yêu cầu GET /api/controllers/${maNV}`);
+
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request()
+            .input('maNV', sql.VarChar, maNV)
+            .query(`
+                SELECT 
+                    nv.MaNV as maNV,
+                    nd.Ten as ten,
+                    nd.TaiKhoan as taiKhoan,
+                    nd.Email as email,
+                    nd.Sdt as sdt,
+                    nd.NgaySinh as ngaySinh,
+                    nd.GioiTinh as gioiTinh,
+                    nd.SoCCCD as soCCCD
+                FROM NhanVienKiemSoat nv
+                JOIN NguoiDung nd ON nv.TaiKhoan = nd.TaiKhoan
+                WHERE nv.MaNV = @maNV
+            `);
+
+        if (result.recordset.length === 0) {
+            console.log(`Không tìm thấy nhân viên kiểm soát với mã: ${maNV}`);
+            return res.status(404).json({ error: 'Không tìm thấy nhân viên kiểm soát' });
+        }
+
+        const controller = result.recordset[0];
+        console.log('Dữ liệu trả về:', controller);
+        res.json(controller);
+    } catch (err) {
+        console.error('Lỗi khi lấy thông tin nhân viên kiểm soát:', err);
+        res.status(500).json({ error: 'Lỗi server khi lấy thông tin nhân viên kiểm soát: ' + err.message });
+    }
+});
+
 // API cập nhật nhân viên kiểm soát
 app.put('/api/control-staff/:maNV', async (req, res) => {
     const { maNV } = req.params;
