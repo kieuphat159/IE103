@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Vtn.2432005",
+    password: "Thnguyen_123",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -899,119 +899,54 @@ app.get('/api/bookings/generate-code', async (req, res) => {
 
 // API tạo thông tin đặt vé
 app.post('/api/bookings', async (req, res) => {
-    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH, HangGhe } = req.body;
-
-    let pool;
-    let transaction;
+    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoTien, MaChuyenBay, MaKH } = req.body;
 
     try {
-        if (!MaDatVe || !NgayDatVe || !NgayBay || !TrangThaiThanhToan || !SoGhe || !SoTien || !MaChuyenBay || !MaKH || !HangGhe) {
-            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
-        }
+        const pool = await connectToDB();
 
-        const validHangGhe = ['Phổ thông', 'Thương gia', 'Hạng nhất'];
-        if (!validHangGhe.includes(HangGhe)) {
-            return res.status(400).json({ error: `Hạng ghế không hợp lệ. Chỉ chấp nhận: ${validHangGhe.join(', ')}` });
-        }
-
-        const validTrangThai = ['Chưa thanh toán', 'Đ IDEAL thanh toán'];
-        if (!validTrangThai.includes(TrangThaiThanhToan)) {
-            return res.status(400).json({ error: `Trạng thái thanh toán không hợp lệ. Chỉ chấp nhận: ${validTrangThai.join(', ')}` });
-        }
-
-        pool = await connectToDB();
-        transaction = new sql.Transaction(pool);
-        await transaction.begin();
-
-        const flightCheck = await transaction.request()
-            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
-            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @MaChuyenBay');
-        if (flightCheck.recordset.length === 0) {
-            await transaction.rollback();
-            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
-        }
-
-        const customerCheck = await transaction.request()
-            .input('MaKH', sql.VarChar, MaKH)
-            .query('SELECT MaKH FROM KhachHang WHERE MaKH = @MaKH');
-        if (customerCheck.recordset.length === 0) {
-            await transaction.rollback();
-            return res.status(404).json({ error: 'Không tìm thấy khách hàng' });
-        }
-
-        const bookingCheck = await transaction.request()
-            .input('MaDatVe', sql.VarChar, MaDatVe)
-            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaDatVe = @MaDatVe');
-        if (bookingCheck.recordset.length > 0) {
-            await transaction.rollback();
-            return res.status(400).json({ error: 'Mã đặt vé đã tồn tại' });
-        }
-
-        const seatCheck = await transaction.request()
-            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
-            .input('HangGhe', sql.NVarChar, HangGhe)
+        // Kiểm tra số ghế trống
+        const seatResult = await pool.request()
+            .input('maChuyenBay', sql.VarChar, MaChuyenBay)
             .query(`
-                SELECT COUNT(*) AS availableSeats, SUM(GiaGhe) AS totalPrice
+                SELECT TOP 1 SoGhe
                 FROM ThongTinGhe
-                WHERE MaChuyenBay = @MaChuyenBay AND HangGhe = @HangGhe AND TinhTrangGhe = N'trống'
+                WHERE MaChuyenBay = @maChuyenBay AND TinhTrangGhe = N'có sẵn'
             `);
 
-        const { availableSeats, totalPrice } = seatCheck.recordset[0];
-        if (availableSeats < SoGhe) {
-            await transaction.rollback();
-            return res.status(400).json({ error: `Không đủ ${SoGhe} ghế ${HangGhe} trống` });
+        if (seatResult.recordset.length === 0) {
+            return res.status(400).json({ error: 'Không còn ghế trống cho chuyến bay này.' });
         }
 
-        const calculatedAmount = (totalPrice / availableSeats) * SoGhe;
-        if (SoTien && Math.abs(SoTien - calculatedAmount) > 0.01) {
-            console.warn(`SoTien từ client (${SoTien}) không khớp với calculatedAmount (${calculatedAmount})`);
-        }
+        const SoGhe = seatResult.recordset[0].SoGhe;
 
-        await transaction.request()
+        // Gọi stored procedure để thêm đặt vé
+        await pool.request()
             .input('MaDatVe', sql.VarChar, MaDatVe)
             .input('NgayDatVe', sql.Date, NgayDatVe)
             .input('NgayBay', sql.Date, NgayBay)
             .input('TrangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
-            .input('SoGhe', sql.Int, SoGhe)
-            .input('SoTien', sql.Decimal(18, 2), calculatedAmount)
+            .input('SoGhe', sql.Int, 1) // Luôn đặt 1 ghế
+            .input('SoTien', sql.Decimal(18, 2), SoTien)
             .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
             .input('MaKH', sql.VarChar, MaKH)
+            .execute('sp_ThemDatVe');
+
+        // Cập nhật trạng thái ghế thành 'đã đặt'
+        await pool.request()
+            .input('soGhe', sql.VarChar, SoGhe)
+            .input('maChuyenBay', sql.VarChar, MaChuyenBay)
             .query(`
-                INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
-                VALUES (@MaDatVe, @NgayDatVe, @NgayBay, @TrangThaiThanhToan, @SoGhe, @SoTien, @MaChuyenBay, @MaKH)
+                UPDATE ThongTinGhe
+                SET TinhTrangGhe = N'đã đặt'
+                WHERE SoGhe = @soGhe AND MaChuyenBay = @maChuyenBay
             `);
 
-        const seatsToUpdate = await transaction.request()
-            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
-            .input('HangGhe', sql.NVarChar, HangGhe)
-            .input('SoGhe', sql.Int, SoGhe)
-            .query(`
-                SELECT TOP (@SoGhe) SoGhe
-                FROM ThongTinGhe
-                WHERE MaChuyenBay = @MaChuyenBay AND HangGhe = @HangGhe AND TinhTrangGhe = N'trống'
-            `);
-
-        for (const seat of seatsToUpdate.recordset) {
-            await transaction.request()
-                .input('SoGhe', sql.VarChar, seat.SoGhe)
-                .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
-                .query(`
-                    UPDATE ThongTinGhe
-                    SET TinhTrangGhe = N'đã đặt'
-                    WHERE SoGhe = @SoGhe AND MaChuyenBay = @MaChuyenBay
-                `);
-        }
-
-        await transaction.commit();
-        console.log(`Đặt vé thành công: ${MaDatVe}`);
-        res.status(201).json({ message: 'Đặt vé thành công', calculatedAmount });
+        res.status(201).json({ message: 'Đặt vé thành công', bookedSeat: SoGhe });
     } catch (err) {
-        if (transaction) await transaction.rollback();
         console.error('Lỗi khi đặt vé:', err);
-        res.status(500).json({ error: 'Lỗi khi đặt vé: ' + err.message });
+        res.status(500).json({ error: 'Không thể đặt vé. Vui lòng thử lại.' });
     }
 });
-
 // API xóa thông tin đặt vé theo mã đặt vé
 app.delete('/api/bookings/:maDatVe', async (req, res) => {
     const { maDatVe } = req.params;
