@@ -483,6 +483,11 @@ GO
 
 -- Thêm dữ liệu mẫu
 -- (Giữ nguyên dữ liệu mẫu như trong tệp gốc)
+
+-- admin
+insert into NguoiDung values('admin', N'Kiều Nguyễn Thành Phát', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'kieuphat159@gmail.com', '0583016657', '07/11/2005', 'Nam', '000000000000')
+--
+
 EXEC sp_ThemNguoiDung 'user1', N'Nguyễn Văn A', 'hashed_password1', 'a@example.com', '0123456789', '1990-01-01', 'Nam', '123456789012';
 EXEC sp_ThemNguoiDung 'user2', N'Trần Thị B', 'hashed_password2', 'b@example.com', '0987654321', '1995-05-15', N'Nữ', '098765432109';
 EXEC sp_ThemNguoiDung 'nv1', N'Lê Văn C', 'hashed_password3', 'c@example.com', '0912345678', '1985-03-10', 'Nam', '112233445566';
