@@ -571,6 +571,44 @@ app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
     }
 });
 
+// API sửa thông tin ghế
+app.put('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
+    const { soGhe, maChuyenBay } = req.params;
+    const { giaGhe, hangGhe, tinhTrangGhe } = req.body;
+    const validHangGhe = ['Phổ thông', 'Thương gia', 'Hạng nhất'];
+
+    // Kiểm tra giá trị hangGhe
+    if (!validHangGhe.includes(hangGhe)) {
+        return res.status(400).json({ error: `Giá trị HangGhe không hợp lệ. Chỉ chấp nhận: ${validHangGhe.join(', ')}` });
+    }
+
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+            .input('SoGhe', sql.VarChar, soGhe)
+            .input('MaChuyenBay', sql.VarChar, maChuyenBay)
+            .input('GiaGhe', sql.Decimal(18, 2), giaGhe)
+            .input('HangGhe', sql.NVarChar, hangGhe)
+            .input('TinhTrangGhe', sql.NVarChar, tinhTrangGhe)
+            .query(`
+                UPDATE ThongTinGhe
+                SET GiaGhe = @GiaGhe,
+                    HangGhe = @HangGhe,
+                    TinhTrangGhe = @TinhTrangGhe
+                WHERE SoGhe = @SoGhe AND MaChuyenBay = @MaChuyenBay
+            `);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy ghế để cập nhật' });
+        }
+
+        res.json({ message: 'Cập nhật ghế thành công' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Lỗi server khi cập nhật ghế' });
+    }
+});
+
 // API lấy danh sách hóa đơn
 app.get('/api/invoices', async (req, res) => {
     try {

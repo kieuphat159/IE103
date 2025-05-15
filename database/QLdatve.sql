@@ -67,8 +67,8 @@ CREATE TABLE ThongTinGhe (
     SoGhe VARCHAR(10) NOT NULL,
     MaChuyenBay VARCHAR(20) NOT NULL,
     GiaGhe DECIMAL(18, 2) NOT NULL,
-    HangGhe NVARCHAR(20) CHECK (HangGhe IN ('Phổ thông', 'Thương gia', 'Hạng nhất')),
-    TinhTrangGhe NVARCHAR(20) CHECK (TinhTrangGhe IN ('có sẵn', 'đã đặt')),
+    HangGhe NVARCHAR(20) CHECK (HangGhe IN (N'Phổ thông', N'Thương gia', N'Hạng nhất')),
+    TinhTrangGhe NVARCHAR(20) CHECK (TinhTrangGhe IN (N'có sẵn', N'đã đặt')),
     CONSTRAINT PK_ThongTinGhe PRIMARY KEY (SoGhe, MaChuyenBay),
     CONSTRAINT FK_ThongTinGhe_ChuyenBay FOREIGN KEY (MaChuyenBay) REFERENCES ChuyenBay(MaChuyenBay),
     CONSTRAINT CK_GiaGhe_Positive CHECK (GiaGhe > 0)
@@ -88,7 +88,7 @@ CREATE TABLE ThongTinDatVe (
     CONSTRAINT FK_ThongTinDatVe_ChuyenBay FOREIGN KEY (MaChuyenBay) REFERENCES ChuyenBay(MaChuyenBay),
     CONSTRAINT FK_ThongTinDatVe_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
     CONSTRAINT CK_SoTien_Positive CHECK (SoTien > 0),
-    CONSTRAINT CK_TrangThaiThanhToan CHECK (TrangThaiThanhToan IN ('Chưa thanh toán', 'Đã thanh toán'))
+    CONSTRAINT CK_TrangThaiThanhToan CHECK (TrangThaiThanhToan IN (N'Chưa thanh toán', N'Đã thanh toán'))
 );
 GO
 
@@ -97,7 +97,7 @@ CREATE TABLE ThanhToan (
     MaTT VARCHAR(20) PRIMARY KEY,
     NgayTT DATE NOT NULL,
     SoTien DECIMAL(18, 2) NOT NULL,
-    PTTT NVARCHAR(50) CHECK (PTTT IN ('Tiền mặt', 'Thẻ tín dụng', 'Chuyển khoản')),
+    PTTT NVARCHAR(50) CHECK (PTTT IN (N'Tiền mặt', N'Thẻ tín dụng', N'Chuyển khoản')),
     MaDatVe VARCHAR(20) NOT NULL,
     CONSTRAINT FK_ThanhToan_ThongTinDatVe FOREIGN KEY (MaDatVe) REFERENCES ThongTinDatVe(MaDatVe),
     CONSTRAINT CK_SoTienThanhToan_Positive CHECK (SoTien > 0)
@@ -108,7 +108,7 @@ GO
 CREATE TABLE HoaDon (
     MaHoaDon VARCHAR(20) PRIMARY KEY,
     NgayXuatHD DATE NOT NULL,
-    PhuongThucTT NVARCHAR(50) CHECK (PhuongThucTT IN ('Tiền mặt', 'Thẻ tín dụng', 'Chuyển khoản')),
+    PhuongThucTT NVARCHAR(50) CHECK (PhuongThucTT IN (N'Tiền mặt', N'Thẻ tín dụng', N'Chuyển khoản')),
     NgayThanhToan DATE NOT NULL,
     MaTT VARCHAR(20) NOT NULL,
     CONSTRAINT FK_HoaDon_ThanhToan FOREIGN KEY (MaTT) REFERENCES ThanhToan(MaTT),
@@ -129,7 +129,7 @@ BEGIN
         WHERE i.NgayDatVe > CAST(cb.GioBay AS DATE)
     )
     BEGIN
-        RAISERROR ('Ngày đặt vé phải trước hoặc bằng ngày bay của chuyến bay!', 16, 1);
+        RAISERROR (N'Ngày đặt vé phải trước hoặc bằng ngày bay của chuyến bay!', 16, 1);
         ROLLBACK TRANSACTION;
     END
 END;
@@ -148,11 +148,11 @@ BEGIN
 
     SELECT @AvailableSeats = COUNT(*)
     FROM ThongTinGhe
-    WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn';
+    WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = N'có sẵn';
 
     IF @SoGhe > @AvailableSeats
     BEGIN
-        RAISERROR ('Số lượng ghế yêu cầu vượt quá số ghế trống!', 16, 1);
+        RAISERROR (N'Số lượng ghế yêu cầu vượt quá số ghế trống!', 16, 1);
         ROLLBACK TRANSACTION;
     END
 END;
@@ -174,11 +174,11 @@ BEGIN
     WITH AvailableSeats AS (
         SELECT TOP (@SoGhe) SoGhe
         FROM ThongTinGhe
-        WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn'
+        WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = N'có sẵn'
         ORDER BY SoGhe
     )
     UPDATE tg
-    SET TinhTrangGhe = 'đã đặt'
+    SET TinhTrangGhe = N'đã đặt'
     FROM ThongTinGhe tg
     INNER JOIN AvailableSeats s ON tg.SoGhe = s.SoGhe AND tg.MaChuyenBay = @MaChuyenBay;
 END;
@@ -197,7 +197,7 @@ BEGIN
         WHERE i.SoTien != dv.SoTien
     )
     BEGIN
-        RAISERROR ('Số tiền thanh toán phải khớp với số tiền đặt vé!', 16, 1);
+        RAISERROR (N'Số tiền thanh toán phải khớp với số tiền đặt vé!', 16, 1);
         ROLLBACK TRANSACTION;
     END
 END;
@@ -210,10 +210,10 @@ AFTER INSERT
 AS
 BEGIN
     UPDATE ThongTinDatVe
-    SET TrangThaiThanhToan = 'Đã thanh toán'
+    SET TrangThaiThanhToan = N'Đã thanh toán'
     FROM ThongTinDatVe dv
     INNER JOIN inserted i ON dv.MaDatVe = i.MaDatVe
-    WHERE dv.TrangThaiThanhToan = 'Chưa thanh toán';
+    WHERE dv.TrangThaiThanhToan = N'Chưa thanh toán';
 END;
 GO
 
@@ -361,7 +361,7 @@ BEGIN
         -- Check if the booking exists
         IF @MaChuyenBay IS NULL
         BEGIN
-            RAISERROR ('Đặt vé không tồn tại!', 16, 1);
+            RAISERROR (N'Đặt vé không tồn tại!', 16, 1);
             ROLLBACK TRANSACTION;
             RETURN;
         END;
@@ -378,11 +378,11 @@ BEGIN
         WITH BookedSeats AS (
             SELECT TOP (@SoGhe) SoGhe
             FROM ThongTinGhe
-            WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'đã đặt'
+            WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = N'đã đặt'
             ORDER BY SoGhe
         )
         UPDATE tg
-        SET TinhTrangGhe = 'có sẵn'
+        SET TinhTrangGhe = N'có sẵn'
         FROM ThongTinGhe tg
         INNER JOIN BookedSeats s ON tg.SoGhe = s.SoGhe AND tg.MaChuyenBay = @MaChuyenBay;
 
@@ -435,7 +435,7 @@ AS
 BEGIN
     SELECT COUNT(*) AS SoGheTrong
     FROM ThongTinGhe
-    WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = 'có sẵn';
+    WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = N'có sẵn';
 END;
 GO
 
@@ -477,14 +477,14 @@ SELECT
     COUNT(*) AS SoGheTrong
 FROM ThongTinGhe tg
 JOIN ChuyenBay cb ON tg.MaChuyenBay = cb.MaChuyenBay
-WHERE tg.TinhTrangGhe = 'có sẵn'
+WHERE tg.TinhTrangGhe = N'có sẵn'
 GROUP BY tg.MaChuyenBay, cb.DiaDiemDau, cb.DiaDiemCuoi;
 GO
 
 -- Thêm dữ liệu mẫu
 -- (Giữ nguyên dữ liệu mẫu như trong tệp gốc)
 EXEC sp_ThemNguoiDung 'user1', N'Nguyễn Văn A', 'hashed_password1', 'a@example.com', '0123456789', '1990-01-01', 'Nam', '123456789012';
-EXEC sp_ThemNguoiDung 'user2', N'Trần Thị B', 'hashed_password2', 'b@example.com', '0987654321', '1995-05-15', 'Nữ', '098765432109';
+EXEC sp_ThemNguoiDung 'user2', N'Trần Thị B', 'hashed_password2', 'b@example.com', '0987654321', '1995-05-15', N'Nữ', '098765432109';
 EXEC sp_ThemNguoiDung 'nv1', N'Lê Văn C', 'hashed_password3', 'c@example.com', '0912345678', '1985-03-10', 'Nam', '112233445566';
 
 INSERT INTO KhachHang (MaKH, Passport, TaiKhoan)
@@ -497,20 +497,20 @@ INSERT INTO BaoCao (MaBaoCao, NgayBaoCao, NoiDungBaoCao, MaNV, TrangThai)
 VALUES ('BC001', '2025-04-12', N'Khách hàng không mang hộ chiếu', 'NV001', N'Đã xử lý'),
        ('BC002', '2025-04-14', N'Khách hàng yêu cầu đổi giờ bay', 'NV001', N'Chưa xử lý');
 
-EXEC sp_ThemChuyenBay 'CB001', 'Chưa khởi hành', '2025-04-15 08:00:00', '2025-04-15 10:30:00', N'Hà Nội', N'Hồ Chí Minh';
-EXEC sp_ThemChuyenBay 'CB002', 'Chưa khởi hành', '2025-04-16 10:30:00', '2025-04-16 12:15:00', N'Hồ Chí Minh', N'Đà Nẵng';
+EXEC sp_ThemChuyenBay 'CB001', N'Chưa khởi hành', '2025-04-15 08:00:00', '2025-04-15 10:30:00', N'Hà Nội', N'Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB002', N'Chưa khởi hành', '2025-04-16 10:30:00', '2025-04-16 12:15:00', N'Hồ Chí Minh', N'Đà Nẵng';
 
-EXEC sp_ThemGhe '01', 'CB001', 1500000, 'Phổ thông', 'có sẵn';
-EXEC sp_ThemGhe '02', 'CB001', 1500000, 'Phổ thông', 'có sẵn';
-EXEC sp_ThemGhe '03', 'CB001', 2500000, 'Thương gia', 'có sẵn';
-EXEC sp_ThemGhe '04', 'CB002', 1200000, 'Phổ thông', 'có sẵn';
-EXEC sp_ThemGhe '05', 'CB002', 1200000, 'Phổ thông', 'có sẵn';
+EXEC sp_ThemGhe '01', 'CB001', 1500000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '02', 'CB001', 1500000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '03', 'CB001', 2500000, N'Thương gia', N'có sẵn';
+EXEC sp_ThemGhe '04', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '05', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
 
-EXEC sp_ThemDatVe 'DV001', '2025-04-10', '2025-04-15', 'Chưa thanh toán', 1, 1500000, 'CB001', 'KH001';
-EXEC sp_ThemDatVe 'DV002', '2025-04-11', '2025-04-16', 'Chưa thanh toán', 2, 2400000, 'CB002', 'KH002';
+EXEC sp_ThemDatVe 'DV001', '2025-04-10', '2025-04-15', N'Chưa thanh toán', 1, 1500000, 'CB001', 'KH001';
+EXEC sp_ThemDatVe 'DV002', '2025-04-11', '2025-04-16', N'Chưa thanh toán', 2, 2400000, 'CB002', 'KH002';
 
-EXEC sp_ThemThanhToan 'TT001', '2025-04-10', 1500000, 'Thẻ tín dụng', 'DV001';
-EXEC sp_ThemThanhToan 'TT002', '2025-04-12', 2400000, 'Chuyển khoản', 'DV002';
+EXEC sp_ThemThanhToan 'TT001', '2025-04-10', 1500000, N'Thẻ tín dụng', 'DV001';
+EXEC sp_ThemThanhToan 'TT002', '2025-04-12', 2400000, N'Chuyển khoản', 'DV002';
 
 EXEC sp_ThemHoaDon 'HD001', '2025-04-10', 'Thẻ tín dụng', '2025-04-10', 'TT001';
 EXEC sp_ThemHoaDon 'HD002', '2025-04-12', 'Chuyển khoản', '2025-04-12', 'TT002';

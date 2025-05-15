@@ -192,9 +192,9 @@ async function deleteItem(section, id) {
                     throw new Error(data.error || 'Lỗi khi xóa khách hàng');
                 }
                 alert(data.message || `Đã xóa khách hàng với ID: ${id}`);
-                if (currentSection === 'users') {
+                //if (currentSection === 'users') {
                     fetchCustomers();
-                }
+                //}
             } else if (section === 'reports') {
                 // Xử lý xóa báo cáo
                 const response = await fetch(`http://localhost:3000/api/reports/${id}`, {
@@ -226,9 +226,9 @@ async function deleteItem(section, id) {
                     throw new Error(data.error || 'Lỗi khi xóa hóa đơn');
                 }
                 alert(data.message || `Đã xóa hóa đơn với ID: ${id}`);
-                if (currentSection === 'invoices') {
+                //if (currentSection === 'invoices') {
                     fetchInvoices();
-                }
+                //}
             } else {
                 alert(`Chức năng xóa cho ${section} chưa được triển khai`);
             }
