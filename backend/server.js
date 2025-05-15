@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Thnguyen_123",
+    password: "Vtn.2432005",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -43,7 +43,7 @@ const connectToDB = async () => {
 // API đăng nhập
 app.post('/api/login', async (req, res) => {
     const { taiKhoan, matKhau } = req.body;
-    console.log('Nhận được yêu cầu đăng nhập:', { taiKhoan, matKhau });
+    console.log('Nhận được yêu cầu đăng nhập:', { taiKhoan });
 
     try {
         const pool = await connectToDB();
@@ -61,12 +61,7 @@ app.post('/api/login', async (req, res) => {
         }
 
         const user = result.recordset[0];
-        console.log('Mật khẩu trong DB:', user.matKhau);
-
-        // Sử dụng bcrypt để so sánh mật khẩu
         const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau);
-        console.log('Kết quả so sánh mật khẩu:', isPasswordValid);
-
         if (!isPasswordValid) {
             console.log('Mật khẩu không đúng cho tài khoản:', taiKhoan);
             return res.status(401).json({ error: 'Mật khẩu không đúng' });
@@ -83,7 +78,6 @@ app.post('/api/login', async (req, res) => {
         const isController = controllerResult.recordset.length > 0;
 
         console.log('Đăng nhập thành công:', { taiKhoan, isAdmin, isController });
-        
         res.json({
             message: 'Đăng nhập thành công',
             user: {
@@ -95,7 +89,7 @@ app.post('/api/login', async (req, res) => {
         });
     } catch (err) {
         console.error('Lỗi khi đăng nhập:', err);
-        res.status(500).json({ error: 'Lỗi server khi đăng nhập' });
+        res.status(500).json({ error: 'Lỗi server khi đăng nhập: ' + err.message });
     }
 });
 
@@ -107,7 +101,6 @@ app.post('/api/controllers', async (req, res) => {
     let transaction;
 
     try {
-        // Kiểm tra dữ liệu đầu vào
         if (!maNV || !ten || !email || !sdt || !ngaySinh || !gioiTinh || !soCCCD || !taiKhoan || !matKhau) {
             return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
         }
@@ -116,11 +109,25 @@ app.post('/api/controllers', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Mã hóa mật khẩu
+        const taiKhoanCheck = await transaction.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query('SELECT TaiKhoan FROM NguoiDung WHERE TaiKhoan = @taiKhoan');
+        if (taiKhoanCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
+        }
+
+        const maNVCheck = await transaction.request()
+            .input('maNV', sql.VarChar, maNV)
+            .query('SELECT MaNV FROM NhanVienKiemSoat WHERE MaNV = @maNV');
+        if (maNVCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Mã nhân viên đã tồn tại' });
+        }
+
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
 
-        // Thêm vào bảng NguoiDung
         await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .input('ten', sql.NVarChar, ten)
@@ -135,7 +142,6 @@ app.post('/api/controllers', async (req, res) => {
                 VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
             `);
 
-        // Thêm vào bảng NhanVienKiemSoat
         await transaction.request()
             .input('maNV', sql.VarChar, maNV)
             .input('taiKhoan', sql.VarChar, taiKhoan)
@@ -148,38 +154,9 @@ app.post('/api/controllers', async (req, res) => {
         console.log(`Thêm nhân viên kiểm soát thành công: ${maNV}`);
         res.status(201).json({ message: 'Thêm nhân viên kiểm soát thành công' });
     } catch (err) {
-        if (transaction) {
-            await transaction.rollback();
-        }
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi thêm nhân viên kiểm soát:', err);
         res.status(500).json({ error: 'Lỗi khi thêm nhân viên kiểm soát: ' + err.message });
-    }
-    try {
-        pool = await connectToDB();
-        transaction = new sql.Transaction(pool);
-        await transaction.begin();
-
-        // Kiểm tra trùng taiKhoan
-        const taiKhoanCheck = await transaction.request()
-            .input('taiKhoan', sql.VarChar, taiKhoan)
-            .query('SELECT TaiKhoan FROM NguoiDung WHERE TaiKhoan = @taiKhoan');
-        if (taiKhoanCheck.recordset.length > 0) {
-            await transaction.rollback();
-            return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
-        }
-
-        // Kiểm tra trùng maNV
-        const maNVCheck = await transaction.request()
-            .input('maNV', sql.VarChar, maNV)
-            .query('SELECT MaNV FROM NhanVienKiemSoat WHERE MaNV = @maNV');
-        if (maNVCheck.recordset.length > 0) {
-            await transaction.rollback();
-            return res.status(400).json({ error: 'Mã nhân viên đã tồn tại' });
-        }
-
-        // ... (tiếp tục với mã hóa mật khẩu và thêm dữ liệu)
-    } catch (err) {
-        // ... (xử lý lỗi)
     }
 });
 
@@ -197,7 +174,7 @@ app.get('/api/customers', async (req, res) => {
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
@@ -205,12 +182,38 @@ app.get('/api/customers', async (req, res) => {
 app.post('/api/customers', async (req, res) => {
     const { maKH, ten, taiKhoan, matKhau, email, sdt, ngaySinh, gioiTinh, soCCCD, passport } = req.body;
 
+    let pool;
+    let transaction;
+
     try {
+        if (!maKH || !ten || !taiKhoan || !matKhau || !email || !sdt || !ngaySinh || !gioiTinh || !soCCCD) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        const taiKhoanCheck = await transaction.request()
+            .input('taiKhoan', sql.VarChar, taiKhoan)
+            .query('SELECT TaiKhoan FROM NguoiDung WHERE TaiKhoan = @taiKhoan');
+        if (taiKhoanCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
+        }
+
+        const maKHCheck = await transaction.request()
+            .input('maKH', sql.VarChar, maKH)
+            .query('SELECT MaKH FROM KhachHang WHERE MaKH = @maKH');
+        if (maKHCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Mã khách hàng đã tồn tại' });
+        }
+
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
 
-        const pool = await connectToDB();
-        await pool.request()
+        await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .input('ten', sql.NVarChar, ten)
             .input('matKhau', sql.VarChar, hashedPassword)
@@ -220,11 +223,11 @@ app.post('/api/customers', async (req, res) => {
             .input('gioiTinh', sql.NVarChar, gioiTinh)
             .input('soCCCD', sql.VarChar, soCCCD)
             .query(`
-                INSERT INTO NguoiDung (taiKhoan, ten, matKhau, email, sdt, ngaySinh, gioiTinh, soCCCD)
+                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD)
                 VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
             `);
 
-        await pool.request()
+        await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .input('passport', sql.VarChar, passport)
             .input('taiKhoan', sql.VarChar, taiKhoan)
@@ -233,10 +236,13 @@ app.post('/api/customers', async (req, res) => {
                 VALUES (@maKH, @passport, @taiKhoan)
             `);
 
+        await transaction.commit();
+        console.log(`Thêm khách hàng thành công: ${maKH}`);
         res.status(201).json({ message: 'Thêm khách hàng thành công' });
     } catch (err) {
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi thêm khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi khi thêm khách hàng' });
+        res.status(500).json({ error: 'Lỗi khi thêm khách hàng: ' + err.message });
     }
 });
 
@@ -249,10 +255,11 @@ app.delete('/api/invoices/by-payment/:maTT', async (req, res) => {
         await pool.request()
             .input('maTT', sql.VarChar, maTT)
             .query('DELETE FROM HoaDon WHERE MaTT = @maTT');
+        console.log(`Xóa hóa đơn liên quan đến MaTT ${maTT} thành công`);
         res.json({ message: 'Xóa hóa đơn thành công' });
     } catch (err) {
         console.error('Lỗi khi xóa hóa đơn:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa hóa đơn' });
+        res.status(500).json({ error: 'Lỗi khi xóa hóa đơn: ' + err.message });
     }
 });
 
@@ -260,26 +267,35 @@ app.delete('/api/invoices/by-payment/:maTT', async (req, res) => {
 app.delete('/api/payments/by-booking/:maDatVe', async (req, res) => {
     const { maDatVe } = req.params;
 
+    let pool;
+    let transaction;
+
     try {
-        const pool = await connectToDB();
-        const paymentResult = await pool.request()
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        const paymentResult = await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
             .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @maDatVe');
 
         for (const payment of paymentResult.recordset) {
-            await fetch(`http://localhost:3000/api/invoices/by-payment/${payment.MaTT}`, {
-                method: 'DELETE'
-            });
+            await transaction.request()
+                .input('maTT', sql.VarChar, payment.MaTT)
+                .query('DELETE FROM HoaDon WHERE MaTT = @maTT');
         }
 
-        await pool.request()
+        await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
             .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
 
+        await transaction.commit();
+        console.log(`Xóa thanh toán liên quan đến MaDatVe ${maDatVe} thành công`);
         res.json({ message: 'Xóa thanh toán thành công' });
     } catch (err) {
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi xóa thanh toán:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa thanh toán' });
+        res.status(500).json({ error: 'Lỗi khi xóa thanh toán: ' + err.message });
     }
 });
 
@@ -287,26 +303,35 @@ app.delete('/api/payments/by-booking/:maDatVe', async (req, res) => {
 app.delete('/api/bookings/by-customer/:maKH', async (req, res) => {
     const { maKH } = req.params;
 
+    let pool;
+    let transaction;
+
     try {
-        const pool = await connectToDB();
-        const bookingResult = await pool.request()
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        const bookingResult = await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaKH = @maKH');
 
         for (const booking of bookingResult.recordset) {
-            await fetch(`http://localhost:3000/api/payments/by-booking/${booking.MaDatVe}`, {
-                method: 'DELETE'
-            });
+            await transaction.request()
+                .input('maDatVe', sql.VarChar, booking.MaDatVe)
+                .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
         }
 
-        await pool.request()
+        await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .query('DELETE FROM ThongTinDatVe WHERE MaKH = @maKH');
 
+        await transaction.commit();
+        console.log(`Xóa thông tin đặt vé liên quan đến MaKH ${maKH} thành công`);
         res.json({ message: 'Xóa thông tin đặt vé thành công' });
     } catch (err) {
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi xóa thông tin đặt vé:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa thông tin đặt vé' });
+        res.status(500).json({ error: 'Lỗi khi xóa thông tin đặt vé: ' + err.message });
     }
 });
 
@@ -314,34 +339,44 @@ app.delete('/api/bookings/by-customer/:maKH', async (req, res) => {
 app.delete('/api/customers/:maKH', async (req, res) => {
     const { maKH } = req.params;
 
+    let pool;
+    let transaction;
+
     try {
-        const pool = await connectToDB();
-        const findResult = await pool.request()
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        const findResult = await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .query('SELECT taiKhoan FROM KhachHang WHERE maKH = @maKH');
 
         if (findResult.recordset.length === 0) {
-            res.status(404).json({ error: 'Không tìm thấy khách hàng' });
-            return;
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy khách hàng' });
         }
 
         const taiKhoan = findResult.recordset[0].taiKhoan;
-        await fetch(`http://localhost:3000/api/bookings/by-customer/${maKH}`, {
-            method: 'DELETE'
-        });
 
-        await pool.request()
+        await transaction.request()
+            .input('maKH', sql.VarChar, maKH)
+            .query('DELETE FROM ThongTinDatVe WHERE MaKH = @maKH');
+
+        await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .query('DELETE FROM KhachHang WHERE maKH = @maKH');
 
-        await pool.request()
+        await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query('DELETE FROM NguoiDung WHERE taiKhoan = @taiKhoan');
 
+        await transaction.commit();
+        console.log(`Xóa khách hàng ${maKH} thành công`);
         res.json({ message: 'Xóa khách hàng thành công' });
     } catch (err) {
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi xóa khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa khách hàng' });
+        res.status(500).json({ error: 'Lỗi khi xóa khách hàng: ' + err.message });
     }
 });
 
@@ -364,7 +399,7 @@ app.get('/api/flights', async (req, res) => {
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách chuyến bay:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
@@ -399,12 +434,14 @@ app.get('/api/flights/:maChuyenBay', async (req, res) => {
 
 // API thêm chuyến bay mới
 app.post('/api/flights', async (req, res) => {
-    console.log('Nhận được yêu cầu POST /api/flights với dữ liệu:', req.body);
     const { maChuyenBay, tinhTrangChuyenBay, gioBay, gioDen, diaDiemDau, diaDiemCuoi } = req.body;
 
     try {
+        if (!maChuyenBay || !tinhTrangChuyenBay || !gioBay || !gioDen || !diaDiemDau || !diaDiemCuoi) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
         const pool = await connectToDB();
-        console.log('Kết nối DB thành công, đang thêm chuyến bay...');
         await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .input('tinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
@@ -417,10 +454,10 @@ app.post('/api/flights', async (req, res) => {
                 VALUES (@maChuyenBay, @tinhTrangChuyenBay, @gioBay, @gioDen, @diaDiemDau, @diaDiemCuoi)
             `);
 
-        console.log('Thêm chuyến bay thành công:', maChuyenBay);
+        console.log(`Thêm chuyến bay thành công: ${maChuyenBay}`);
         res.status(201).json({ message: 'Thêm chuyến bay thành công' });
     } catch (err) {
-        console.error('Lỗi khi thêm chuyến bay:', err.message);
+        console.error('Lỗi khi thêm chuyến bay:', err);
         res.status(500).json({ error: 'Lỗi khi thêm chuyến bay: ' + err.message });
     }
 });
@@ -431,8 +468,12 @@ app.put('/api/flights/:maChuyenBay', async (req, res) => {
     const { tinhTrangChuyenBay, gioBay, gioDen, diaDiemDau, diaDiemCuoi } = req.body;
 
     try {
+        if (!tinhTrangChuyenBay || !gioBay || !gioDen || !diaDiemDau || !diaDiemCuoi) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
         const pool = await connectToDB();
-        await pool.request()
+        const result = await pool.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .input('tinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
             .input('gioBay', sql.DateTime, gioBay)
@@ -449,6 +490,11 @@ app.put('/api/flights/:maChuyenBay', async (req, res) => {
                 WHERE MaChuyenBay = @maChuyenBay
             `);
 
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        console.log(`Cập nhật chuyến bay thành công: ${maChuyenBay}`);
         res.json({ message: 'Cập nhật chuyến bay thành công' });
     } catch (err) {
         console.error('Lỗi khi cập nhật chuyến bay:', err);
@@ -459,59 +505,6 @@ app.put('/api/flights/:maChuyenBay', async (req, res) => {
 // API xóa chuyến bay
 app.delete('/api/flights/:maChuyenBay', async (req, res) => {
     const { maChuyenBay } = req.params;
-    console.log(`Nhận được yêu cầu DELETE /api/flights/${maChuyenBay}`);
-
-    try {
-        const pool = await connectToDB();
-        
-        // Kiểm tra xem chuyến bay có tồn tại không
-        const flightCheck = await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
-
-        if (flightCheck.recordset.length === 0) {
-            console.log(`Không tìm thấy chuyến bay: ${maChuyenBay}`);
-            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
-        }
-
-        // Xóa thông tin đặt vé liên quan đến chuyến bay
-        const bookingResult = await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
-
-        for (const booking of bookingResult.recordset) {
-            console.log(`Xóa thanh toán cho MaDatVe: ${booking.MaDatVe}`);
-            await fetch(`http://localhost:3000/api/payments/by-booking/${booking.MaDatVe}`, {
-                method: 'DELETE'
-            });
-        }
-
-        await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query('DELETE FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
-
-        // Xóa thông tin ghế liên quan
-        await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query('DELETE FROM ThongTinGhe WHERE MaChuyenBay = @maChuyenBay');
-
-        // Xóa chuyến bayDeux
-        await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query('DELETE FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
-
-        console.log(`Xóa chuyến bay thành công: ${maChuyenBay}`);
-        res.json({ message: 'Xóa chuyến bay thành công' });
-    } catch (err) {
-        console.error('Lỗi khi xóa chuyến bay:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa chuyến bay: ' + err.message });
-    }
-});
-
-// API xóa ghế
-app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
-    const { soGhe, maChuyenBay } = req.params;
-    console.log(`Nhận được yêu cầu DELETE /api/seats/${soGhe}/${maChuyenBay}`);
 
     let pool;
     let transaction;
@@ -521,7 +514,59 @@ app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Kiểm tra xem ghế có tồn tại không
+        const flightCheck = await transaction.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+
+        if (flightCheck.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        const bookingResult = await transaction.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
+
+        for (const booking of bookingResult.recordset) {
+            await transaction.request()
+                .input('maDatVe', sql.VarChar, booking.MaDatVe)
+                .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
+        }
+
+        await transaction.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('DELETE FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
+
+        await transaction.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('DELETE FROM ThongTinGhe WHERE MaChuyenBay = @maChuyenBay');
+
+        await transaction.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('DELETE FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+
+        await transaction.commit();
+        console.log(`Xóa chuyến bay thành công: ${maChuyenBay}`);
+        res.json({ message: 'Xóa chuyến bay thành công' });
+    } catch (err) {
+        if (transaction) await transaction.rollback();
+        console.error('Lỗi khi xóa chuyến bay:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa chuyến bay: ' + err.message });
+    }
+});
+
+// API xóa ghế
+app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
+    const { soGhe, maChuyenBay } = req.params;
+
+    let pool;
+    let transaction;
+
+    try {
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
         const seatCheck = await transaction.request()
             .input('soGhe', sql.VarChar, soGhe)
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
@@ -532,20 +577,16 @@ app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
             `);
 
         if (seatCheck.recordset.length === 0) {
-            console.log(`Không tìm thấy ghế ${soGhe} cho chuyến bay ${maChuyenBay}`);
             await transaction.rollback();
             return res.status(404).json({ error: 'Không tìm thấy ghế' });
         }
 
-        // Kiểm tra trạng thái ghế
         if (seatCheck.recordset[0].TinhTrangGhe === 'đã đặt') {
-            console.log(`Ghế ${soGhe} đã được đặt, không thể xóa`);
             await transaction.rollback();
             return res.status(400).json({ error: 'Không thể xóa ghế đã được đặt' });
         }
 
-        // Xóa ghế và kiểm tra số hàng bị ảnh hưởng
-        const deleteResult = await transaction.request()
+        await transaction.request()
             .input('soGhe', sql.VarChar, soGhe)
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query(`
@@ -553,20 +594,12 @@ app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
                 WHERE SoGhe = @soGhe AND MaChuyenBay = @maChuyenBay
             `);
 
-        if (deleteResult.rowsAffected[0] === 0) {
-            console.log(`Không có ghế nào bị xóa cho SoGhe: ${soGhe}, MaChuyenBay: ${maChuyenBay}`);
-            await transaction.rollback();
-            return res.status(500).json({ error: 'Không thể xóa ghế: Không có hàng nào bị ảnh hưởng' });
-        }
-
         await transaction.commit();
         console.log(`Xóa ghế ${soGhe} thành công cho chuyến bay ${maChuyenBay}`);
         res.json({ message: 'Xóa ghế thành công' });
     } catch (err) {
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi xóa ghế:', err);
-        if (transaction) {
-            await transaction.rollback();
-        }
         res.status(500).json({ error: 'Lỗi khi xóa ghế: ' + err.message });
     }
 });
@@ -577,14 +610,13 @@ app.put('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
     const { giaGhe, hangGhe, tinhTrangGhe } = req.body;
     const validHangGhe = ['Phổ thông', 'Thương gia', 'Hạng nhất'];
 
-    // Kiểm tra giá trị hangGhe
-    if (!validHangGhe.includes(hangGhe)) {
-        return res.status(400).json({ error: `Giá trị HangGhe không hợp lệ. Chỉ chấp nhận: ${validHangGhe.join(', ')}` });
-    }
-
     try {
-        let pool = await sql.connect(dbConfig);
-        let result = await pool.request()
+        if (!validHangGhe.includes(hangGhe)) {
+            return res.status(400).json({ error: `Hạng ghế không hợp lệ. Chỉ chấp nhận: ${validHangGhe.join(', ')}` });
+        }
+
+        const pool = await connectToDB();
+        const result = await pool.request()
             .input('SoGhe', sql.VarChar, soGhe)
             .input('MaChuyenBay', sql.VarChar, maChuyenBay)
             .input('GiaGhe', sql.Decimal(18, 2), giaGhe)
@@ -602,10 +634,11 @@ app.put('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy ghế để cập nhật' });
         }
 
+        console.log(`Cập nhật ghế ${soGhe} thành công cho chuyến bay ${maChuyenBay}`);
         res.json({ message: 'Cập nhật ghế thành công' });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Lỗi server khi cập nhật ghế' });
+        console.error('Lỗi khi cập nhật ghế:', err);
+        res.status(500).json({ error: 'Lỗi server khi cập nhật ghế: ' + err.message });
     }
 });
 
@@ -626,22 +659,22 @@ app.get('/api/invoices', async (req, res) => {
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách hóa đơn:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
 // API xóa hóa đơn theo mã hóa đơn
 app.delete('/api/invoices/:maHoaDon', async (req, res) => {
     const { maHoaDon } = req.params;
-    console.log(`Nhận được yêu cầu DELETE /api/invoices/${maHoaDon}`);
+
     let pool;
     let transaction;
+
     try {
         pool = await connectToDB();
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Tìm MaTT liên quan từ bảng HoaDon
         const invoiceResult = await transaction.request()
             .input('maHoaDon', sql.VarChar, maHoaDon)
             .query('SELECT MaTT FROM HoaDon WHERE MaHoaDon = @maHoaDon');
@@ -653,16 +686,10 @@ app.delete('/api/invoices/:maHoaDon', async (req, res) => {
 
         const maTT = invoiceResult.recordset[0].MaTT;
 
-        // Xóa hóa đơn
-        const deleteResult = await transaction.request()
+        await transaction.request()
             .input('maHoaDon', sql.VarChar, maHoaDon)
             .query('DELETE FROM HoaDon WHERE MaHoaDon = @maHoaDon');
 
-        if (deleteResult.rowsAffected[0] === 0) {
-            throw new Error('Không tìm thấy hóa đơn để xóa');
-        }
-
-        // Cập nhật trạng thái thanh toán trong ThongTinDatVe nếu có MaTT
         if (maTT) {
             await transaction.request()
                 .input('maTT', sql.VarChar, maTT)
@@ -679,9 +706,7 @@ app.delete('/api/invoices/:maHoaDon', async (req, res) => {
         console.log(`Xóa hóa đơn thành công: ${maHoaDon}`);
         res.json({ message: 'Xóa hóa đơn thành công' });
     } catch (err) {
-        if (transaction) {
-            await transaction.rollback();
-        }
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi xóa hóa đơn:', err);
         res.status(500).json({ error: 'Lỗi khi xóa hóa đơn: ' + err.message });
     }
@@ -689,18 +714,17 @@ app.delete('/api/invoices/:maHoaDon', async (req, res) => {
 
 // API chỉnh sửa hóa đơn
 app.put('/api/invoices/:maHoaDon', async (req, res) => {
-    const validPhuongThucTT = ['Tiền mặt', 'Thẻ tín dụng', 'Chuyển khoản'];
     const { maHoaDon } = req.params;
-    const { ngayXuatHD, phuongThucTT, ngayThanhToan, maTT } = req.body;
-
-    // Kiểm tra giá trị phuongThucTT
-    if (!validPhuongThucTT.includes(phuongThucTT)) {
-        return res.status(400).json({ error: `Phương thức thanh toán không hợp lệ. Chỉ chấp nhận: ${validPhuongThucTT.join(', ')}` });
-    }
+    const { ngayXuatHD, phuongThucTT, ngayThanhToan } = req.body;
+    const validPhuongThucTT = ['Tiền mặt', 'Thẻ tín dụng', 'Chuyển khoản'];
 
     try {
-        let pool = await sql.connect(dbConfig);
-        let result = await pool.request()
+        if (!validPhuongThucTT.includes(phuongThucTT)) {
+            return res.status(400).json({ error: `Phương thức thanh toán không hợp lệ. Chỉ chấp nhận: ${validPhuongThucTT.join(', ')}` });
+        }
+
+        const pool = await connectToDB();
+        const result = await pool.request()
             .input('MaHoaDon', sql.VarChar, maHoaDon)
             .input('NgayXuatHD', sql.Date, ngayXuatHD)
             .input('PhuongThucTT', sql.NVarChar, phuongThucTT)
@@ -717,9 +741,10 @@ app.put('/api/invoices/:maHoaDon', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy hóa đơn để cập nhật' });
         }
 
+        console.log(`Cập nhật hóa đơn thành công: ${maHoaDon}`);
         res.json({ message: 'Cập nhật hóa đơn thành công' });
     } catch (err) {
-        console.error(err);
+        console.error('Lỗi khi cập nhật hóa đơn:', err);
         res.status(500).json({ error: 'Lỗi server khi cập nhật hóa đơn: ' + err.message });
     }
 });
@@ -727,41 +752,310 @@ app.put('/api/invoices/:maHoaDon', async (req, res) => {
 // API lấy danh sách ghế
 app.get('/api/seats', async (req, res) => {
     try {
-        console.log('Nhận được yêu cầu GET /api/seats');
         const { maChuyenBay } = req.query;
         const pool = await connectToDB();
-        
+
         let query = `
             SELECT 
                 SoGhe AS soGhe,
                 GiaGhe AS giaGhe,
                 HangGhe as hangGhe,
-                TinhTrangGhe AS tinhTrangGhe
+                TinhTrangGhe AS tinhTrangGhe,
+                MaChuyenBay
             FROM ThongTinGhe
         `;
-        
+
         if (maChuyenBay) {
             query += ' WHERE MaChuyenBay = @maChuyenBay';
         }
-        
+
         const request = pool.request();
         if (maChuyenBay) {
             request.input('maChuyenBay', sql.VarChar, maChuyenBay);
         }
-        
+
         const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách ghế:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
+// API lấy danh sách ghế theo mã chuyến bay
+app.get('/api/seats/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    try {
+        const pool = await connectToDB();
+        const flightCheck = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+
+        if (flightCheck.recordset.length === 0) {
+            console.log('Không tìm thấy chuyến bay:', maChuyenBay);
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        const result = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query(`
+                SELECT 
+                    SoGhe AS soGhe,
+                    GiaGhe AS giaGhe,
+                    HangGhe AS hangGhe,
+                    TinhTrangGhe AS tinhTrangGhe
+                FROM ThongTinGhe
+                WHERE MaChuyenBay = @maChuyenBay
+            `);
+        console.log('Dữ liệu trả về:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách ghế:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
+// API kiểm tra ghế trống theo hạng ghế và chuyến bay
+app.get('/api/seats/available/:maChuyenBay', async (req, res) => {
+    const { maChuyenBay } = req.params;
+    const { hangGhe } = req.query;
+
+    try {
+        const pool = await connectToDB();
+
+        const flightCheck = await pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay)
+            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
+        if (flightCheck.recordset.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        const validHangGhe = ['Phổ thông', 'Thương gia', 'Hạng nhất'];
+        if (hangGhe && !validHangGhe.includes(hangGhe)) {
+            return res.status(400).json({ error: `Hạng ghế không hợp lệ. Chỉ chấp nhận: ${validHangGhe.join(', ')}` });
+        }
+
+        let query = `
+            SELECT 
+                HangGhe AS hangGhe,
+                COUNT(*) AS soGheTrong,
+                MIN(GiaGhe) AS giaGheMin
+            FROM ThongTinGhe
+            WHERE MaChuyenBay = @maChuyenBay AND TinhTrangGhe = N'trống'
+        `;
+        if (hangGhe) {
+            query += ' AND HangGhe = @hangGhe';
+        }
+        query += ' GROUP BY HangGhe';
+
+        const request = pool.request()
+            .input('maChuyenBay', sql.VarChar, maChuyenBay);
+        if (hangGhe) {
+            request.input('hangGhe', sql.NVarChar, hangGhe);
+        }
+
+        const result = await request.query(query);
+        console.log('Số ghế trống:', result.recordset);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Lỗi khi kiểm tra ghế trống:', err);
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
+// API tạo mã đặt vé
+app.get('/api/bookings/generate-code', async (req, res) => {
+    try {
+        const pool = await connectToDB();
+        const result = await pool.request().query('SELECT MaDatVe FROM ThongTinDatVe');
+        const existingCodes = result.recordset.map(row => row.MaDatVe);
+
+        let newCode;
+        let isUnique = false;
+        let attempts = 0;
+        const maxAttempts = 100;
+
+        while (!isUnique && attempts < maxAttempts) {
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            newCode = `DV${randomNum}`;
+            if (!existingCodes.includes(newCode)) {
+                isUnique = true;
+            }
+            attempts++;
+        }
+
+        if (!isUnique) {
+            throw new Error('Không thể tạo mã đặt vé mới');
+        }
+
+        console.log(`Tạo mã đặt vé thành công: ${newCode}`);
+        res.json({ maDatVe: newCode });
+    } catch (err) {
+        console.error('Lỗi khi tạo mã đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi khi tạo mã đặt vé: ' + err.message });
+    }
+});
+
+// API tạo thông tin đặt vé
+app.post('/api/bookings', async (req, res) => {
+    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH, HangGhe } = req.body;
+
+    let pool;
+    let transaction;
+
+    try {
+        if (!MaDatVe || !NgayDatVe || !NgayBay || !TrangThaiThanhToan || !SoGhe || !SoTien || !MaChuyenBay || !MaKH || !HangGhe) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
+        const validHangGhe = ['Phổ thông', 'Thương gia', 'Hạng nhất'];
+        if (!validHangGhe.includes(HangGhe)) {
+            return res.status(400).json({ error: `Hạng ghế không hợp lệ. Chỉ chấp nhận: ${validHangGhe.join(', ')}` });
+        }
+
+        const validTrangThai = ['Chưa thanh toán', 'Đ IDEAL thanh toán'];
+        if (!validTrangThai.includes(TrangThaiThanhToan)) {
+            return res.status(400).json({ error: `Trạng thái thanh toán không hợp lệ. Chỉ chấp nhận: ${validTrangThai.join(', ')}` });
+        }
+
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        const flightCheck = await transaction.request()
+            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
+            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @MaChuyenBay');
+        if (flightCheck.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        const customerCheck = await transaction.request()
+            .input('MaKH', sql.VarChar, MaKH)
+            .query('SELECT MaKH FROM KhachHang WHERE MaKH = @MaKH');
+        if (customerCheck.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy khách hàng' });
+        }
+
+        const bookingCheck = await transaction.request()
+            .input('MaDatVe', sql.VarChar, MaDatVe)
+            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaDatVe = @MaDatVe');
+        if (bookingCheck.recordset.length > 0) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Mã đặt vé đã tồn tại' });
+        }
+
+        const seatCheck = await transaction.request()
+            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('HangGhe', sql.NVarChar, HangGhe)
+            .query(`
+                SELECT COUNT(*) AS availableSeats, SUM(GiaGhe) AS totalPrice
+                FROM ThongTinGhe
+                WHERE MaChuyenBay = @MaChuyenBay AND HangGhe = @HangGhe AND TinhTrangGhe = N'trống'
+            `);
+
+        const { availableSeats, totalPrice } = seatCheck.recordset[0];
+        if (availableSeats < SoGhe) {
+            await transaction.rollback();
+            return res.status(400).json({ error: `Không đủ ${SoGhe} ghế ${HangGhe} trống` });
+        }
+
+        const calculatedAmount = (totalPrice / availableSeats) * SoGhe;
+        if (SoTien && Math.abs(SoTien - calculatedAmount) > 0.01) {
+            console.warn(`SoTien từ client (${SoTien}) không khớp với calculatedAmount (${calculatedAmount})`);
+        }
+
+        await transaction.request()
+            .input('MaDatVe', sql.VarChar, MaDatVe)
+            .input('NgayDatVe', sql.Date, NgayDatVe)
+            .input('NgayBay', sql.Date, NgayBay)
+            .input('TrangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
+            .input('SoGhe', sql.Int, SoGhe)
+            .input('SoTien', sql.Decimal(18, 2), calculatedAmount)
+            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('MaKH', sql.VarChar, MaKH)
+            .query(`
+                INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
+                VALUES (@MaDatVe, @NgayDatVe, @NgayBay, @TrangThaiThanhToan, @SoGhe, @SoTien, @MaChuyenBay, @MaKH)
+            `);
+
+        const seatsToUpdate = await transaction.request()
+            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('HangGhe', sql.NVarChar, HangGhe)
+            .input('SoGhe', sql.Int, SoGhe)
+            .query(`
+                SELECT TOP (@SoGhe) SoGhe
+                FROM ThongTinGhe
+                WHERE MaChuyenBay = @MaChuyenBay AND HangGhe = @HangGhe AND TinhTrangGhe = N'trống'
+            `);
+
+        for (const seat of seatsToUpdate.recordset) {
+            await transaction.request()
+                .input('SoGhe', sql.VarChar, seat.SoGhe)
+                .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
+                .query(`
+                    UPDATE ThongTinGhe
+                    SET TinhTrangGhe = N'đã đặt'
+                    WHERE SoGhe = @SoGhe AND MaChuyenBay = @MaChuyenBay
+                `);
+        }
+
+        await transaction.commit();
+        console.log(`Đặt vé thành công: ${MaDatVe}`);
+        res.status(201).json({ message: 'Đặt vé thành công', calculatedAmount });
+    } catch (err) {
+        if (transaction) await transaction.rollback();
+        console.error('Lỗi khi đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi khi đặt vé: ' + err.message });
+    }
+});
+
+// API xóa thông tin đặt vé theo mã đặt vé
+app.delete('/api/bookings/:maDatVe', async (req, res) => {
+    const { maDatVe } = req.params;
+
+    let pool;
+    let transaction;
+
+    try {
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        const bookingCheck = await transaction.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query('SELECT MaDatVe, MaChuyenBay FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
+
+        if (bookingCheck.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy thông tin đặt vé' });
+        }
+
+        const { MaChuyenBay } = bookingCheck.recordset[0];
+
+        await transaction.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
+
+        await transaction.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query('DELETE FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
+
+        await transaction.commit();
+        console.log(`Xóa thông tin đặt vé thành công: ${maDatVe}`);
+        res.json({ message: 'Xóa thông tin đặt vé thành công' });
+    } catch (err) {
+        if (transaction) await transaction.rollback();
+        console.error('Lỗi khi xóa thông tin đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa thông tin đặt vé: ' + err.message });
     }
 });
 
 // API lấy danh sách thông tin đặt vé
 app.get('/api/bookings', async (req, res) => {
     try {
-        console.log('Nhận được yêu cầu GET /api/bookings với username:', req.query.username);
         const { username } = req.query;
         const pool = await connectToDB();
 
@@ -778,7 +1072,7 @@ app.get('/api/bookings', async (req, res) => {
             FROM ThongTinDatVe tdv
             LEFT JOIN KhachHang kh ON tdv.MaKH = kh.MaKH
             LEFT JOIN ChuyenBay cb ON tdv.MaChuyenBay = cb.MaChuyenBay
-        `.trim();
+        `;
 
         if (username) {
             query += ` WHERE kh.TaiKhoan = @username`;
@@ -790,104 +1084,40 @@ app.get('/api/bookings', async (req, res) => {
         }
 
         const result = await request.query(query);
-        console.log('Dữ liệu thô từ database:', result.recordset);
+        console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách thông tin đặt vé:', err);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
-});
-
-// API tạo thông tin đặt vé
-app.post('/api/bookings', async (req, res) => {
-    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH } = req.body;
-
-    try {
-        const pool = await connectToDB();
-        await pool.request()
-            .input('MaDatVe', sql.VarChar, MaDatVe)
-            .input('NgayDatVe', sql.Date, NgayDatVe)
-            .input('NgayBay', sql.Date, NgayBay)
-            .input('TrangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
-            .input('SoGhe', sql.VarChar, SoGhe)
-            .input('SoTien', sql.Decimal(18, 2), SoTien)
-            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
-            .input('MaKH', sql.VarChar, MaKH)
-            .execute('sp_ThemDatVe');
-
-        res.status(201).json({ message: 'Đặt vé thành công' });
-    } catch (err) {
-        console.error('Lỗi khi đặt vé:', err);
-        res.status(500).json({ error: 'Lỗi khi đặt vé: ' + err.message });
-    }
-});
-
-// API xóa thông tin đặt vé theo mã đặt vé
-app.delete('/api/bookings/:maDatVe', async (req, res) => {
-    const maDatVe = req.params.maDatVe;
-    console.log(`Nhận được yêu cầu DELETE /api/bookings/${maDatVe}`);
-
-    let pool;
-    try {
-        pool = await connectToDB();
-        
-        // Kiểm tra xem báo cáo có tồn tại không
-        const reportCheck = await pool.request()
-            .input('maDatVe', sql.VarChar, maDatVe)
-            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
-
-        if (reportCheck.recordset.length === 0) {
-            console.log(`Không tìm thấy thông tin đặt vé: ${maDatVe}`);
-            return res.status(404).json({ error: 'Không tìm thấy thông tin đặt vé' });
-        }
-
-        // Thực thi stored procedure để xóa
-        await pool.request()
-            .input('maDatVe', sql.VarChar, maDatVe)
-            .execute('sp_XoaDatVe');
-
-        console.log(`Xóa thông tin đặt vé thành công: ${maDatVe}`);
-        res.json({ message: 'Xóa thông tin đặt vé thành công' });
-    } catch (err) {
-        console.error('Lỗi khi xóa thông tin đặt vé:', err);
-        res.status(500).json({ error: 'Lỗi khi xóa thông tin đặt vé: ' + err.message });
-    } finally {
-        if (pool) pool.close();
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
 // API tạo mã chuyến bay mới
 app.get('/api/flights/generate-code', async (req, res) => {
     try {
-        console.log('Đang tạo mã chuyến bay mới...');
         const pool = await connectToDB();
-        console.log('Đã kết nối database');
-        
         const result = await pool.request().query('SELECT MaChuyenBay FROM ChuyenBay');
-        console.log('Đã lấy danh sách mã chuyến bay hiện có');
         const existingCodes = result.recordset.map(row => row.MaChuyenBay);
-        
+
         let newCode;
         let isUnique = false;
         let attempts = 0;
         const maxAttempts = 100;
-        
+
         while (!isUnique && attempts < maxAttempts) {
             const randomNum = Math.floor(100 + Math.random() * 900);
             newCode = `CB${randomNum}`;
-            
             if (!existingCodes.includes(newCode)) {
                 isUnique = true;
-                console.log('Đã tìm thấy mã chuyến bay mới:', newCode);
             }
             attempts++;
         }
-        
+
         if (!isUnique) {
-            console.error('Không thể tạo mã chuyến bay mới sau', maxAttempts, 'lần thử');
             throw new Error('Không thể tạo mã chuyến bay mới');
         }
-        
+
+        console.log(`Tạo mã chuyến bay thành công: ${newCode}`);
         res.json({ maChuyenBay: newCode });
     } catch (err) {
         console.error('Lỗi khi tạo mã chuyến bay:', err);
@@ -914,45 +1144,10 @@ app.get('/api/customers/by-username/:taiKhoan', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy khách hàng' });
         }
 
+        console.log(`Lấy thông tin khách hàng thành công: ${taiKhoan}`);
         res.json(result.recordset[0]);
     } catch (err) {
         console.error('Lỗi khi lấy thông tin khách hàng:', err);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
-});
-
-// API lấy danh sách ghế theo mã chuyến bay
-app.get('/api/seats/:maChuyenBay', async (req, res) => {
-    const { maChuyenBay } = req.params;
-    try {
-        console.log('Nhận được yêu cầu GET /api/seats/' + maChuyenBay);
-        const pool = await connectToDB();
-        console.log('Đã kết nối database, đang thực hiện truy vấn...');
-        
-        const flightCheck = await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query('SELECT MaChuyenBay FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
-            
-        if (flightCheck.recordset.length === 0) {
-            console.log('Không tìm thấy chuyến bay:', maChuyenBay);
-            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
-        }
-        
-        const result = await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .query(`
-                SELECT 
-                    SoGhe AS soGhe,
-                    GiaGhe AS giaGhe,
-                    HangGhe as hangGhe,
-                    TinhTrangGhe AS tinhTrangGhe
-                FROM ThongTinGhe
-                WHERE MaChuyenBay = @maChuyenBay
-            `);
-        console.log('Dữ liệu trả về:', result.recordset);
-        res.json(result.recordset);
-    } catch (err) {
-        console.error('Lỗi khi lấy danh sách ghế:', err);
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
@@ -960,10 +1155,9 @@ app.get('/api/seats/:maChuyenBay', async (req, res) => {
 // API lấy danh sách báo cáo
 app.get('/api/reports', async (req, res) => {
     try {
-        console.log('Nhận được yêu cầu GET /api/reports');
         const { trangThai } = req.query;
         const pool = await connectToDB();
-        
+
         let query = `
             SELECT 
                 MaBaoCao as maBaoCao,
@@ -972,26 +1166,24 @@ app.get('/api/reports', async (req, res) => {
                 MaNV as maNV
             FROM BaoCao
         `;
-        
+
         if (trangThai) {
             query += ' WHERE TrangThai = @trangThai';
         }
-        
+
         const request = pool.request();
         if (trangThai) {
             request.input('trangThai', sql.NVarChar, trangThai);
         }
-        
+
         const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách báo cáo:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
-
-
 
 // API lấy báo cáo đầy đủ
 app.get('/api/reports/full', async (req, res) => {
@@ -1006,45 +1198,40 @@ app.get('/api/reports/full', async (req, res) => {
                 TrangThai AS trangThai
             FROM BaoCao
         `);
+        console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách báo cáo đầy đủ:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
 // API tạo mã báo cáo
 app.get('/api/reports/generate-code', async (req, res) => {
     try {
-        console.log('Đang tạo mã báo cáo mới...');
         const pool = await connectToDB();
-        console.log('Đã kết nối database');
-        
         const result = await pool.request().query('SELECT MaBaoCao FROM BaoCao');
-        console.log('Đã lấy danh sách mã báo cáo hiện có');
         const existingCodes = result.recordset.map(row => row.MaBaoCao);
-        
+
         let newCode;
         let isUnique = false;
         let attempts = 0;
         const maxAttempts = 100;
-        
+
         while (!isUnique && attempts < maxAttempts) {
             const randomNum = Math.floor(100 + Math.random() * 900);
-            newCode = `BC${randomNum}`; // Sửa thành BCxxx cho báo cáo
-            
+            newCode = `BC${randomNum}`;
             if (!existingCodes.includes(newCode)) {
                 isUnique = true;
-                console.log('Đã tìm thấy mã báo cáo mới:', newCode);
             }
             attempts++;
         }
-        
+
         if (!isUnique) {
-            console.error('Không thể tạo mã báo cáo mới sau', maxAttempts, 'lần thử');
             throw new Error('Không thể tạo mã báo cáo mới');
         }
-        
+
+        console.log(`Tạo mã báo cáo thành công: ${newCode}`);
         res.json({ maBaoCao: newCode });
     } catch (err) {
         console.error('Lỗi khi tạo mã báo cáo:', err);
@@ -1057,6 +1244,10 @@ app.post('/api/reports', async (req, res) => {
     const { maBaoCao, maNV, ngayBaoCao, noiDungBaoCao, trangThai } = req.body;
 
     try {
+        if (!maBaoCao || !maNV || !ngayBaoCao || !noiDungBaoCao) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
         const pool = await connectToDB();
         await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
@@ -1069,10 +1260,11 @@ app.post('/api/reports', async (req, res) => {
                 VALUES (@maBaoCao, @maNV, @ngayBaoCao, @noiDungBaoCao, @trangThai)
             `);
 
+        console.log(`Thêm báo cáo thành công: ${maBaoCao}`);
         res.status(201).json({ message: 'Thêm báo cáo thành công' });
     } catch (err) {
         console.error('Lỗi khi thêm báo cáo:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
@@ -1080,27 +1272,18 @@ app.post('/api/reports', async (req, res) => {
 app.put('/api/reports/:maBaoCao/status', async (req, res) => {
     const { maBaoCao } = req.params;
     const { trangThai } = req.body;
-    
+
     try {
-        console.log('=== Bắt đầu xử lý cập nhật trạng thái báo cáo ===');
-        console.log('Mã báo cáo:', maBaoCao);
-        console.log('Trạng thái mới:', trangThai);
-        
         const pool = await connectToDB();
-        console.log('Đã kết nối database');
-        
         const checkResult = await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
-            
-        console.log('Kết quả kiểm tra báo cáo:', checkResult.recordset);
-            
+
         if (checkResult.recordset.length === 0) {
-            console.log('Không tìm thấy báo cáo');
             return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
         }
-        
-        const updateResult = await pool.request()
+
+        await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .input('trangThai', sql.NVarChar, trangThai)
             .query(`
@@ -1108,10 +1291,8 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
                 SET TrangThai = @trangThai
                 WHERE MaBaoCao = @maBaoCao
             `);
-            
-        console.log('Kết quả cập nhật:', updateResult);
-        console.log('=== Kết thúc xử lý cập nhật trạng thái báo cáo ===');
-        
+
+        console.log(`Cập nhật trạng thái báo cáo thành công: ${maBaoCao}`);
         res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
     } catch (err) {
         console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
@@ -1122,22 +1303,17 @@ app.put('/api/reports/:maBaoCao/status', async (req, res) => {
 // API xóa báo cáo
 app.delete('/api/reports/:maBaoCao', async (req, res) => {
     const { maBaoCao } = req.params;
-    console.log(`Nhận được yêu cầu DELETE /api/reports/${maBaoCao}`);
 
     try {
         const pool = await connectToDB();
-        
-        // Kiểm tra xem báo cáo có tồn tại không
         const reportCheck = await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
 
         if (reportCheck.recordset.length === 0) {
-            console.log(`Không tìm thấy báo cáo: ${maBaoCao}`);
             return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
         }
 
-        // Xóa báo cáo
         await pool.request()
             .input('maBaoCao', sql.VarChar, maBaoCao)
             .query('DELETE FROM BaoCao WHERE MaBaoCao = @maBaoCao');
@@ -1150,56 +1326,12 @@ app.delete('/api/reports/:maBaoCao', async (req, res) => {
     }
 });
 
-app.put('/api/reports/:maBaoCao/status1', async (req, res) => {
-    const { maBaoCao } = req.params;
-    const { trangThai } = req.body;
-    
-    try {
-        console.log('=== Bắt đầu xử lý cập nhật trạng thái báo cáo ===');
-        console.log('Mã báo cáo:', maBaoCao);
-        console.log('Trạng thái mới:', trangThai);
-        
-        const pool = await connectToDB();
-        console.log('Đã kết nối database');
-        
-        const checkResult = await pool.request()
-            .input('maBaoCao', sql.VarChar, maBaoCao)
-            .query('SELECT MaBaoCao FROM BaoCao WHERE MaBaoCao = @maBaoCao');
-            
-        console.log('Kết quả kiểm tra báo cáo:', checkResult.recordset);
-            
-        if (checkResult.recordset.length === 0) {
-            console.log('Không tìm thấy báo cáo');
-            return res.status(404).json({ error: 'Không tìm thấy báo cáo' });
-        }
-        
-        const updateResult = await pool.request()
-            .input('maBaoCao', sql.VarChar, maBaoCao)
-            .input('trangThai', sql.NVarChar, trangThai)
-            .query(`
-                UPDATE BaoCao
-                SET TrangThai = @trangThai
-                WHERE MaBaoCao = @maBaoCao
-            `);
-            
-        console.log('Kết quả cập nhật:', updateResult);
-        console.log('=== Kết thúc xử lý cập nhật trạng thái báo cáo ===');
-        
-        res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
-    } catch (err) {
-        console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
-        res.status(500).json({ error: 'Lỗi server: ' + err.message });
-    }
-});
-
-
 // API lấy danh sách nhân viên kiểm soát
 app.get('/api/control-staff', async (req, res) => {
     try {
-        console.log('Nhận được yêu cầu GET /api/control-staff với taiKhoan:', req.query.taiKhoan);
         const { taiKhoan } = req.query;
         const pool = await connectToDB();
-        
+
         let query = `
             SELECT 
                 nv.MaNV as maNV,
@@ -1213,28 +1345,28 @@ app.get('/api/control-staff', async (req, res) => {
             FROM NhanVienKiemSoat nv
             JOIN NguoiDung nd ON nv.TaiKhoan = nd.TaiKhoan
         `;
-        
+
         if (taiKhoan) {
             query += ' WHERE nd.TaiKhoan = @taiKhoan';
         }
-        
+
         const request = pool.request();
         if (taiKhoan) {
             request.input('taiKhoan', sql.VarChar, taiKhoan);
         }
-        
+
         const result = await request.query(query);
         console.log('Dữ liệu trả về:', result.recordset);
         res.json(result.recordset);
     } catch (err) {
         console.error('Lỗi khi lấy danh sách nhân viên kiểm soát:', err);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
+// API lấy thông tin nhân viên kiểm soát theo mã
 app.get('/api/controllers/:maNV', async (req, res) => {
     const { maNV } = req.params;
-    console.log(`Nhận được yêu cầu GET /api/controllers/${maNV}`);
 
     try {
         const pool = await connectToDB();
@@ -1256,16 +1388,14 @@ app.get('/api/controllers/:maNV', async (req, res) => {
             `);
 
         if (result.recordset.length === 0) {
-            console.log(`Không tìm thấy nhân viên kiểm soát với mã: ${maNV}`);
             return res.status(404).json({ error: 'Không tìm thấy nhân viên kiểm soát' });
         }
 
-        const controller = result.recordset[0];
-        console.log('Dữ liệu trả về:', controller);
-        res.json(controller);
+        console.log(`Lấy thông tin nhân viên kiểm soát thành công: ${maNV}`);
+        res.json(result.recordset[0]);
     } catch (err) {
         console.error('Lỗi khi lấy thông tin nhân viên kiểm soát:', err);
-        res.status(500).json({ error: 'Lỗi server khi lấy thông tin nhân viên kiểm soát: ' + err.message });
+        res.status(500).json({ error: 'Lỗi server: ' + err.message });
     }
 });
 
@@ -1275,6 +1405,10 @@ app.put('/api/control-staff/:maNV', async (req, res) => {
     const { ten, email, sdt, ngaySinh, gioiTinh, soCCCD } = req.body;
 
     try {
+        if (!ten || !email || !sdt || !ngaySinh || !gioiTinh || !soCCCD) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
         const pool = await connectToDB();
         const result = await pool.request()
             .input('maNV', sql.VarChar, maNV)
@@ -1298,7 +1432,6 @@ app.put('/api/control-staff/:maNV', async (req, res) => {
             `);
 
         if (result.rowsAffected[0] === 0) {
-            console.log(`Không tìm thấy nhân viên kiểm soát với mã: ${maNV}`);
             return res.status(404).json({ error: 'Không tìm thấy nhân viên kiểm soát' });
         }
 
@@ -1310,9 +1443,9 @@ app.put('/api/control-staff/:maNV', async (req, res) => {
     }
 });
 
+// API xóa nhân viên kiểm soát
 app.delete('/api/controllers/:maNV', async (req, res) => {
     const { maNV } = req.params;
-    console.log(`Nhận được yêu cầu DELETE /api/controllers/${maNV}`);
 
     let pool;
     let transaction;
@@ -1322,36 +1455,30 @@ app.delete('/api/controllers/:maNV', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Kiểm tra xem nhân viên kiểm soát có tồn tại không
         const controllerCheck = await transaction.request()
             .input('maNV', sql.VarChar, maNV)
             .query('SELECT MaNV, TaiKhoan FROM NhanVienKiemSoat WHERE MaNV = @maNV');
 
         if (controllerCheck.recordset.length === 0) {
-            console.log(`Không tìm thấy nhân viên kiểm soát: ${maNV}`);
             await transaction.rollback();
             return res.status(404).json({ error: 'Không tìm thấy nhân viên kiểm soát' });
         }
 
         const taiKhoan = controllerCheck.recordset[0].TaiKhoan;
 
-        // Kiểm tra xem nhân viên có báo cáo liên quan không
         const reportCheck = await transaction.request()
             .input('maNV', sql.VarChar, maNV)
             .query('SELECT MaBaoCao FROM BaoCao WHERE MaNV = @maNV');
 
         if (reportCheck.recordset.length > 0) {
-            console.log(`Không thể xóa nhân viên kiểm soát ${maNV} vì có báo cáo liên quan`);
             await transaction.rollback();
             return res.status(400).json({ error: 'Không thể xóa nhân viên kiểm soát vì có báo cáo liên quan' });
         }
 
-        // Xóa nhân viên kiểm soát
         await transaction.request()
             .input('maNV', sql.VarChar, maNV)
             .query('DELETE FROM NhanVienKiemSoat WHERE MaNV = @maNV');
 
-        // Xóa người dùng liên quan
         await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query('DELETE FROM NguoiDung WHERE TaiKhoan = @taiKhoan');
@@ -1360,20 +1487,14 @@ app.delete('/api/controllers/:maNV', async (req, res) => {
         console.log(`Xóa nhân viên kiểm soát thành công: ${maNV}`);
         res.json({ message: 'Xóa nhân viên kiểm soát thành công' });
     } catch (err) {
-        if (transaction) {
-            await transaction.rollback();
-        }
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi xóa nhân viên kiểm soát:', err);
         res.status(500).json({ error: 'Lỗi khi xóa nhân viên kiểm soát: ' + err.message });
     }
 });
-// Xử lý các route không tồn tại
-app.use((req, res) => {
-    console.log(`Route không tồn tại: ${req.method} ${req.url}`);
-    res.status(404).json({ error: 'Endpoint không tồn tại' });
-});
 
+// Khởi động server
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server đang chạy trên cổng ${PORT}`);
+    console.log(`Server đang chạy trên port ${PORT}`);
 });

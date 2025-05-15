@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hàm xác nhận đăng xuất
     window.confirmLogout = function() {
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('user');
         window.location.href = '../public/login.html';
     }
 
@@ -129,7 +130,9 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(`http://localhost:3000/api/customers/by-username/${taiKhoan}`);
             if (!response.ok) throw new Error("Không tìm thấy khách hàng");
-            return await response.json();
+            const data = await response.json();
+            console.log('Dữ liệu khách hàng:', data);
+            return data;
         } catch (err) {
             console.error(err);
             return null;
@@ -177,8 +180,29 @@ document.addEventListener('DOMContentLoaded', function() {
             '<option value="First Class">First Class</option>';
 
         // Cập nhật thành tiền khi chọn hạng hoặc số ghế
-        function updateAmount() {
-            const basePrice = 1000000; // Giá cơ bản (có thể lấy từ API nếu cần)
+        async function updateAmount() {
+            const maChuyenBay = flight['Mã chuyến bay '];
+            const hangGheMapping = {
+                'Economy': 'Phổ thông',
+                'Business': 'Thương gia',
+                'First Class': 'Hạng nhất'
+            };
+            const hangGhe = hangGheMapping[seatClassSelect.value] || '';
+
+            let basePrice = 1000000; // Giá mặc định nếu không lấy được từ API
+            if (seatClassSelect.value) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/seats/available/${maChuyenBay}?hangGhe=${hangGhe}`);
+                    const data = await response.json();
+                    const seatInfo = data.find(item => item.hangGhe === hangGhe);
+                    if (seatInfo && seatInfo.giaGheMin) {
+                        basePrice = seatInfo.giaGheMin;
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi lấy giá ghế:', err);
+                }
+            }
+
             const classMultiplier = {
                 'Economy': 1,
                 'Business': 2,
@@ -207,6 +231,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentUsername = localStorage.getItem('currentUser') || "user1";
         const customer = await fetchCustomerByTaiKhoan(currentUsername);
 
+        if (!customer || !customer.MaKH) {
+            alert('Không tìm thấy thông tin khách hàng. Vui lòng đăng nhập lại.');
+            return;
+        }
+
         if (!seatClassSelect.value) {
             alert('Vui lòng chọn hạng.');
             return;
@@ -217,17 +246,39 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Chuyển đổi hạng ghế
+        const hangGheMapping = {
+            'Economy': 'Phổ thông',
+            'Business': 'Thương gia',
+            'First Class': 'Hạng nhất'
+        };
+        const hangGhe = hangGheMapping[seatClassSelect.value] || 'Phổ thông';
+
+        // Tạo mã đặt vé bằng API
+        let maDatVe;
+        try {
+            const response = await fetch('http://localhost:3000/api/bookings/generate-code');
+            const data = await response.json();
+            maDatVe = data.maDatVe;
+        } catch (err) {
+            console.error('Lỗi khi tạo mã đặt vé:', err);
+            alert('Không thể tạo mã đặt vé. Vui lòng thử lại.');
+            return;
+        }
+
         const bookingData = {
-            MaDatVe: `DV${Math.floor(1000 + Math.random() * 9000)}`,
+            MaDatVe: maDatVe,
             NgayDatVe: new Date().toISOString().split('T')[0],
             NgayBay: new Date(currentFlight['Thời gian bay'].split(' - ')[0]).toISOString().split('T')[0],
             TrangThaiThanhToan: 'Chưa thanh toán',
-            HangGhe: seatClassSelect.value,
-            SoLuongGhe: seatCount,
+            SoGhe: seatCount, // Đổi SoLuongGhe thành SoGhe để khớp với server
             SoTien: parseFloat(amountInput.value),
             MaChuyenBay: currentFlight['Mã chuyến bay '],
-            MaKH: customer.MaKH
+            MaKH: customer.MaKH,
+            HangGhe: hangGhe
         };
+
+        console.log('Dữ liệu gửi lên /api/bookings:', bookingData);
 
         try {
             const response = await fetch('http://localhost:3000/api/bookings', {
@@ -236,13 +287,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(bookingData)
             });
 
-            if (!response.ok) throw new Error('Lỗi khi đặt vé');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Lỗi khi đặt vé: ${response.status} - ${errorText}`);
+            }
             alert('Đặt vé thành công!');
             closeBookingModal();
-            showContent('booked-tickets'); // Refresh flight list
+            showContent('booked-tickets');
         } catch (err) {
             console.error('Lỗi khi đặt vé:', err);
-            alert('Không thể đặt vé. Vui lòng thử lại.');
+            alert('Không thể đặt vé. Vui lòng thử lại. Chi tiết: ' + err.message);
         }
     }
 
@@ -358,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const table = document.createElement('table');
         table.classList.add('vertical-table');
 
-        const headers = ['Mã KH', 'Tên', 'Email', 'Số Điện Thoại', 'Địa Chỉ', 'Passport'];
+        const headers = ['Mã KH', 'Tên', 'Email', 'Số Điện Thoại', 'Địa Chỉ', 'Passport', 'CCCD'];
 
         if (!data || Object.keys(data).length === 0) {
             const noDataMessage = document.createElement('p');
@@ -438,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 'Mã vé': v.maDatVe ?? 'Không rõ',
                                 'Mã chuyến bay': v.maChuyenBay ?? 'Không có',
                                 'Ngày mua': v.ngayDatVe ? new Date(v.ngayDatVe).toLocaleDateString() : 'Không rõ',
-                                'Số ghế': v.soLuongGhe ?? '?',
+                                'Số ghế': v.soGhe ?? '?',
                                 'Hạng ghế': v.hangGhe ?? 'N/A',
                                 'Tình trạng vé': v.trangThaiThanhToan ?? 'Không rõ'
                             });
@@ -455,32 +509,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách vé đã đặt</p>';
                     });
                 break;
-                case 'customer-info':
-                    mainContentTitle.textContent = 'Thông tin khách hàng';
-                    const currentUser = JSON.parse(localStorage.getItem('user')); // Lấy thông tin người dùng từ localStorage
-                    if (currentUser) {
-                        // Gọi API để lấy thông tin chi tiết khách hàng
-                        fetchCustomerByTaiKhoan(currentUser.taiKhoan)
-                            .then(data => {
-                                displayVerticalTable({
-                                    'Mã KH': data?.MaKH || '',
-                                    'Tên': data?.Ten || currentUser.ten || '',
-                                    'Email': data?.Email || '',
-                                    'Số Điện Thoại': data?.Sdt || '',
-                                    'Địa Chỉ': '', // Có thể thêm nếu API trả về
-                                    'Passport': data?.Passport || '',
-                                    'CCCD': data?.SoCCCD || ''
-                                });
-                            })
-                            .catch(err => {
-                                console.error('Lỗi khi lấy thông tin khách hàng:', err);
-                                displayVerticalTable({}); // Hiển thị bảng rỗng nếu có lỗi
+            case 'customer-info':
+                mainContentTitle.textContent = 'Thông tin khách hàng';
+                const currentUser = JSON.parse(localStorage.getItem('user'));
+                if (currentUser) {
+                    fetchCustomerByTaiKhoan(currentUser.taiKhoan)
+                        .then(data => {
+                            displayVerticalTable({
+                                'Mã KH': data?.MaKH || '',
+                                'Tên': data?.Ten || currentUser.ten || '',
+                                'Email': data?.Email || '',
+                                'Số Điện Thoại': data?.Sdt || '',
+                                'Địa Chỉ': '',
+                                'Passport': data?.Passport || '',
+                                'CCCD': data?.SoCCCD || ''
                             });
-                    } else {
-                        // Nếu không có thông tin người dùng, hiển thị thông báo
-                        mainContent.innerHTML = '<p style="color:red">Vui lòng đăng nhập để xem thông tin</p>';
-                    }
-                    break;
+                        })
+                        .catch(err => {
+                            console.error('Lỗi khi lấy thông tin khách hàng:', err);
+                            displayVerticalTable({});
+                        });
+                } else {
+                    mainContent.innerHTML = '<p style="color:red">Vui lòng đăng nhập để xem thông tin</p>';
+                }
                 break;
             default:
                 mainContentTitle.textContent = 'Chào mừng';

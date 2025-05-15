@@ -103,12 +103,12 @@
         }
 
         .booking-modal-content select, .booking-modal-content input {
-            width: 100%; /* Đảm bảo tất cả đều bằng nhau và bằng chiều rộng của dropdown */
+            width: 100%;
             padding: 8px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box; /* Bao gồm padding trong chiều rộng */
+            box-sizing: border-box;
         }
 
         .booking-modal-content select:focus, .booking-modal-content input:focus {
@@ -189,6 +189,7 @@
     <!-- Dialog xác nhận đăng xuất -->
     <div id="confirmDialog" class="modal" style="display: none;">
         <div class="modal-content">
+            <button class="close-btn" onclick="closeConfirmDialog()">×</button>
             <h3>Xác nhận đăng xuất</h3>
             <p>Bạn có chắc chắn muốn đăng xuất?</p>
             <div class="modal-buttons">
@@ -224,14 +225,13 @@
 
     <script src="../src/js/index.js"></script>
     <script>
-        // Hiển thị tên người dùng
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-                document.getElementById('userName')?.textContent = `Xin chào, ${user.ten}`;
+            const userNameElement = document.getElementById('userName');
+            if (user && userNameElement) {
+                userNameElement.textContent = `Xin chào, ${user.ten}`;
             }
 
-            // Xử lý click menu item
             document.querySelectorAll('.menu-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const content = item.getAttribute('data-content');
@@ -242,7 +242,6 @@
             });
         });
 
-        // Xử lý đăng xuất
         function showConfirmDialog() {
             const dialog = document.getElementById('confirmDialog');
             dialog.style.display = 'flex';
@@ -253,21 +252,11 @@
             dialog.style.display = 'none';
         }
 
-        function confirmLogout() {
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
-
-        // Đóng dialog khi click bên ngoài
         window.onclick = function(event) {
             const dialog = document.getElementById('confirmDialog');
             const bookingModal = document.getElementById('bookingModal');
-            if (event.target === dialog) {
-                dialog.style.display = 'none';
-            }
-            if (event.target === bookingModal) {
-                bookingModal.style.display = 'none';
-            }
+            if (event.target === dialog) dialog.style.display = 'none';
+            if (event.target === bookingModal) bookingModal.style.display = 'none';
         }
     </script>
 </body>
