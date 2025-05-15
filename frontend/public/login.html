@@ -242,6 +242,7 @@
 
                 if (response.ok) {
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('currentUser', data.user.taiKhoan);
                     if (data.user.isAdmin) {
                         window.location.href = 'admin.html';
                     } else if (data.user.isController) {
