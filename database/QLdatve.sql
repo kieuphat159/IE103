@@ -512,6 +512,6 @@ EXEC sp_ThemDatVe 'DV002', '2025-04-11', '2025-04-16', N'Chưa thanh toán', 2, 
 EXEC sp_ThemThanhToan 'TT001', '2025-04-10', 1500000, N'Thẻ tín dụng', 'DV001';
 EXEC sp_ThemThanhToan 'TT002', '2025-04-12', 2400000, N'Chuyển khoản', 'DV002';
 
-EXEC sp_ThemHoaDon 'HD001', '2025-04-10', 'Thẻ tín dụng', '2025-04-10', 'TT001';
-EXEC sp_ThemHoaDon 'HD002', '2025-04-12', 'Chuyển khoản', '2025-04-12', 'TT002';
+EXEC sp_ThemHoaDon 'HD001', '2025-04-10', N'Thẻ tín dụng', '2025-04-10', 'TT001';
+EXEC sp_ThemHoaDon 'HD002', '2025-04-12', N'Chuyển khoản', '2025-04-12', 'TT002';
 GO

@@ -668,7 +668,7 @@ app.delete('/api/invoices/:maHoaDon', async (req, res) => {
                 .input('maTT', sql.VarChar, maTT)
                 .query(`
                     UPDATE ThongTinDatVe
-                    SET TrangThaiThanhToan = 'Chưa thanh toán'
+                    SET TrangThaiThanhToan = N'Chưa thanh toán'
                     FROM ThongTinDatVe ttdv
                     JOIN ThanhToan tt ON ttdv.MaDatVe = tt.MaDatVe
                     WHERE tt.MaTT = @maTT
@@ -684,6 +684,43 @@ app.delete('/api/invoices/:maHoaDon', async (req, res) => {
         }
         console.error('Lỗi khi xóa hóa đơn:', err);
         res.status(500).json({ error: 'Lỗi khi xóa hóa đơn: ' + err.message });
+    }
+});
+
+// API chỉnh sửa hóa đơn
+app.put('/api/invoices/:maHoaDon', async (req, res) => {
+    const validPhuongThucTT = ['Tiền mặt', 'Thẻ tín dụng', 'Chuyển khoản'];
+    const { maHoaDon } = req.params;
+    const { ngayXuatHD, phuongThucTT, ngayThanhToan, maTT } = req.body;
+
+    // Kiểm tra giá trị phuongThucTT
+    if (!validPhuongThucTT.includes(phuongThucTT)) {
+        return res.status(400).json({ error: `Phương thức thanh toán không hợp lệ. Chỉ chấp nhận: ${validPhuongThucTT.join(', ')}` });
+    }
+
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+            .input('MaHoaDon', sql.VarChar, maHoaDon)
+            .input('NgayXuatHD', sql.Date, ngayXuatHD)
+            .input('PhuongThucTT', sql.NVarChar, phuongThucTT)
+            .input('NgayThanhToan', sql.Date, ngayThanhToan)
+            .query(`
+                UPDATE HoaDon
+                SET NgayXuatHD = @NgayXuatHD,
+                    PhuongThucTT = @PhuongThucTT,
+                    NgayThanhToan = @NgayThanhToan
+                WHERE MaHoaDon = @MaHoaDon
+            `);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy hóa đơn để cập nhật' });
+        }
+
+        res.json({ message: 'Cập nhật hóa đơn thành công' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Lỗi server khi cập nhật hóa đơn: ' + err.message });
     }
 });
 
