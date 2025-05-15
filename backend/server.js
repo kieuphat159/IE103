@@ -166,7 +166,7 @@ app.get('/api/customers', async (req, res) => {
         console.log('Nhận được yêu cầu GET /api/customers');
         const pool = await connectToDB();
         const result = await pool.request().query(`
-            SELECT k.maKH, nd.ten, nd.taiKhoan, nd.email, nd.sdt, nd.ngaySinh, nd.gioiTinh, nd.soCCCD
+            SELECT k.maKH, nd.ten, nd.taiKhoan, nd.email, nd.sdt, nd.ngaySinh, nd.gioiTinh, nd.soCCCD, k.passport
             FROM KhachHang k
             JOIN NguoiDung nd ON k.taiKhoan = nd.taiKhoan
         `);
@@ -1089,6 +1089,136 @@ app.get('/api/bookings', async (req, res) => {
     } catch (err) {
         console.error('Lỗi khi lấy danh sách thông tin đặt vé:', err);
         res.status(500).json({ error: 'Lỗi server: ' + err.message });
+    }
+});
+
+// API chỉnh sửa thông tin đặt vé
+app.put('/api/bookings/:maDatVe', async (req, res) => {
+    const validTrangThaiThanhToan = ['Chưa thanh toán', 'Đã thanh toán'];
+    const { maDatVe } = req.params;
+    const { ngayDatVe, ngayBay, trangThaiThanhToan, soGhe, soTien, maChuyenBay, maKH } = req.body;
+
+    // Kiểm tra giá trị trangThaiThanhToan
+    if (!validTrangThaiThanhToan.includes(trangThaiThanhToan)) {
+        return res.status(400).json({ error: `Trạng thái thanh toán không hợp lệ. Chỉ chấp nhận: ${validTrangThaiThanhToan.join(', ')}` });
+    }
+
+    let pool;
+    let transaction;
+    try {
+        pool = await sql.connect(dbConfig);
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        // Kiểm tra xem maDatVe có tồn tại không
+        const bookingCheck = await transaction.request()
+            .input('MaDatVe', sql.VarChar, maDatVe)
+            .query('SELECT * FROM ThongTinDatVe WHERE MaDatVe = @MaDatVe');
+
+        if (bookingCheck.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy thông tin đặt vé để cập nhật' });
+        }
+
+        // Lấy trạng thái thanh toán hiện tại
+        const currentTrangThaiThanhToan = bookingCheck.recordset[0].TrangThaiThanhToan;
+
+        // Nếu chuyển từ 'Chưa thanh toán' sang 'Đã thanh toán', tạo hóa đơn và thanh toán
+        if (currentTrangThaiThanhToan === 'Chưa thanh toán' && trangThaiThanhToan === 'Đã thanh toán') {
+            // Lấy MaTT từ ThanhToan nếu tồn tại, hoặc tạo mới
+            const paymentResult = await transaction.request()
+                .input('MaDatVe', sql.VarChar, maDatVe)
+                .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @MaDatVe');
+
+            let maTT;
+            if (paymentResult.recordset.length > 0) {
+                maTT = paymentResult.recordset[0].MaTT;
+            } else {
+                // Tạo mã MaTT mới
+                const maxTTResult = await transaction.request().query('SELECT MAX(MaTT) as maxMaTT FROM ThanhToan');
+                const maxMaTT = maxTTResult.recordset[0].maxMaTT || 'TT000';
+                const newMaTTNum = parseInt(maxMaTT.replace('TT', '')) + 1;
+                maTT = `TT${newMaTTNum.toString().padStart(3, '0')}`;
+
+                // Thêm vào ThanhToan với đầy đủ thông tin
+                const currentDate = new Date().toISOString().split('T')[0];
+                await transaction.request()
+                    .input('MaTT', sql.VarChar, maTT)
+                    .input('NgayTT', sql.Date, currentDate)
+                    .input('SoTien', sql.Decimal(18, 2), soTien)
+                    .input('PTTT', sql.NVarChar, 'Chuyển khoản')
+                    .input('MaDatVe', sql.VarChar, maDatVe)
+                    .query('INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES (@MaTT, @NgayTT, @SoTien, @PTTT, @MaDatVe)');
+            }
+
+            // Tạo hóa đơn
+            const currentDate = new Date().toISOString().split('T')[0];
+            const maHoaDon = `HD${Date.now()}`;
+            await transaction.request()
+                .input('MaHoaDon', sql.VarChar, maHoaDon)
+                .input('MaTT', sql.VarChar, maTT)
+                .input('NgayXuatHD', sql.Date, currentDate)
+                .input('PhuongThucTT', sql.NVarChar, 'Chuyển khoản')
+                .input('NgayThanhToan', sql.Date, currentDate)
+                .query(`
+                    INSERT INTO HoaDon (MaHoaDon, MaTT, NgayXuatHD, PhuongThucTT, NgayThanhToan)
+                    VALUES (@MaHoaDon, @MaTT, @NgayXuatHD, @PhuongThucTT, @NgayThanhToan)
+                `);
+        }
+
+        // Nếu chuyển từ 'Đã thanh toán' sang 'Chưa thanh toán', xóa hóa đơn và thanh toán liên quan
+        if (currentTrangThaiThanhToan === 'Đã thanh toán' && trangThaiThanhToan === 'Chưa thanh toán') {
+            await transaction.request()
+                .input('MaDatVe', sql.VarChar, maDatVe)
+                .query(`
+                    DELETE FROM HoaDon
+                    WHERE MaTT IN (SELECT MaTT FROM ThanhToan WHERE MaDatVe = @MaDatVe)
+                `);
+
+            await transaction.request()
+                .input('MaDatVe', sql.VarChar, maDatVe)
+                .query('DELETE FROM ThanhToan WHERE MaDatVe = @MaDatVe');
+        }
+
+        // Cập nhật thông tin đặt vé
+        const updateResult = await transaction.request()
+            .input('MaDatVe', sql.VarChar, maDatVe)
+            .input('NgayDatVe', sql.Date, ngayDatVe)
+            .input('NgayBay', sql.Date, ngayBay)
+            .input('TrangThaiThanhToan', sql.NVarChar, trangThaiThanhToan)
+            .input('SoGhe', sql.Int, soGhe)
+            .input('SoTien', sql.Decimal(18, 2), soTien)
+            .input('MaChuyenBay', sql.VarChar, maChuyenBay)
+            .input('MaKH', sql.VarChar, maKH)
+            .query(`
+                UPDATE ThongTinDatVe
+                SET NgayDatVe = @NgayDatVe,
+                    NgayBay = @NgayBay,
+                    TrangThaiThanhToan = @TrangThaiThanhToan,
+                    SoGhe = @SoGhe,
+                    SoTien = @SoTien,
+                    MaChuyenBay = @MaChuyenBay,
+                    MaKH = @MaKH
+                WHERE MaDatVe = @MaDatVe
+            `);
+
+        if (updateResult.rowsAffected[0] === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không thể cập nhật thông tin đặt vé' });
+        }
+
+        await transaction.commit();
+        res.json({ message: 'Cập nhật thông tin đặt vé thành công' });
+    } catch (err) {
+        if (transaction) {
+            await transaction.rollback();
+        }
+        console.error('Lỗi khi cập nhật thông tin đặt vé:', err);
+        res.status(500).json({ error: 'Lỗi server khi cập nhật thông tin đặt vé: ' + err.message });
+    } finally {
+        if (pool) {
+            pool.close();
+        }
     }
 });
 

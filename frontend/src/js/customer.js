@@ -49,9 +49,9 @@ function renderCustomerTable(customers) {
         <td class="p-2">${ngaySinhFormatted}</td>
         <td class="p-2">${c.gioiTinh}</td>
         <td class="p-2">${c.soCCCD}</td>
+        <td class="p-2">${c.passport}</td>
         <td class="p-2">
           <div class="flex gap-2 max-w-xs">
-            <button onclick="editItem('users', '${c.maKH}')" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-indigo-700 hover:shadow-md transition">Sửa</button>
             <button onclick="deleteUser('users', '${c.maKH}')" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm shadow-sm hover:bg-rose-700 hover:shadow-md transition">Xóa</button>
           </div>
         </td>
@@ -63,7 +63,7 @@ function renderCustomerTable(customers) {
 
 // Hàm tạo mã khách hàng ngẫu nhiên
 function generateMaKH() {
-  const randomNum = Math.floor(100000 + Math.random() * 900000); // Số ngẫu nhiên 6 chữ số
+  const randomNum = Math.floor(100000 + Math.random() * 900000); 
   return `KH${randomNum}`;
 }
 
