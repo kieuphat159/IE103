@@ -510,9 +510,22 @@ EXEC sp_ThemGhe '02', 'CB001', 1500000, N'Phổ thông', N'có sẵn';
 EXEC sp_ThemGhe '03', 'CB001', 2500000, N'Thương gia', N'có sẵn';
 EXEC sp_ThemGhe '04', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
 EXEC sp_ThemGhe '05', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '06', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '07', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
+
+EXEC sp_ThemGhe '08', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '09', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
+EXEC sp_ThemGhe '10', 'CB002', 1200000, N'Phổ thông', N'có sẵn';
 
 EXEC sp_ThemDatVe 'DV001', '2025-04-10', '2025-04-15', N'Chưa thanh toán', 1, 1500000, 'CB001', 'KH001';
 EXEC sp_ThemDatVe 'DV002', '2025-04-11', '2025-04-16', N'Chưa thanh toán', 2, 2400000, 'CB002', 'KH002';
+EXEC sp_ThemDatVe 'DV003', '2025-04-12', '2025-04-15', N'Chưa thanh toán', 1, 1500000, 'CB001', 'KH001';
+EXEC sp_ThemDatVe 'DV004', '2025-04-13', '2025-04-16', N'Chưa thanh toán', 1, 1200000, 'CB002', 'KH001';
+EXEC sp_ThemDatVe 'DV005', '2025-04-14', '2025-04-16', N'Chưa thanh toán', 1, 1200000, 'CB002', 'KH001';
+EXEC sp_ThemDatVe 'DV006', '2025-04-13', '2025-04-15', N'Chưa thanh toán', 1, 2500000, 'CB001', 'KH002';
+EXEC sp_ThemDatVe 'DV007', '2025-04-14', '2025-04-16', N'Chưa thanh toán', 1, 1200000, 'CB002', 'KH002';
+EXEC sp_ThemDatVe 'DV008', '2025-04-15', '2025-04-16', N'Chưa thanh toán', 1, 1200000, 'CB002', 'KH002';
+
 
 EXEC sp_ThemThanhToan 'TT001', '2025-04-10', 1500000, N'Thẻ tín dụng', 'DV001';
 EXEC sp_ThemThanhToan 'TT002', '2025-04-12', 2400000, N'Chuyển khoản', 'DV002';
