@@ -138,23 +138,48 @@ GO
 -- Trigger kiểm tra số lượng ghế trống trước khi đặt vé
 CREATE TRIGGER trg_Check_Available_Seats
 ON ThongTinDatVe
-AFTER INSERT
+INSTEAD OF INSERT
 AS
 BEGIN
-    DECLARE @MaChuyenBay VARCHAR(20), @SoGhe INT, @AvailableSeats INT;
+    SET NOCOUNT ON;
+    DECLARE @MaChuyenBay VARCHAR(20), @SoGhe VARCHAR(10), @HangGhe NVARCHAR(20), @AvailableSeats INT;
 
+    -- Lấy thông tin từ inserted
     SELECT @MaChuyenBay = MaChuyenBay, @SoGhe = SoGhe
     FROM inserted;
 
+    -- Lấy HangGhe tương ứng từ ThongTinGhe dựa trên SoGhe và MaChuyenBay
+    SELECT @HangGhe = HangGhe
+    FROM ThongTinGhe
+    WHERE MaChuyenBay = @MaChuyenBay AND SoGhe = @SoGhe;
+
+    -- Nếu @SoGhe không hợp lệ (không tìm thấy trong ThongTinGhe), hủy
+    IF @HangGhe IS NULL
+    BEGIN
+        RAISERROR (N'Mã ghế không hợp lệ hoặc không tồn tại trong chuyến bay!', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END;
+
+    -- Kiểm tra số ghế trống cho HangGhe tương ứng
     SELECT @AvailableSeats = COUNT(*)
     FROM ThongTinGhe
-    WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = N'có sẵn';
+    WHERE MaChuyenBay = @MaChuyenBay
+    AND HangGhe = @HangGhe
+    AND TinhTrangGhe = N'có sẵn';
 
-    IF @SoGhe > @AvailableSeats
+    -- Nếu không còn ghế trống cho hạng ghế này, hủy giao dịch
+    IF @AvailableSeats = 0
     BEGIN
-        RAISERROR (N'Số lượng ghế yêu cầu vượt quá số ghế trống!', 16, 1);
+        RAISERROR (N'Hết ghế ở hạng %s cho chuyến bay này!', 16, 1, @HangGhe);
         ROLLBACK TRANSACTION;
-    END
+        RETURN;
+    END;
+
+    -- Nếu còn ghế trống, chèn bản ghi
+    INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
+    SELECT MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH
+    FROM inserted;
 END;
 GO
 
@@ -171,16 +196,9 @@ BEGIN
     FROM inserted;
 
     -- Cập nhật trạng thái ghế thành 'đã đặt' cho số ghế tương ứng
-    WITH AvailableSeats AS (
-        SELECT TOP (@SoGhe) SoGhe
-        FROM ThongTinGhe
-        WHERE MaChuyenBay = @MaChuyenBay AND TinhTrangGhe = N'có sẵn'
-        ORDER BY SoGhe
-    )
-    UPDATE tg
+    UPDATE ThongTinGhe
     SET TinhTrangGhe = N'đã đặt'
-    FROM ThongTinGhe tg
-    INNER JOIN AvailableSeats s ON tg.SoGhe = s.SoGhe AND tg.MaChuyenBay = @MaChuyenBay;
+    WHERE MaChuyenBay = @MaChuyenBay AND SoGhe = @SoGhe;
 END;
 GO
 
@@ -525,6 +543,7 @@ EXEC sp_ThemDatVe 'DV005', '2025-04-14', '2025-04-16', N'Chưa thanh toán', 1, 
 EXEC sp_ThemDatVe 'DV006', '2025-04-13', '2025-04-15', N'Chưa thanh toán', 1, 2500000, 'CB001', 'KH002';
 EXEC sp_ThemDatVe 'DV007', '2025-04-14', '2025-04-16', N'Chưa thanh toán', 1, 1200000, 'CB002', 'KH002';
 EXEC sp_ThemDatVe 'DV008', '2025-04-15', '2025-04-16', N'Chưa thanh toán', 1, 1200000, 'CB002', 'KH002';
+
 
 
 EXEC sp_ThemThanhToan 'TT001', '2025-04-10', 1500000, N'Thẻ tín dụng', 'DV001';

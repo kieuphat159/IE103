@@ -204,16 +204,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const customer = await fetchCustomerByTaiKhoan(currentUsername);
 
         if (!seatClassSelect.value) {
-            alert('Vui lòng chọn hạng.');
+            alert('Vui lòng chọn hạng ghế.');
             return;
         }
+
+        // Ánh xạ seatClass sang HangGhe trong DB
+        const seatClassMapping = {
+            'Economy': 'Phổ thông',
+            'Business': 'Thương gia',
+            'First Class': 'Hạng nhất'
+        };
+        const hangGhe = seatClassMapping[seatClassSelect.value];
 
         const bookingData = {
             MaDatVe: `DV${Math.floor(1000 + Math.random() * 9000)}`,
             NgayDatVe: new Date().toISOString().split('T')[0],
             NgayBay: new Date(currentFlight['Thời gian bay'].split(' - ')[0]).toISOString().split('T')[0],
             TrangThaiThanhToan: 'Chưa thanh toán',
-            SoGhe: 1, // Luôn đặt 1 ghế
+            SoGhe: null, // Sẽ được backend xác định
+            HangGhe: hangGhe, // Thêm hạng ghế
             SoTien: parseFloat(amountInput.value),
             MaChuyenBay: currentFlight['Mã chuyến bay '],
             MaKH: customer.MaKH
@@ -226,13 +235,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(bookingData)
             });
 
-            if (!response.ok) throw new Error('Lỗi khi đặt vé');
-            alert('Đặt vé thành công!');
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Lỗi khi đặt vé');
+            }
+            alert('Đặt vé thành công! Ghế đã đặt: ' + result.bookedSeat);
             closeBookingModal();
-            showContent('booked-tickets'); // Refresh flight list
+            showContent('booked-tickets'); // Refresh danh sách vé
         } catch (err) {
             console.error('Lỗi khi đặt vé:', err);
-            alert('Không thể đặt vé. Vui lòng thử lại.');
+            alert(err.message || 'Không thể đặt vé. Vui lòng thử lại.');
         }
     }
 

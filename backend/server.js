@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "23520989",
+    password: "Thnguyen_123",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -897,56 +897,51 @@ app.get('/api/bookings/generate-code', async (req, res) => {
     }
 });
 
-// API tạo thông tin đặt vé
+
+// API đặt vé
 app.post('/api/bookings', async (req, res) => {
-    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoTien, MaChuyenBay, MaKH } = req.body;
+    const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, HangGhe, SoTien, MaChuyenBay, MaKH } = req.body;
 
     try {
         const pool = await connectToDB();
 
-        // Kiểm tra số ghế trống
+        // Chọn ghế trống theo HangGhe
         const seatResult = await pool.request()
             .input('maChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('hangGhe', sql.NVarChar, HangGhe)
             .query(`
                 SELECT TOP 1 SoGhe
                 FROM ThongTinGhe
-                WHERE MaChuyenBay = @maChuyenBay AND TinhTrangGhe = N'có sẵn'
+                WHERE MaChuyenBay = @maChuyenBay 
+                AND HangGhe = @hangGhe 
+                AND TinhTrangGhe = N'có sẵn'
             `);
 
         if (seatResult.recordset.length === 0) {
-            return res.status(400).json({ error: 'Không còn ghế trống cho chuyến bay này.' });
+            return res.status(400).json({ error: `Hết ghế ở hạng ${HangGhe} cho chuyến bay này.` });
         }
 
-        const SoGhe = seatResult.recordset[0].SoGhe;
+        const soGhe = seatResult.recordset[0].SoGhe;
 
         // Gọi stored procedure để thêm đặt vé
         await pool.request()
-            .input('MaDatVe', sql.VarChar, MaDatVe)
-            .input('NgayDatVe', sql.Date, NgayDatVe)
-            .input('NgayBay', sql.Date, NgayBay)
-            .input('TrangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
-            .input('SoGhe', sql.Int, 1) // Luôn đặt 1 ghế
-            .input('SoTien', sql.Decimal(18, 2), SoTien)
-            .input('MaChuyenBay', sql.VarChar, MaChuyenBay)
-            .input('MaKH', sql.VarChar, MaKH)
+            .input('maDatVe', sql.VarChar, MaDatVe)
+            .input('ngayDatVe', sql.Date, NgayDatVe)
+            .input('ngayBay', sql.Date, NgayBay)
+            .input('trangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
+            .input('soGhe', sql.VarChar, soGhe)  // Truyền SoGhe cụ thể
+            .input('soTien', sql.Decimal, SoTien)
+            .input('maChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('maKH', sql.VarChar, MaKH)
             .execute('sp_ThemDatVe');
 
-        // Cập nhật trạng thái ghế thành 'đã đặt'
-        await pool.request()
-            .input('soGhe', sql.VarChar, SoGhe)
-            .input('maChuyenBay', sql.VarChar, MaChuyenBay)
-            .query(`
-                UPDATE ThongTinGhe
-                SET TinhTrangGhe = N'đã đặt'
-                WHERE SoGhe = @soGhe AND MaChuyenBay = @maChuyenBay
-            `);
-
-        res.status(201).json({ message: 'Đặt vé thành công', bookedSeat: SoGhe });
+        res.status(201).json({ message: 'Đặt vé thành công', bookedSeat: soGhe });
     } catch (err) {
         console.error('Lỗi khi đặt vé:', err);
-        res.status(500).json({ error: 'Không thể đặt vé. Vui lòng thử lại.' });
+        res.status(500).json({ error: 'Lỗi server khi đặt vé: ' + err.message });
     }
 });
+
 // API xóa thông tin đặt vé theo mã đặt vé
 app.delete('/api/bookings/:maDatVe', async (req, res) => {
     const { maDatVe } = req.params;
