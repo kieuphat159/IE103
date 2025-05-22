@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Thnguyen_123",
+    password: "Vtn.2432005",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
