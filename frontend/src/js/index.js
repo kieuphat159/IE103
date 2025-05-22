@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContentTitle = document.querySelector('.main-content-title');
     let departureSelect, destinationSelect, timeSelect;
     let currentFlight;
-
+    let currentMaDatVe; // To store the ticket ID for payment
+/*
     // Thêm modal xác nhận đăng xuất vào body
     const logoutModal = document.createElement('div');
     logoutModal.id = 'logoutModal';
@@ -24,7 +25,28 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     `;
-    document.body.appendChild(logoutModal);
+    document.body.appendChild(logoutModal);*/
+
+    // Thêm modal xác nhận thanh toán vào body
+    const paymentModal = document.createElement('div');
+    paymentModal.id = 'paymentModal';
+    paymentModal.className = 'modal';
+    paymentModal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Xác nhận thanh toán</h3>
+                <span class="close" onclick="closePaymentModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thanh toán vé này?</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closePaymentModal()" class="cancel-btn">Hủy</button>
+                <button onclick="confirmPayment()" class="confirm-btn">Xác nhận</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(paymentModal);
 
     // Thêm CSS cho modal
     const style = document.createElement('style');
@@ -99,11 +121,22 @@ document.addEventListener('DOMContentLoaded', function() {
             background-color: #d0d0d0;
         }
         .confirm-btn {
-            background-color: #dc3545;
+            background-color: #28a745;
             color: white;
         }
         .confirm-btn:hover {
-            background-color: #c82333;
+            background-color: #218838;
+        }
+        .pay-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pay-btn:hover {
+            background-color: #0056b3;
         }
     `;
     document.head.appendChild(style);
@@ -122,6 +155,40 @@ document.addEventListener('DOMContentLoaded', function() {
     window.confirmLogout = function() {
         localStorage.removeItem('currentUser');
         window.location.href = '../public/login.html';
+    }
+
+    // Hàm hiển thị modal thanh toán
+    window.showPaymentModal = function(maDatVe) {
+        currentMaDatVe = maDatVe;
+        document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    // Hàm đóng modal thanh toán
+    window.closePaymentModal = function() {
+        document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    // Hàm xác nhận thanh toán
+    window.confirmPayment = async function() {
+        try {
+            const response = await fetch(`http://localhost:3000/api/bookings/${currentMaDatVe}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ trangThaiThanhToan: 'Đã thanh toán' })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi cập nhật trạng thái thanh toán');
+            }
+
+            alert('Thanh toán thành công!');
+            closePaymentModal();
+            showContent('flight-list'); // Refresh danh sách vé đã đặt
+        } catch (err) {
+            console.error('Lỗi khi thanh toán:', err);
+            alert(err.message || 'Không thể thực hiện thanh toán. Vui lòng thử lại.');
+        }
     }
 
     // Hàm lấy khách hàng
@@ -336,6 +403,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         bookBtn.className = 'book-btn';
                         bookBtn.onclick = () => showBookingModal(item);
                         td.appendChild(bookBtn);
+                    } else if (column === 'Tình trạng vé' && item[column] === 'Chưa thanh toán') {
+                        td.textContent = item[column];
+                        const payBtn = document.createElement('button');
+                        payBtn.textContent = 'Thanh toán';
+                        payBtn.className = 'pay-btn';
+                        payBtn.onclick = () => showPaymentModal(item['Mã vé']);
+                        td.appendChild(payBtn);
                     } else {
                         td.textContent = item[column];
                     }

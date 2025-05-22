@@ -1022,14 +1022,14 @@ app.get('/api/bookings', async (req, res) => {
     }
 });
 
-// API chỉnh sửa thông tin đặt vé
+// API cập nhật thông tin đặt vé
 app.put('/api/bookings/:maDatVe', async (req, res) => {
     const validTrangThaiThanhToan = ['Chưa thanh toán', 'Đã thanh toán'];
     const { maDatVe } = req.params;
     const { ngayDatVe, ngayBay, trangThaiThanhToan, soGhe, soTien, maChuyenBay, maKH } = req.body;
 
-    // Kiểm tra giá trị trangThaiThanhToan
-    if (!validTrangThaiThanhToan.includes(trangThaiThanhToan)) {
+    // Kiểm tra giá trị trangThaiThanhToan nếu được cung cấp
+    if (trangThaiThanhToan && !validTrangThaiThanhToan.includes(trangThaiThanhToan)) {
         return res.status(400).json({ error: `Trạng thái thanh toán không hợp lệ. Chỉ chấp nhận: ${validTrangThaiThanhToan.join(', ')}` });
     }
 
@@ -1040,7 +1040,7 @@ app.put('/api/bookings/:maDatVe', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Kiểm tra xem maDatVe có tồn tại không
+        // Lấy bản ghi hiện tại để sử dụng các giá trị mặc định
         const bookingCheck = await transaction.request()
             .input('MaDatVe', sql.VarChar, maDatVe)
             .query('SELECT * FROM ThongTinDatVe WHERE MaDatVe = @MaDatVe');
@@ -1050,12 +1050,26 @@ app.put('/api/bookings/:maDatVe', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy thông tin đặt vé để cập nhật' });
         }
 
-        // Lấy trạng thái thanh toán hiện tại
-        const currentTrangThaiThanhToan = bookingCheck.recordset[0].TrangThaiThanhToan;
+        const existing = bookingCheck.recordset[0];
 
-        // Nếu chuyển từ 'Chưa thanh toán' sang 'Đã thanh toán', tạo hóa đơn và thanh toán
-        if (currentTrangThaiThanhToan === 'Chưa thanh toán' && trangThaiThanhToan === 'Đã thanh toán') {
-            // Lấy MaTT từ ThanhToan nếu tồn tại, hoặc tạo mới
+        // Sử dụng giá trị từ request nếu có, nếu không thì giữ giá trị hiện tại
+        const updatedNgayDatVe = ngayDatVe !== undefined ? ngayDatVe : existing.NgayDatVe;
+        const updatedNgayBay = ngayBay !== undefined ? ngayBay : existing.NgayBay;
+        const updatedTrangThaiThanhToan = trangThaiThanhToan !== undefined ? trangThaiThanhToan : existing.TrangThaiThanhToan;
+        const updatedSoGhe = soGhe !== undefined ? soGhe : existing.SoGhe;
+        const updatedSoTien = soTien !== undefined ? soTien : existing.SoTien;
+        const updatedMaChuyenBay = maChuyenBay !== undefined ? maChuyenBay : existing.MaChuyenBay;
+        const updatedMaKH = maKH !== undefined ? maKH : existing.MaKH;
+
+        // Kiểm tra các trường bắt buộc không được NULL
+        if (!updatedNgayDatVe || !updatedNgayBay || !updatedSoTien) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Các trường NgayDatVe, NgayBay, SoTien không được để trống' });
+        }
+
+        // Nếu chuyển từ 'Chưa thanh toán' sang 'Đã thanh toán', tạo bản ghi ThanhToan và HoaDon
+        if (existing.TrangThaiThanhToan === 'Chưa thanh toán' && updatedTrangThaiThanhToan === 'Đã thanh toán') {
+            // Kiểm tra xem đã có bản ghi ThanhToan chưa
             const paymentResult = await transaction.request()
                 .input('MaDatVe', sql.VarChar, maDatVe)
                 .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @MaDatVe');
@@ -1070,12 +1084,12 @@ app.put('/api/bookings/:maDatVe', async (req, res) => {
                 const newMaTTNum = parseInt(maxMaTT.replace('TT', '')) + 1;
                 maTT = `TT${newMaTTNum.toString().padStart(3, '0')}`;
 
-                // Thêm vào ThanhToan với đầy đủ thông tin
+                // Thêm vào ThanhToan
                 const currentDate = new Date().toISOString().split('T')[0];
                 await transaction.request()
                     .input('MaTT', sql.VarChar, maTT)
                     .input('NgayTT', sql.Date, currentDate)
-                    .input('SoTien', sql.Decimal(18, 2), soTien)
+                    .input('SoTien', sql.Decimal(18, 2), updatedSoTien)
                     .input('PTTT', sql.NVarChar, 'Chuyển khoản')
                     .input('MaDatVe', sql.VarChar, maDatVe)
                     .query('INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES (@MaTT, @NgayTT, @SoTien, @PTTT, @MaDatVe)');
@@ -1096,8 +1110,8 @@ app.put('/api/bookings/:maDatVe', async (req, res) => {
                 `);
         }
 
-        // Nếu chuyển từ 'Đã thanh toán' sang 'Chưa thanh toán', xóa hóa đơn và thanh toán liên quan
-        if (currentTrangThaiThanhToan === 'Đã thanh toán' && trangThaiThanhToan === 'Chưa thanh toán') {
+        // Nếu chuyển từ 'Đã thanh toán' sang 'Chưa thanh toán', xóa hóa đơn và thanh toán
+        if (existing.TrangThaiThanhToan === 'Đã thanh toán' && updatedTrangThaiThanhToan === 'Chưa thanh toán') {
             await transaction.request()
                 .input('MaDatVe', sql.VarChar, maDatVe)
                 .query(`
@@ -1113,13 +1127,13 @@ app.put('/api/bookings/:maDatVe', async (req, res) => {
         // Cập nhật thông tin đặt vé
         const updateResult = await transaction.request()
             .input('MaDatVe', sql.VarChar, maDatVe)
-            .input('NgayDatVe', sql.Date, ngayDatVe)
-            .input('NgayBay', sql.Date, ngayBay)
-            .input('TrangThaiThanhToan', sql.NVarChar, trangThaiThanhToan)
-            .input('SoGhe', sql.Int, soGhe)
-            .input('SoTien', sql.Decimal(18, 2), soTien)
-            .input('MaChuyenBay', sql.VarChar, maChuyenBay)
-            .input('MaKH', sql.VarChar, maKH)
+            .input('NgayDatVe', sql.Date, updatedNgayDatVe)
+            .input('NgayBay', sql.Date, updatedNgayBay)
+            .input('TrangThaiThanhToan', sql.NVarChar, updatedTrangThaiThanhToan)
+            .input('SoGhe', sql.Int, updatedSoGhe)
+            .input('SoTien', sql.Decimal(18, 2), updatedSoTien)
+            .input('MaChuyenBay', sql.VarChar, updatedMaChuyenBay)
+            .input('MaKH', sql.VarChar, updatedMaKH)
             .query(`
                 UPDATE ThongTinDatVe
                 SET NgayDatVe = @NgayDatVe,
