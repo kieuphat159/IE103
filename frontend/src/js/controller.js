@@ -29,6 +29,16 @@ function showSection(sectionId) {
     document.getElementById(sectionId).classList.remove('hidden');
     if (sectionId === 'controllers') {
         fetchControllers(); // Tải danh sách nhân viên kiểm soát
+    } else if (sectionId === 'revenue-reports') {
+        const revenueSearchInput = document.getElementById('searchRevenueInput');
+        if (revenueSearchInput) {
+            revenueSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchRevenue();
+                }
+            });
+        }
+        //fetchRevenueReports();
     }
 }
 
@@ -304,3 +314,169 @@ function closeConfirmDialog() {
 function confirmLogout() {
     controllerSession.logout();
 }
+async function fetchRevenueReports() {
+    try {
+        // Fetch monthly revenue data
+        const monthlyResponse = await fetch('http://localhost:3000/api/revenue-reports-monthly');
+        if (!monthlyResponse.ok) {
+            throw new Error('Không thể lấy dữ liệu báo cáo doanh thu theo tháng');
+        }
+        const monthlyData = await monthlyResponse.json();
+
+        // Fetch total revenue data
+        const totalResponse = await fetch('http://localhost:3000/api/revenue-reports-total');
+        if (!totalResponse.ok) {
+            throw new Error('Không thể lấy dữ liệu báo cáo tổng doanh thu');
+        }
+        const totalData = await totalResponse.json();
+
+        renderRevenueChart(monthlyData);
+        displayTotalRevenue(totalData);
+    } catch (error) {
+        console.error('Lỗi khi lấy báo cáo doanh thu:', error);
+        alert('Không thể tải báo cáo doanh thu: ' + error.message);
+    }
+}
+
+// Function to render the bar chart using Chart.js
+function renderRevenueChart(reports) {
+    const canvas = document.getElementById('revenueChart');
+    if (!canvas) {
+        console.error('Canvas element not found for revenue chart');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Canvas context not available');
+        return;
+    }
+
+    // Destroy existing chart instance if it exists
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    // Prepare data for the chart
+    const labels = reports.map(report => `${report.Thang}/${report.Nam}`);
+    const revenueData = reports.map(report => report.TongDoanhThu);
+    const transactionData = reports.map(report => report.SoGiaoDich);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Doanh Thu (VND)',
+                    data: revenueData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Số Giao Dịch',
+                    data: transactionData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Giá trị'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Tháng/Năm'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.dataset.label === 'Doanh Thu (VND)') {
+                                label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                            } else {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Function to display total revenue in the footer
+function displayTotalRevenue(totalData) {
+    const totalRevenueElement = document.getElementById('totalRevenue');
+    if (!totalRevenueElement) {
+        console.error('Total revenue element not found');
+        return;
+    }
+    totalRevenueElement.innerHTML = `
+        Tổng Doanh Thu: ${totalData[0].TongDoanhThu.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+        | Tổng Số Giao Dịch: ${totalData[0].TongSoGiaoDich}
+    `;
+}
+
+// Function to search revenue reports by month/year
+function searchRevenue() {
+    const searchInput = document.getElementById('searchRevenueInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    fetchRevenueReports().then(() => {
+        const canvas = document.getElementById('revenueChart');
+        if (!canvas) return;
+
+        const chart = Chart.getChart(canvas);
+        if (!chart) return;
+
+        const filteredLabels = chart.data.labels.filter(label => label.toLowerCase().includes(searchTerm));
+        const filteredIndices = chart.data.labels
+            .map((label, index) => label.toLowerCase().includes(searchTerm) ? index : -1)
+            .filter(index => index !== -1);
+
+        const filteredDatasets = chart.data.datasets.map(dataset => ({
+            ...dataset,
+            data: filteredIndices.map(index => dataset.data[index])
+        }));
+
+        chart.data.labels = filteredLabels;
+        chart.data.datasets = filteredDatasets;
+        chart.update();
+    });
+}
+
+// Hook into showSection to fetch data when the revenue-reports section is shown
+document.addEventListener('showSectionEvent', (e) => {
+    if (e.detail.sectionId === 'revenue-reports') {
+        fetchRevenueReports();
+    }
+});
+
+// Modify showSection to dispatch custom event
+const originalShowSection = showSection;
+showSection = function(sectionId) {
+    originalShowSection(sectionId);
+    const event = new CustomEvent('showSectionEvent', { detail: { sectionId } });
+    document.dispatchEvent(event);
+};

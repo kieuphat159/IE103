@@ -483,34 +483,24 @@ BEGIN
 END;
 GO
 
--- Function tính tổng doanh thu theo chuyến bay
-CREATE FUNCTION fn_TongDoanhThuChuyenBay (@MaChuyenBay VARCHAR(20))
-RETURNS DECIMAL(18, 2)
+CREATE VIEW vw_BaoCaoDoanhThuTheoThang
 AS
-BEGIN
-    DECLARE @TongDoanhThu DECIMAL(18, 2);
-    SELECT @TongDoanhThu = SUM(t.SoTien)
-    FROM ThongTinDatVe t
-    JOIN ThanhToan tt ON t.MaDatVe = tt.MaDatVe
-    WHERE t.MaChuyenBay = @MaChuyenBay AND t.TrangThaiThanhToan = 'Đã thanh toán';
-    RETURN ISNULL(@TongDoanhThu, 0);
-END;
-GO
-
--- View báo cáo doanh thu theo chuyến bay
-CREATE VIEW vw_BaoCaoDoanhThu AS
 SELECT 
-    cb.MaChuyenBay,
-    cb.DiaDiemDau,
-    cb.DiaDiemCuoi,
-    cb.GioBay,
-    cb.GioDen,
-    COUNT(t.MaDatVe) AS SoVeDaDat,
-    dbo.fn_TongDoanhThuChuyenBay(cb.MaChuyenBay) AS TongDoanhThu
-FROM ChuyenBay cb
-LEFT JOIN ThongTinDatVe t ON cb.MaChuyenBay = t.MaChuyenBay
-GROUP BY cb.MaChuyenBay, cb.DiaDiemDau, cb.DiaDiemCuoi, cb.GioBay, cb.GioDen;
-GO
+    YEAR(tt.NgayTT) AS Nam,
+    MONTH(tt.NgayTT) AS Thang,
+    SUM(tt.SoTien) AS TongDoanhThu,
+    COUNT(tt.MaTT) AS SoGiaoDich
+FROM ThanhToan tt
+WHERE tt.SoTien > 0
+GROUP BY YEAR(tt.NgayTT), MONTH(tt.NgayTT);
+
+CREATE VIEW vw_BaoCaoTongDoanhThu
+AS
+SELECT 
+    SUM(tt.SoTien) AS TongDoanhThu,
+    COUNT(tt.MaTT) AS TongSoGiaoDich
+FROM ThanhToan tt
+WHERE tt.SoTien > 0;
 
 -- View báo cáo ghế trống
 CREATE VIEW vw_GheTrong AS

@@ -194,6 +194,9 @@ function populateTable(sectionId) {
         case 'seats':
             populateSeatTable(tableBody);
             break;
+        case 'revenue-reports':
+            populateRevenueTable(tableBody);
+            break;
     }
 }
 

@@ -1574,6 +1574,30 @@ app.delete('/api/controllers/:maNV', async (req, res) => {
     }
 });
 
+// Endpoint to fetch monthly revenue reports
+app.get('/api/revenue-reports-monthly', async (req, res) => {
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request().query('SELECT Nam, Thang, TongDoanhThu, SoGiaoDich FROM vw_BaoCaoDoanhThuTheoThang ORDER BY Nam, Thang');
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching monthly revenue reports:', err);
+        res.status(500).json({ error: 'Không thể lấy dữ liệu báo cáo doanh thu theo tháng' });
+    }
+});
+
+// Endpoint to fetch total revenue summary
+app.get('/api/revenue-reports-total', async (req, res) => {
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request().query('SELECT TongDoanhThu, TongSoGiaoDich FROM vw_BaoCaoTongDoanhThu');
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching total revenue:', err);
+        res.status(500).json({ error: 'Không thể lấy dữ liệu báo cáo tổng doanh thu' });
+    }
+});
+
 // Khởi động server
 const PORT = 3000;
 app.listen(PORT, () => {
