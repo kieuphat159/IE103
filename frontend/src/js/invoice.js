@@ -136,6 +136,10 @@ function closeEditModal() {
     if (modal) {
         modal.remove();
     }
+    const modal2 = document.getElementById('editSeatModal');
+    if (modal2) {
+        modal2.remove();
+    }
 }
 
 function searchInvoice() {

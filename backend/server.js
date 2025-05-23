@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Vtn.2432005",
+    password: "Thnguyen_123",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -443,16 +443,13 @@ app.post('/api/flights', async (req, res) => {
 
         const pool = await connectToDB();
         await pool.request()
-            .input('maChuyenBay', sql.VarChar, maChuyenBay)
-            .input('tinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
-            .input('gioBay', sql.DateTime, gioBay)
-            .input('gioDen', sql.DateTime, gioDen)
-            .input('diaDiemDau', sql.NVarChar, diaDiemDau)
-            .input('diaDiemCuoi', sql.NVarChar, diaDiemCuoi)
-            .query(`
-                INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi)
-                VALUES (@maChuyenBay, @tinhTrangChuyenBay, @gioBay, @gioDen, @diaDiemDau, @diaDiemCuoi)
-            `);
+            .input('MaChuyenBay', sql.VarChar, maChuyenBay)
+            .input('TinhTrangChuyenBay', sql.NVarChar, tinhTrangChuyenBay)
+            .input('GioBay', sql.DateTime, gioBay)
+            .input('GioDen', sql.DateTime, gioDen)
+            .input('DiaDiemDau', sql.NVarChar, diaDiemDau)
+            .input('DiaDiemCuoi', sql.NVarChar, diaDiemCuoi)
+            .execute('sp_ThemChuyenBay');
 
         console.log(`Thêm chuyến bay thành công: ${maChuyenBay}`);
         res.status(201).json({ message: 'Thêm chuyến bay thành công' });
@@ -899,14 +896,20 @@ app.get('/api/bookings/generate-code', async (req, res) => {
 
 
 // API đặt vé
+// API đặt vé
 app.post('/api/bookings', async (req, res) => {
     const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, HangGhe, SoTien, MaChuyenBay, MaKH } = req.body;
 
+    let pool;
+    let transaction;
+
     try {
-        const pool = await connectToDB();
+        pool = await connectToDB();
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
 
         // Chọn ghế trống theo HangGhe
-        const seatResult = await pool.request()
+        const seatResult = await transaction.request()
             .input('maChuyenBay', sql.VarChar, MaChuyenBay)
             .input('hangGhe', sql.NVarChar, HangGhe)
             .query(`
@@ -918,25 +921,29 @@ app.post('/api/bookings', async (req, res) => {
             `);
 
         if (seatResult.recordset.length === 0) {
+            await transaction.rollback();
             return res.status(400).json({ error: `Hết ghế ở hạng ${HangGhe} cho chuyến bay này.` });
         }
 
-        const soGhe = seatResult.recordset[0].SoGhe;
+        const soGhe = seatResult.recordset[0].SoGhe; // This is already an INT from the DB
 
         // Gọi stored procedure để thêm đặt vé
-        await pool.request()
+        await transaction.request()
             .input('maDatVe', sql.VarChar, MaDatVe)
             .input('ngayDatVe', sql.Date, NgayDatVe)
             .input('ngayBay', sql.Date, NgayBay)
             .input('trangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
-            .input('soGhe', sql.VarChar, soGhe)  // Truyền SoGhe cụ thể
-            .input('soTien', sql.Decimal, SoTien)
+            .input('soGhe', sql.Int, soGhe) // Explicitly set as INT
+            .input('soTien', sql.Decimal(18, 2), SoTien)
             .input('maChuyenBay', sql.VarChar, MaChuyenBay)
             .input('maKH', sql.VarChar, MaKH)
             .execute('sp_ThemDatVe');
 
+        await transaction.commit();
+        console.log(`Đặt vé thành công: ${MaDatVe}, Ghế: ${soGhe}`);
         res.status(201).json({ message: 'Đặt vé thành công', bookedSeat: soGhe });
     } catch (err) {
+        if (transaction) await transaction.rollback();
         console.error('Lỗi khi đặt vé:', err);
         res.status(500).json({ error: 'Lỗi server khi đặt vé: ' + err.message });
     }

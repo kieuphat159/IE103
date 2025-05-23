@@ -284,16 +284,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const hangGhe = seatClassMapping[seatClassSelect.value];
 
         const bookingData = {
-            MaDatVe: `DV${Math.floor(1000 + Math.random() * 9000)}`,
-            NgayDatVe: new Date().toISOString().split('T')[0],
-            NgayBay: new Date(currentFlight['Thời gian bay'].split(' - ')[0]).toISOString().split('T')[0],
-            TrangThaiThanhToan: 'Chưa thanh toán',
-            SoGhe: null, // Sẽ được backend xác định
-            HangGhe: hangGhe, // Thêm hạng ghế
-            SoTien: parseFloat(amountInput.value),
-            MaChuyenBay: currentFlight['Mã chuyến bay '],
-            MaKH: customer.MaKH
-        };
+    MaDatVe: `DV${Math.floor(1000 + Math.random() * 9000)}`,
+    NgayDatVe: new Date().toISOString().split('T')[0],
+    NgayBay: new Date(currentFlight['Thời gian bay'].split(' - ')[0]).toISOString().split('T')[0],
+    TrangThaiThanhToan: 'Chưa thanh toán',
+    HangGhe: hangGhe, // Hạng ghế
+    SoTien: parseFloat(amountInput.value),
+    MaChuyenBay: currentFlight['Mã chuyến bay '],
+    MaKH: customer.MaKH
+};
 
         try {
             const response = await fetch('http://localhost:3000/api/bookings', {
