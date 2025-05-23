@@ -1,4 +1,7 @@
 -- Tạo cơ sở dữ liệu
+
+drop database QLdatve
+
 CREATE DATABASE QLdatve;
 GO
 
@@ -64,7 +67,7 @@ GO
 
 -- Bảng ThongTinGhe
 CREATE TABLE ThongTinGhe (
-    SoGhe VARCHAR(10) NOT NULL,
+    SoGhe INT NOT NULL,
     MaChuyenBay VARCHAR(20) NOT NULL,
     GiaGhe DECIMAL(18, 2) NOT NULL,
     HangGhe NVARCHAR(20) CHECK (HangGhe IN (N'Phổ thông', N'Thương gia', N'Hạng nhất')),
@@ -274,8 +277,9 @@ BEGIN
     END CATCH
 END;
 GO
+--
+--
 
--- Stored Procedure thêm chuyến bay
 CREATE PROCEDURE sp_ThemChuyenBay
     @MaChuyenBay VARCHAR(20),
     @TinhTrangChuyenBay NVARCHAR(50),
@@ -285,83 +289,46 @@ CREATE PROCEDURE sp_ThemChuyenBay
     @DiaDiemCuoi NVARCHAR(100)
 AS
 BEGIN
-    -- Thêm chuy?n bay m?i vào b?ng ChuyenBay
+    -- Thêm chuyến bay mới vào bảng ChuyenBay
     INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi)
     VALUES (@MaChuyenBay, @TinhTrangChuyenBay, @GioBay, @GioDen, @DiaDiemDau, @DiaDiemCuoi);
 
-    -- Kh?i t?o bi?n d?m cho vòng l?p t?o gh?
+    -- Khởi tạo biến đếm cho vòng lặp tạo ghế
     DECLARE @i INT = 1;
-    -- T?ng s? gh? c?n t?o là 150 (15 h?ng nh?t + 35 thuong gia + 100 ph? thông)
+    -- Tổng số ghế cần tạo là 150 (15 hạng nhất + 35 thương gia + 100 phổ thông)
     DECLARE @TotalSeats INT = 150;
 
-    -- Vòng l?p d? t?o t?ng gh? cho chuy?n bay
+    -- Vòng lặp để tạo từng ghế cho chuyến bay
     WHILE @i <= @TotalSeats
     BEGIN
-        -- Khai báo các bi?n d? luu thông tin gh?
-        DECLARE @MaGhe VARCHAR(MAX);
-        DECLARE @GiaVe DECIMAL(18, 2);
+        -- Khai báo các biến để lưu thông tin ghế
+        DECLARE @GiaGhe DECIMAL(18, 2);
         DECLARE @HangGhe NVARCHAR(50);
-        DECLARE @Prefix CHAR(1);
-        DECLARE @SeatNumInClass INT;
+        -- Không cần @Prefix và @SeatNumInClass nữa vì SoGhe giờ là INT
 
-        -- Logic phân lo?i gh? theo h?ng và gán giá vé, ti?n t? mã gh?
-        IF @i <= 15 -- 15 gh? h?ng nh?t
+        -- Logic phân loại ghế theo hạng và gán giá vé, hạng ghế
+        IF @i <= 15 -- 15 ghế hạng nhất (từ 1 đến 15)
         BEGIN
-            SET @GiaVe = 3000000.00; -- Giá h?ng nh?t
+            SET @GiaGhe = 3000000.00; -- Giá hạng nhất
             SET @HangGhe = N'Hạng nhất';
-            SET @Prefix = 'A';
-            SET @SeatNumInClass = @i;
         END
-        ELSE IF @i <= 50 -- 35 gh? thuong gia (t? gh? 16 d?n 50)
+        ELSE IF @i <= 50 -- 35 ghế thương gia (từ 16 đến 50)
         BEGIN
-            SET @GiaVe = 2000000.00; -- Giá thuong gia
+            SET @GiaGhe = 2000000.00; -- Giá thương gia
             SET @HangGhe = N'Thương gia';
-            SET @Prefix = 'B';
-            SET @SeatNumInClass = @i - 15; -- Ðánh s? l?i t? 1 cho h?ng này
         END
-        ELSE -- 100 gh? ph? thông (t? gh? 51 d?n 150)
+        ELSE -- 100 ghế phổ thông (từ 51 đến 150)
         BEGIN
-            SET @GiaVe = 1000000.00; -- Giá ph? thông
+            SET @GiaGhe = 1000000.00; -- Giá phổ thông
             SET @HangGhe = N'Phổ thông';
-
-            -- Tính toán ti?n t? ch? cái và s? gh? trong h?ng ph? thông
-            DECLARE @SeatNumInEconomy INT = @i - 50; -- Ðánh s? l?i t? 1 cho h?ng ph? thông
-
-            IF @SeatNumInEconomy <= 20
-            BEGIN
-                SET @Prefix = 'C';
-                SET @SeatNumInClass = @SeatNumInEconomy;
-            END
-            ELSE IF @SeatNumInEconomy <= 40
-            BEGIN
-                SET @Prefix = 'D';
-                SET @SeatNumInClass = @SeatNumInEconomy - 20;
-            END
-            ELSE IF @SeatNumInEconomy <= 60
-            BEGIN
-                SET @Prefix = 'E';
-                SET @SeatNumInClass = @SeatNumInEconomy - 40;
-            END
-            ELSE IF @SeatNumInEconomy <= 80
-            BEGIN
-                SET @Prefix = 'F';
-                SET @SeatNumInClass = @SeatNumInEconomy - 60;
-            END
-            ELSE
-            BEGIN
-                SET @Prefix = 'G';
-                SET @SeatNumInClass = @SeatNumInEconomy - 80;
-            END;
         END;
 
-        -- T?o mã gh? hoàn ch?nh (ví d?: A01, B10, C05)
-        SET @MaGhe = @Prefix + FORMAT(@SeatNumInClass, '00');
+        -- Chèn thông tin ghế vào bảng ThongTinGhe
+        -- Cột SoGhe sẽ nhận trực tiếp giá trị số nguyên từ biến @i
+        INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe)
+        VALUES (@i, @MaChuyenBay, @GiaGhe, @HangGhe, N'có sẵn');
 
-        -- Chèn thông tin gh? vào b?ng Ghe
-        INSERT INTO Ghe (MaGhe, MaChuyenBay, GiaVe, HangGhe, TinhTrang)
-        VALUES (@MaGhe, @MaChuyenBay, @GiaVe, @HangGhe, N'có sẵn');
-
-        -- Tang bi?n d?m d? chuy?n sang gh? ti?p theo
+        -- Tăng biến đếm để chuyển sang ghế tiếp theo
         SET @i = @i + 1;
     END;
 END;
@@ -974,6 +941,109 @@ INSERT INTO NhanVienKiemSoat (MaNV, TaiKhoan) VALUES
 ('NV100', 'tranvanlinh_b');
 
 --
+INSERT INTO BaoCao (MaBaoCao, NgayBaoCao, NoiDungBaoCao, MaNV, TrangThai) VALUES
+('BC001', '2025-01-01', N'Báo cáo kiểm tra an toàn chuyến bay VN101. Tình trạng tốt.', 'NV001', N'Đã xử lý'),
+('BC002', '2025-01-02', N'Phát hiện lỗi nhỏ trên hệ thống giải trí chuyến bay VN102. Đã khắc phục.', 'NV002', N'Chưa xử lý'),
+('BC003', '2025-01-03', N'Kiểm tra định kỳ trang thiết bị phòng cháy chữa cháy trên VN103. Đạt yêu cầu.', 'NV003', N'Đã xử lý'),
+('BC004', '2025-01-04', N'Báo cáo sự cố mất điện tạm thời tại khu vực sảnh chờ A.', 'NV004', N'Chưa xử lý'),
+('BC005', '2025-01-05', N'Kiểm tra vệ sinh buồng lái chuyến bay VN105. Hoàn thành.', 'NV005', N'Đã xử lý'),
+('BC006', '2025-01-06', N'Báo cáo về việc thiếu tài liệu hướng dẫn an toàn trên một số ghế.', 'NV006', N'Chưa xử lý'),
+('BC007', '2025-01-07', N'Kiểm tra hệ thống điều hòa không khí tại khu vực VIP. Hoạt động ổn định.', 'NV007', N'Đã xử lý'),
+('BC008', '2025-01-08', N'Phát hiện vết nứt nhỏ trên cửa khoang hành lý VN108. Cần kiểm tra thêm.', 'NV008', N'Chưa xử lý'),
+('BC009', '2025-01-09', N'Báo cáo về tình hình giám sát an ninh tại cổng B3. Bình thường.', 'NV009', N'Đã xử lý'),
+('BC010', '2025-01-10', N'Kiểm tra hiệu suất đèn tín hiệu đường băng. Có một đèn cần thay thế.', 'NV010', N'Chưa xử lý'),
+('BC011', '2025-01-11', N'Báo cáo kiểm tra hệ thống thông gió tại nhà ga T1. Đạt yêu cầu.', 'NV011', N'Đã xử lý'),
+('BC012', '2025-01-12', N'Phát hiện ghế hành khách bị hỏng trên chuyến bay VN112. Đang chờ sửa chữa.', 'NV012', N'Chưa xử lý'),
+('BC013', '2025-01-13', N'Kiểm tra độ bền của dây an toàn trên VN113. Tất cả đều tốt.', 'NV013', N'Đã xử lý'),
+('BC014', '2025-01-14', N'Báo cáo về việc thiếu nước sạch tại một nhà vệ sinh công cộng.', 'NV014', N'Chưa xử lý'),
+('BC015', '2025-01-15', N'Kiểm tra hệ thống thoát hiểm của máy bay VN115. Đã thử nghiệm thành công.', 'NV015', N'Đã xử lý'),
+('BC016', '2025-01-16', N'Phát hiện lỗi hiển thị thông tin chuyến bay trên bảng điện tử.', 'NV016', N'Chưa xử lý'),
+('BC017', '2025-01-17', N'Báo cáo kiểm tra thiết bị định vị trên VN117. Hoạt động chính xác.', 'NV017', N'Đã xử lý'),
+('BC018', '2025-01-18', N'Kiểm tra hệ thống âm thanh thông báo tại khu vực chờ. Có tiếng rè.', 'NV018', N'Chưa xử lý'),
+('BC019', '2025-01-19', N'Báo cáo về việc thực hiện quy trình kiểm tra hành lý xách tay.', 'NV019', N'Đã xử lý'),
+('BC020', '2025-01-20', N'Phát hiện cửa thoát hiểm bị kẹt nhẹ trên máy bay VN120.', 'NV020', N'Chưa xử lý'),
+('BC021', '2025-01-21', N'Kiểm tra hoạt động của thang cuốn tại khu vực sảnh đến. Bình thường.', 'NV021', N'Đã xử lý'),
+('BC022', '2025-01-22', N'Báo cáo về việc thiếu nhân viên hướng dẫn tại khu vực làm thủ tục.', 'NV022', N'Chưa xử lý'),
+('BC023', '2025-01-23', N'Kiểm tra chất lượng bữa ăn trên chuyến bay VN123. Đảm bảo vệ sinh.', 'NV023', N'Đã xử lý'),
+('BC024', '2025-01-24', N'Phát hiện camera giám sát tại khu vực nhà ga bị lỗi.', 'NV024', N'Chưa xử lý'),
+('BC025', '2025-01-25', N'Báo cáo kiểm tra hệ thống cấp nhiên liệu cho máy bay.', 'NV025', N'Đã xử lý'),
+('BC026', '2025-01-26', N'Kiểm tra pin của thiết bị bộ đàm nhân viên. Một số pin yếu.', 'NV026', N'Chưa xử lý'),
+('BC027', '2025-01-27', N'Báo cáo về việc tuân thủ quy định an toàn khi vận chuyển hàng hóa.', 'NV027', N'Đã xử lý'),
+('BC028', '2025-01-28', N'Phát hiện lỗi trên hệ thống đèn chiếu sáng khu vực sân đỗ.', 'NV028', N'Chưa xử lý'),
+('BC029', '2025-01-29', N'Kiểm tra áp suất lốp máy bay VN129. Đạt tiêu chuẩn.', 'NV029', N'Đã xử lý'),
+('BC030', '2025-01-30', N'Báo cáo về việc xử lý rác thải tại sân bay. Cần cải thiện.', 'NV030', N'Chưa xử lý'),
+('BC031', '2025-01-31', N'Kiểm tra hệ thống báo động cháy tại phòng điều khiển không lưu.', 'NV031', N'Đã xử lý'),
+('BC032', '2025-02-01', N'Phát hiện vết bẩn lớn trên sàn nhà ga. Đã yêu cầu dọn dẹp.', 'NV032', N'Chưa xử lý'),
+('BC033', '2025-02-02', N'Báo cáo kiểm tra hệ thống cấp oxy khẩn cấp trên VN133.', 'NV033', N'Đã xử lý'),
+('BC034', '2025-02-03', N'Kiểm tra các biển báo thoát hiểm. Có một biển báo bị mờ.', 'NV034', N'Chưa xử lý'),
+('BC035', '2025-02-04', N'Báo cáo về việc tuân thủ quy trình kiểm tra an ninh hành khách.', 'NV035', N'Đã xử lý'),
+('BC036', '2025-02-05', N'Phát hiện lỗi trên hệ thống định vị GPS của xe phục vụ sân bay.', 'NV036', N'Chưa xử lý'),
+('BC037', '2025-02-06', N'Kiểm tra hiệu chuẩn thiết bị đo tốc độ gió. Chính xác.', 'NV037', N'Đã xử lý'),
+('BC038', '2025-02-07', N'Báo cáo về việc thiếu đồ dùng vệ sinh trong nhà vệ sinh máy bay.', 'NV038', N'Chưa xử lý'),
+('BC039', '2025-02-08', N'Kiểm tra hoạt động của hệ thống liên lạc nội bộ.', 'NV039', N'Đã xử lý'),
+('BC040', '2025-02-09', N'Phát hiện lỗi phần mềm trên máy tính kiểm soát không lưu.', 'NV040', N'Chưa xử lý'),
+('BC041', '2025-02-10', N'Báo cáo kiểm tra hệ thống cấp phát thẻ lên máy bay tự động.', 'NV041', N'Đã xử lý'),
+('BC042', '2025-02-11', N'Kiểm tra mức độ tiếng ồn tại khu vực bãi đỗ máy bay.', 'NV042', N'Chưa xử lý'),
+('BC043', '2025-02-12', N'Báo cáo về việc kiểm tra chất lượng nước uống trên chuyến bay.', 'NV043', N'Đã xử lý'),
+('BC044', '2025-02-13', N'Phát hiện lỗi trên hệ thống chiếu sáng khu vực nhà ga chính.', 'NV044', N'Chưa xử lý'),
+('BC045', '2025-02-14', N'Kiểm tra độ chặt của ghế ngồi hành khách trên VN145. Tốt.', 'NV045', N'Đã xử lý'),
+('BC046', '2025-02-15', N'Báo cáo về việc thiếu hướng dẫn viên hỗ trợ hành khách khuyết tật.', 'NV046', N'Chưa xử lý'),
+('BC047', '2025-02-16', N'Kiểm tra hệ thống sưởi ấm tại khu vực chờ lạnh. Hoạt động hiệu quả.', 'NV047', N'Đã xử lý'),
+('BC048', '2025-02-17', N'Phát hiện lỗi trên hệ thống điều khiển cửa ra vào sân bay.', 'NV048', N'Chưa xử lý'),
+('BC049', '2025-02-18', N'Báo cáo kiểm tra tình trạng đường băng sau mưa lớn.', 'NV049', N'Đã xử lý'),
+('BC050', '2025-02-19', N'Kiểm tra các thiết bị y tế khẩn cấp trên máy bay. Đầy đủ.', 'NV050', N'Chưa xử lý'),
+('BC051', '2025-02-20', N'Báo cáo về việc tuân thủ quy định về vận chuyển chất lỏng.', 'NV051', N'Đã xử lý'),
+('BC052', '2025-02-21', N'Phát hiện lỗi trên hệ thống âm thanh cabin máy bay.', 'NV052', N'Chưa xử lý'),
+('BC053', '2025-02-22', N'Kiểm tra nhiệt độ phòng điều khiển. Đạt tiêu chuẩn.', 'NV053', N'Đã xử lý'),
+('BC054', '2025-02-23', N'Báo cáo về việc thiếu xe đẩy hành lý tại khu vực nhận hành lý.', 'NV054', N'Chưa xử lý'),
+('BC055', '2025-02-24', N'Kiểm tra hệ thống radar giám sát không phận. Hoạt động ổn định.', 'NV055', N'Đã xử lý'),
+('BC056', '2025-02-25', N'Phát hiện rò rỉ nước nhỏ tại khu vực kỹ thuật sân bay.', 'NV056', N'Chưa xử lý'),
+('BC057', '2025-02-26', N'Báo cáo về việc kiểm tra định kỳ các thiết bị bay không người lái.', 'NV057', N'Đã xử lý'),
+('BC058', '2025-02-27', N'Kiểm tra đèn chiếu sáng tại các khu vực đậu xe sân bay. Có vài đèn hỏng.', 'NV058', N'Chưa xử lý'),
+('BC059', '2025-02-28', N'Báo cáo về việc vệ sinh khu vực bếp trên máy bay.', 'NV059', N'Đã xử lý'),
+('BC060', '2025-03-01', N'Phát hiện lỗi trên hệ thống liên lạc giữa phi công và đài kiểm soát.', 'NV060', N'Chưa xử lý'),
+('BC061', '2025-03-02', N'Kiểm tra hệ thống báo động khói tại nhà ga T2. Đạt yêu cầu.', 'NV061', N'Đã xử lý'),
+('BC062', '2025-03-03', N'Báo cáo về việc thiếu giấy vệ sinh trong một số nhà vệ sinh.', 'NV062', N'Chưa xử lý'),
+('BC063', '2025-03-04', N'Kiểm tra chất lượng gối và chăn trên chuyến bay dài. Tốt.', 'NV063', N'Đã xử lý'),
+('BC064', '2025-03-05', N'Phát hiện lỗi trên màn hình hiển thị thông tin chuyến bay tại quầy.', 'NV064', N'Chưa xử lý'),
+('BC065', '2025-03-06', N'Báo cáo kiểm tra các thiết bị hỗ trợ người già và trẻ em.', 'NV065', N'Đã xử lý'),
+('BC066', '2025-03-07', N'Kiểm tra độ an toàn của đường dành cho xe cộ trong sân bay.', 'NV066', N'Chưa xử lý'),
+('BC067', '2025-03-08', N'Báo cáo về việc tuân thủ quy định về hành lý quá khổ.', 'NV067', N'Đã xử lý'),
+('BC068', '2025-03-09', N'Phát hiện lỗi trên hệ thống nhận diện khuôn mặt tại cổng an ninh.', 'NV068', N'Chưa xử lý'),
+('BC069', '2025-03-10', N'Kiểm tra tình trạng hoạt động của các xe cứu hỏa sân bay.', 'NV069', N'Đã xử lý'),
+('BC070', '2025-03-11', N'Báo cáo về việc thiếu thông tin về các chuyến bay bị hoãn/hủy.', 'NV070', N'Chưa xử lý'),
+('BC071', '2025-03-12', N'Kiểm tra hệ thống định vị của máy bay khi hạ cánh.', 'NV071', N'Đã xử lý'),
+('BC072', '2025-03-13', N'Phát hiện mùi lạ tại khu vực nhà vệ sinh gần cổng C.', 'NV072', N'Chưa xử lý'),
+('BC073', '2025-03-14', N'Báo cáo kiểm tra chất lượng không khí trong nhà ga.', 'NV073', N'Đã xử lý'),
+('BC074', '2025-03-15', N'Kiểm tra các thiết bị tập thể dục tại phòng chờ hạng sang.', 'NV074', N'Chưa xử lý'),
+('BC075', '2025-03-16', N'Báo cáo về việc tuân thủ quy định về vận chuyển động vật cảnh.', 'NV075', N'Đã xử lý'),
+('BC076', '2025-03-17', N'Phát hiện lỗi trên hệ thống cổng tự động lên máy bay.', 'NV076', N'Chưa xử lý'),
+('BC077', '2025-03-18', N'Kiểm tra hiệu chuẩn thiết bị đo độ ẩm không khí.', 'NV077', N'Đã xử lý'),
+('BC078', '2025-03-19', N'Báo cáo về việc thiếu ổ cắm sạc điện thoại tại khu vực chờ.', 'NV078', N'Chưa xử lý'),
+('BC079', '2025-03-20', N'Kiểm tra hoạt động của hệ thống báo động xâm nhập.', 'NV079', N'Đã xử lý'),
+('BC080', '2025-03-21', N'Phát hiện lỗi trên hệ thống điều khiển ánh sáng đường băng.', 'NV080', N'Chưa xử lý'),
+('BC081', '2025-03-22', N'Báo cáo kiểm tra các xe bus vận chuyển hành khách nội bộ.', 'NV081', N'Đã xử lý'),
+('BC082', '2025-03-23', N'Kiểm tra độ chắc chắn của lan can tại khu vực cầu thang.', 'NV082', N'Chưa xử lý'),
+('BC083', '2025-03-24', N'Báo cáo về việc kiểm tra chất lượng đồ uống tại quầy bar sân bay.', 'NV083', N'Đã xử lý'),
+('BC084', '2025-03-25', N'Phát hiện lỗi trên hệ thống thang máy khu vực hành chính.', 'NV084', N'Chưa xử lý'),
+('BC085', '2025-03-26', N'Kiểm tra các tủ thuốc y tế khẩn cấp tại các điểm.', 'NV085', N'Đã xử lý'),
+('BC086', '2025-03-27', N'Báo cáo về việc thiếu bản đồ sân bay tại một số vị trí.', 'NV086', N'Chưa xử lý'),
+('BC087', '2025-03-28', N'Kiểm tra hệ thống camera giám sát khu vực bãi đỗ xe.', 'NV087', N'Đã xử lý'),
+('BC088', '2025-03-29', N'Phát hiện lỗi trên hệ thống phát thanh khẩn cấp.', 'NV088', N'Chưa xử lý'),
+('BC089', '2025-03-30', N'Báo cáo kiểm tra tình trạng các phương tiện cứu hộ sân bay.', 'NV089', N'Đã xử lý'),
+('BC090', '2025-03-31', N'Kiểm tra nhiệt độ của các tủ lạnh bảo quản thực phẩm.', 'NV090', N'Chưa xử lý'),
+('BC091', '2025-04-01', N'Báo cáo về việc tuân thủ quy định về trang phục nhân viên.', 'NV091', N'Đã xử lý'),
+('BC092', '2025-04-02', N'Phát hiện lỗi trên hệ thống cung cấp điện dự phòng.', 'NV092', N'Chưa xử lý'),
+('BC093', '2025-04-03', N'Kiểm tra các biển chỉ dẫn trong nhà ga. Tất cả rõ ràng.', 'NV093', N'Đã xử lý'),
+('BC094', '2025-04-04', N'Báo cáo về việc thiếu thùng rác tại khu vực ăn uống.', 'NV094', N'Chưa xử lý'),
+('BC095', '2025-04-05', N'Kiểm tra độ sạch của thảm trải sàn tại khu vực chờ.', 'NV095', N'Đã xử lý'),
+('BC096', '2025-04-06', N'Phát hiện lỗi trên hệ thống khóa cửa phòng điều hành.', 'NV096', N'Chưa xử lý'),
+('BC097', '2025-04-07', N'Báo cáo kiểm tra chất lượng dịch vụ WiFi miễn phí tại sân bay.', 'NV097', N'Đã xử lý'),
+('BC098', '2025-04-08', N'Kiểm tra các lối đi dành cho người khuyết tật. Đảm bảo tiếp cận.', 'NV098', N'Chưa xử lý'),
+('BC099', '2025-04-09', N'Báo cáo về việc tuân thủ quy định về giới hạn tốc độ xe.', 'NV099', N'Đã xử lý'),
+('BC100', '2025-04-10', N'Phát hiện lỗi trên hệ thống hiển thị giờ bay quốc tế.', 'NV100', N'Chưa xử lý');
+
+
 --
 
 INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi) VALUES
@@ -987,1184 +1057,1317 @@ INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemD
 --
 INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
 -- Ghế cho chuyến bay VN201
--- Hạng nhất (15 ghế)
-('A-01', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-02', 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-03', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-04', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-05', 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-06', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-07', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-08', 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-09', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-10', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-11', 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-12', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-13', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-14', 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-15', 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế)
-('B-01', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-02', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-03', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-04', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-05', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-06', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-07', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-08', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-09', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-10', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-11', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-12', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-13', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-14', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-15', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-16', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-17', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-18', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-19', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-20', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-21', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-22', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-23', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-24', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-25', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-26', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-27', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-28', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-29', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-30', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-31', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-32', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-33', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-34', 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-35', 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
--- Phổ thông (100 ghế)
-('C-01', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-02', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-03', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-04', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-05', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-06', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-07', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-08', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-09', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-10', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-11', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-12', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-13', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-14', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-15', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-16', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-17', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-18', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-19', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-20', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-01', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-02', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-03', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-04', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-05', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-06', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-07', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-08', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-09', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-10', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-11', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-12', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-13', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-14', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-15', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-16', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-17', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-18', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-19', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-20', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-01', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-02', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-03', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-04', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-05', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-06', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-07', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-08', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-09', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-10', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-11', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-12', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-13', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-14', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-15', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-16', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-17', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-18', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-19', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-20', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-01', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-02', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-03', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-04', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-05', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-06', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-07', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-08', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-09', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-10', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-11', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-12', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-13', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-14', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-15', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-16', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-17', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-18', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-19', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-20', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-01', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-02', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-03', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-04', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-05', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-06', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-07', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-08', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-09', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-10', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-11', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-12', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-13', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-14', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-15', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-16', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-17', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-18', 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-19', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-20', 'VN201', 1000000.00, N'Phổ thông', N'có sẵn');
+-- Hạng nhất (15 ghế: 1-15)
+(1, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(2, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(3, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(4, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(5, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(6, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(7, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(8, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(9, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(10, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(11, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(12, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(13, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(14, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(15, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
+-- Thương gia (35 ghế: 16-50)
+(16, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(17, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(18, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(19, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(20, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(21, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(22, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(23, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(24, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(25, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(26, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(27, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(28, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(29, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(30, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(31, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(32, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(33, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(34, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(35, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(36, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(37, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(38, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(39, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(40, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(41, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(42, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(43, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(44, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(45, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(46, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(47, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+(48, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(49, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
+(50, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
+-- Phổ thông (100 ghế: 51-150)
+(51, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(52, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(53, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(54, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(55, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(56, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(57, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(58, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(59, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(60, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(61, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(62, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(63, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(64, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(65, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(66, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(67, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(68, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(69, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(70, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(71, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(72, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(73, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(74, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(75, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(76, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(77, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(78, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(79, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(80, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(81, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(82, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(83, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(84, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(85, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(86, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(87, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(88, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(89, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(90, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(91, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(92, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(93, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(94, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(95, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(96, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(97, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(98, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(99, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(100, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(101, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(102, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(103, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(104, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(105, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(106, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(107, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(108, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(109, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(110, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(111, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(112, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(113, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(114, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(115, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(116, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(117, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(118, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(119, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(120, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(121, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(122, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(123, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(124, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(125, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(126, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(127, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(128, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(129, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(130, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(131, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(132, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(133, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(134, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(135, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(136, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(137, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(138, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(139, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(140, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(141, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(142, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(143, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(144, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(145, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(146, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(147, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(148, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
+(149, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
+(150, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn');
 ----
 ----
 INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH) VALUES
--- H?ng nh?t (5 gh? dã d?t)
-('DV001', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN201', 'KH001'), -- A02
-('DV002', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN201', 'KH002'), -- A05
-('DV003', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN201', 'KH003'), -- A08
-('DV004', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN201', 'KH004'), -- A11
-('DV005', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN201', 'KH005'), -- A14
+-- Hạng nhất (5 ghế đã đặt)
+('DV001', '2025-05-22', '2025-07-11', N'Đã thanh toán', 2, 3000000.00, 'VN201', 'KH001'), -- A-02 becomes 2
+('DV002', '2025-05-22', '2025-07-11', N'Đã thanh toán', 5, 3000000.00, 'VN201', 'KH002'), -- A-05 becomes 5
+('DV003', '2025-05-22', '2025-07-11', N'Đã thanh toán', 8, 3000000.00, 'VN201', 'KH003'), -- A-08 becomes 8
+('DV004', '2025-05-22', '2025-07-11', N'Đã thanh toán', 11, 3000000.00, 'VN201', 'KH004'), -- A-11 becomes 11
+('DV005', '2025-05-22', '2025-07-11', N'Đã thanh toán', 14, 3000000.00, 'VN201', 'KH005'), -- A-14 becomes 14
 
--- Thuong gia (9 gh? dã d?t)
-('DV006', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH006'), -- B02
-('DV007', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH007'), -- B05
-('DV008', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH008'), -- B08
-('DV009', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH009'), -- B11
-('DV010', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH010'), -- B14
-('DV011', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH011'), -- B17
-('DV012', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH012'), -- B20
-('DV013', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH013'), -- B23
-('DV014', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN201', 'KH014'), -- B26
+-- Thương gia (9 ghế đã đặt)
+('DV006', '2025-05-22', '2025-07-11', N'Đã thanh toán', 17, 2000000.00, 'VN201', 'KH006'), -- B-02 (15 + 2) becomes 17
+('DV007', '2025-05-22', '2025-07-11', N'Đã thanh toán', 20, 2000000.00, 'VN201', 'KH007'), -- B-05 (15 + 5) becomes 20
+('DV008', '2025-05-22', '2025-07-11', N'Đã thanh toán', 23, 2000000.00, 'VN201', 'KH008'), -- B-08 (15 + 8) becomes 23
+('DV009', '2025-05-22', '2025-07-11', N'Đã thanh toán', 26, 2000000.00, 'VN201', 'KH009'), -- B-11 (15 + 11) becomes 26
+('DV010', '2025-05-22', '2025-07-11', N'Đã thanh toán', 29, 2000000.00, 'VN201', 'KH010'), -- B-14 (15 + 14) becomes 29
+('DV011', '2025-05-22', '2025-07-11', N'Đã thanh toán', 32, 2000000.00, 'VN201', 'KH011'), -- B-17 (15 + 17) becomes 32
+('DV012', '2025-05-22', '2025-07-11', N'Đã thanh toán', 35, 2000000.00, 'VN201', 'KH012'), -- B-20 (15 + 20) becomes 35
+('DV013', '2025-05-22', '2025-07-11', N'Đã thanh toán', 38, 2000000.00, 'VN201', 'KH013'), -- B-23 (15 + 23) becomes 38
+('DV014', '2025-05-22', '2025-07-11', N'Đã thanh toán', 41, 2000000.00, 'VN201', 'KH014'), -- B-26 (15 + 26) becomes 41
 
--- Ph? thông (28 gh? dã d?t)
-('DV015', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH015'), -- C02
-('DV016', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH016'), -- C05
-('DV017', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH017'), -- C08
-('DV018', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH018'), -- C11
-('DV019', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH019'), -- C14
-('DV020', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH020'), -- C17
-('DV021', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH021'), -- C20
-('DV022', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH022'), -- D03
-('DV023', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH023'), -- D06
-('DV024', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH024'), -- D09
-('DV025', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH025'), -- D12
-('DV026', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH026'), -- D15
-('DV027', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH027'), -- D18
-('DV028', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH028'), -- E01
-('DV029', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH029'), -- E04
-('DV030', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH030'), -- E07
-('DV031', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH031'), -- E10
-('DV032', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH032'), -- E13
-('DV033', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH033'), -- E16
-('DV034', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH034'), -- E19
-('DV035', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH035'), -- F02
-('DV036', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH036'), -- F05
-('DV037', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH037'), -- F08
-('DV038', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH038'), -- F11
-('DV039', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH039'), -- F14
-('DV040', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH040'), -- G03
-('DV041', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH041'), -- G06
-('DV042', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN201', 'KH042'); -- G18
-
----
----
+-- Phổ thông (28 ghế đã đặt)
+('DV015', '2025-05-22', '2025-07-11', N'Đã thanh toán', 52, 1000000.00, 'VN201', 'KH015'), -- C-02 (50 + 2) becomes 52
+('DV016', '2025-05-22', '2025-07-11', N'Đã thanh toán', 55, 1000000.00, 'VN201', 'KH016'), -- C-05 (50 + 5) becomes 55
+('DV017', '2025-05-22', '2025-07-11', N'Đã thanh toán', 58, 1000000.00, 'VN201', 'KH017'), -- C-08 (50 + 8) becomes 58
+('DV018', '2025-05-22', '2025-07-11', N'Đã thanh toán', 61, 1000000.00, 'VN201', 'KH018'), -- C-11 (50 + 11) becomes 61
+('DV019', '2025-05-22', '2025-07-11', N'Đã thanh toán', 64, 1000000.00, 'VN201', 'KH019'), -- C-14 (50 + 14) becomes 64
+('DV020', '2025-05-22', '2025-07-11', N'Đã thanh toán', 67, 1000000.00, 'VN201', 'KH020'), -- C-17 (50 + 17) becomes 67
+('DV021', '2025-05-22', '2025-07-11', N'Đã thanh toán', 70, 1000000.00, 'VN201', 'KH021'), -- C-20 (50 + 20) becomes 70
+('DV022', '2025-05-22', '2025-07-11', N'Đã thanh toán', 73, 1000000.00, 'VN201', 'KH022'), -- D-03 (70 + 3) becomes 73
+('DV023', '2025-05-22', '2025-07-11', N'Đã thanh toán', 76, 1000000.00, 'VN201', 'KH023'), -- D-06 (70 + 6) becomes 76
+('DV024', '2025-05-22', '2025-07-11', N'Đã thanh toán', 79, 1000000.00, 'VN201', 'KH024'), -- D-09 (70 + 9) becomes 79
+('DV025', '2025-05-22', '2025-07-11', N'Đã thanh toán', 82, 1000000.00, 'VN201', 'KH025'), -- D-12 (70 + 12) becomes 82
+('DV026', '2025-05-22', '2025-07-11', N'Đã thanh toán', 85, 1000000.00, 'VN201', 'KH026'), -- D-15 (70 + 15) becomes 85
+('DV027', '2025-05-22', '2025-07-11', N'Đã thanh toán', 88, 1000000.00, 'VN201', 'KH027'), -- D-18 (70 + 18) becomes 88
+('DV028', '2025-05-22', '2025-07-11', N'Đã thanh toán', 91, 1000000.00, 'VN201', 'KH028'), -- E-01 (90 + 1) becomes 91
+('DV029', '2025-05-22', '2025-07-11', N'Đã thanh toán', 94, 1000000.00, 'VN201', 'KH029'), -- E-04 (90 + 4) becomes 94
+('DV030', '2025-05-22', '2025-07-11', N'Đã thanh toán', 97, 1000000.00, 'VN201', 'KH030'), -- E-07 (90 + 7) becomes 97
+('DV031', '2025-05-22', '2025-07-11', N'Đã thanh toán', 100, 1000000.00, 'VN201', 'KH031'), -- E-10 (90 + 10) becomes 100
+('DV032', '2025-05-22', '2025-07-11', N'Đã thanh toán', 103, 1000000.00, 'VN201', 'KH032'), -- E-13 (90 + 13) becomes 103
+('DV033', '2025-05-22', '2025-07-11', N'Đã thanh toán', 106, 1000000.00, 'VN201', 'KH033'), -- E-16 (90 + 16) becomes 106
+('DV034', '2025-05-22', '2025-07-11', N'Đã thanh toán', 109, 1000000.00, 'VN201', 'KH034'), -- E-19 (90 + 19) becomes 109
+('DV035', '2025-05-22', '2025-07-11', N'Đã thanh toán', 112, 1000000.00, 'VN201', 'KH035'), -- F-02 (110 + 2) becomes 112
+('DV036', '2025-05-22', '2025-07-11', N'Đã thanh toán', 115, 1000000.00, 'VN201', 'KH036'), -- F-05 (110 + 5) becomes 115
+('DV037', '2025-05-22', '2025-07-11', N'Đã thanh toán', 118, 1000000.00, 'VN201', 'KH037'), -- F-08 (110 + 8) becomes 118
+('DV038', '2025-05-22', '2025-07-11', N'Đã thanh toán', 121, 1000000.00, 'VN201', 'KH038'), -- F-11 (110 + 11) becomes 121
+('DV039', '2025-05-22', '2025-07-11', N'Đã thanh toán', 124, 1000000.00, 'VN201', 'KH039'), -- F-14 (110 + 14) becomes 124
+('DV040', '2025-05-22', '2025-07-11', N'Đã thanh toán', 133, 1000000.00, 'VN201', 'KH040'), -- G-03 (130 + 3) becomes 133
+('DV041', '2025-05-22', '2025-07-11', N'Đã thanh toán', 136, 1000000.00, 'VN201', 'KH041'), -- G-06 (130 + 6) becomes 136
+('DV042', '2025-05-22', '2025-07-11', N'Đã thanh toán', 148, 1000000.00, 'VN201', 'KH042'); -- G-18 (130 + 18) becomes 148
 -- Ghế cho chuyến bay VN202
--- Hạng nhất (15 ghế) - 2 ghế đã đặt
 INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
-('A-01', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-02', 'VN202', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-03', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-04', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-05', 'VN202', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-06', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-07', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-08', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-09', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-10', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-11', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-12', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-13', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-14', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-15', 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế) - 3 ghế đã đặt
-('B-01', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-02', 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-03', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-04', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-05', 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-06', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-07', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-08', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-09', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-10', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-11', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-12', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-13', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-14', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-15', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-16', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-17', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-18', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-19', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-20', 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-21', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-22', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-23', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-24', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-25', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-26', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-27', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-28', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-29', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-30', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-31', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-32', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-33', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-34', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-35', 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
--- Phổ thông (100 ghế) - 5 ghế đã đặt
-('C-01', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-02', 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-03', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-04', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-05', 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-06', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-07', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-08', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-09', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-10', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-11', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-12', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-13', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-14', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-15', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-16', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-17', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-18', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-19', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-20', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-01', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-02', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-03', 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-04', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-05', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-06', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-07', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-08', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-09', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-10', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-11', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-12', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-13', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-14', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-15', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-16', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-17', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-18', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-19', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-20', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-01', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-02', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-03', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-04', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-05', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-06', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-07', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-08', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-09', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-10', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-11', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-12', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-13', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-14', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-15', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-16', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-17', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-18', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-19', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-20', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-01', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-02', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-03', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-04', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-05', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-06', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-07', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-08', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-09', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-10', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-11', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-12', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-13', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-14', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-15', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-16', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-17', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-18', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-19', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-20', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-01', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-02', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-03', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-04', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-05', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-06', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-07', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-08', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-09', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-10', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-11', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-12', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-13', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-14', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-15', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-16', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-17', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-18', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-19', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-20', 'VN202', 1000000.00, N'Phổ thông', N'có sẵn');
----
----
+-- Ghế cho chuyến bay VN202
+-- Hạng nhất (15 ghế)
+(1, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(2, 'VN202', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(3, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(4, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(5, 'VN202', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(6, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(7, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(8, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(9, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(10, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(11, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(12, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(13, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(14, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(15, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
+-- Thương gia (35 ghế)
+(16, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(17, 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
+(18, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(19, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(20, 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
+(21, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(22, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(23, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(24, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(25, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(26, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(27, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(28, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(29, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(30, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(31, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(32, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(33, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(34, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(35, 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
+(36, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(37, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(38, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(39, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(40, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(41, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(42, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(43, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(44, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(45, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(46, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(47, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(48, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(49, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+(50, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
+-- Phổ thông (100 ghế)
+(51, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(52, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
+(53, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(54, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(55, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
+(56, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(57, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(58, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(59, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(60, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(61, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(62, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(63, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(64, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(65, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(66, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(67, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(68, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(69, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(70, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(71, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(72, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(73, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
+(74, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(75, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(76, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(77, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(78, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(79, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(80, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(81, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(82, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(83, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(84, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(85, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(86, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(87, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(88, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(89, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(90, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(91, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(92, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(93, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(94, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(95, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(96, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(97, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(98, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(99, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(100, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(101, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(102, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(103, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(104, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(105, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(106, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(107, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(108, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(109, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(110, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(111, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(112, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(113, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(114, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(115, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(116, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(117, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(118, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(119, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(120, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(121, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(122, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(123, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(124, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(125, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(126, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(127, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(128, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(129, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(130, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(131, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(132, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(133, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
+(134, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(135, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(136, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
+(137, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(138, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(139, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(140, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(141, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(142, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(143, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(144, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(145, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(146, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(147, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(148, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(149, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
+(150, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn');
+
 INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH) VALUES
--- H?ng nh?t (2 gh? dã d?t)
-('DV043', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN202', 'KH001'), -- A02
-('DV044', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 3000000.00, 'VN202', 'KH002'), -- A05
+-- Hạng nhất (2 ghế đã đặt)
+('DV043', '2025-05-22', '2025-07-11', N'Đã thanh toán', 2, 3000000.00, 'VN202', 'KH001'), -- A-02
+('DV044', '2025-05-22', '2025-07-11', N'Đã thanh toán', 5, 3000000.00, 'VN202', 'KH002'), -- A-05
 
--- Thuong gia (3 gh? dã d?t)
-('DV045', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN202', 'KH003'), -- B02
-('DV046', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN202', 'KH004'), -- B05
-('DV047', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 2000000.00, 'VN202', 'KH005'), -- B20
+-- Thương gia (3 ghế đã đặt)
+('DV045', '2025-05-22', '2025-07-11', N'Đã thanh toán', 17, 2000000.00, 'VN202', 'KH003'), -- B-02 (15 + 2)
+('DV046', '2025-05-22', '2025-07-11', N'Đã thanh toán', 20, 2000000.00, 'VN202', 'KH004'), -- B-05 (15 + 5)
+('DV047', '2025-05-22', '2025-07-11', N'Đã thanh toán', 35, 2000000.00, 'VN202', 'KH005'), -- B-20 (15 + 20)
 
--- Ph? thông (5 gh? dã d?t)
-('DV048', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN202', 'KH006'), -- C02
-('DV049', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN202', 'KH007'), -- C05
-('DV050', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN202', 'KH008'), -- D03
-('DV051', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN202', 'KH009'), -- G03
-('DV052', '2025-05-22', '2025-07-11', N'Ðã thanh toán', 1, 1000000.00, 'VN202', 'KH010'); -- G06
----
+-- Phổ thông (5 ghế đã đặt)
+('DV048', '2025-05-22', '2025-07-11', N'Đã thanh toán', 52, 1000000.00, 'VN202', 'KH006'), -- C-02 (50 + 2)
+('DV049', '2025-05-22', '2025-07-11', N'Đã thanh toán', 55, 1000000.00, 'VN202', 'KH007'), -- C-05 (50 + 5)
+('DV050', '2025-05-22', '2025-07-11', N'Đã thanh toán', 73, 1000000.00, 'VN202', 'KH008'), -- D-03 (70 + 3)
+('DV051', '2025-05-22', '2025-07-11', N'Đã thanh toán', 133, 1000000.00, 'VN202', 'KH009'), -- G-03 (130 + 3)
+('DV052', '2025-05-22', '2025-07-11', N'Đã thanh toán', 136, 1000000.00, 'VN202', 'KH010'); -- G-06 (130 + 6)
 ---
 INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
 -- Ghế cho chuyến bay VN203
--- Hạng nhất (15 ghế) - 5 ghế đã đặt
-('A-01', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-02', 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-03', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-04', 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-05', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-06', 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-07', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-08', 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-09', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-10', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-11', 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-12', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-13', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-14', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-15', 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế) - 25 ghế đã đặt
-('B-01', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-02', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-03', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-04', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-05', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-06', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-07', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-08', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-09', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-10', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-11', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-12', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-13', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-14', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-15', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-16', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-17', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-18', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-19', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-20', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-21', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-22', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-23', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-24', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-25', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-26', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-27', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-28', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-29', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-30', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-31', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-32', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-33', 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-34', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-35', 'VN203', 2000000.00, N'Thương gia', N'đã đặt'),
--- Phổ thông (100 ghế) - 40 ghế đã đặt
-('C-01', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-02', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-03', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-04', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-05', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-06', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-07', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-08', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-09', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-10', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-11', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-12', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-13', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-14', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-15', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-16', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-17', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-18', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-19', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-20', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-01', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-02', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-03', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-04', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-05', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-06', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-07', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-08', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-09', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-10', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-11', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-12', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-13', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-14', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-15', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-16', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-17', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-18', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-19', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-20', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-01', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-02', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-03', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-04', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-05', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-06', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-07', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-08', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-09', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-10', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-11', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-12', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-13', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-14', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-15', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-16', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-17', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-18', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-19', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('E-20', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-01', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-02', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-03', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-04', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-05', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-06', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-07', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-08', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-09', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-10', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-11', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-12', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-13', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-14', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-15', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-16', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-17', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('F-18', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-19', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-20', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-01', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-02', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-03', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-04', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-05', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-06', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-07', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-08', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-09', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-10', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-11', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-12', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-13', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-14', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-15', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-16', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-17', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-18', 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'),
-('G-19', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-20', 'VN203', 1000000.00, N'Phổ thông', N'có sẵn');
+-- Hạng nhất (15 ghế)
+(1, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(2, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(3, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(4, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(5, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(6, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(7, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(8, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(9, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(10, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(11, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(12, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(13, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(14, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(15, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
+-- Thương gia (35 ghế)
+(16, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-01
+(17, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-02
+(18, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-03
+(19, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(20, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-05
+(21, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-06
+(22, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(23, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-08
+(24, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-09
+(25, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(26, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-11
+(27, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-12
+(28, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(29, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-14
+(30, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-15
+(31, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(32, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-17
+(33, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-18
+(34, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(35, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-20
+(36, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-21
+(37, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(38, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-23
+(39, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-24
+(40, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(41, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-26
+(42, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-27
+(43, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(44, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-29
+(45, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-30
+(46, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(47, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-32
+(48, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
+(49, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-34
+(50, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-35
+-- Phổ thông (100 ghế)
+(51, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-01
+(52, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-02
+(53, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-03
+(54, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(55, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-05
+(56, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-06
+(57, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(58, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-08
+(59, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-09
+(60, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(61, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-11
+(62, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-12
+(63, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(64, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-14
+(65, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-15
+(66, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(67, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-17
+(68, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-18
+(69, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(70, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-20
+(71, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-01
+(72, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(73, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-03
+(74, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-04
+(75, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(76, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-06
+(77, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-07
+(78, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(79, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-09
+(80, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-10
+(81, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(82, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-12
+(83, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-13
+(84, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(85, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-15
+(86, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-16
+(87, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(88, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-18
+(89, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-19
+(90, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(91, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-01
+(92, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-02
+(93, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(94, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-04
+(95, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-05
+(96, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(97, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-07
+(98, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-08
+(99, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(100, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-10
+(101, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-11
+(102, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(103, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-13
+(104, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-14
+(105, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(106, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-16
+(107, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-17
+(108, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(109, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-19
+(110, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-20
+(111, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-01
+(112, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-02
+(113, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(114, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(115, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-05
+(116, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(117, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(118, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-08
+(119, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(120, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(121, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-11
+(122, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(123, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(124, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-14
+(125, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(126, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(127, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-17
+(128, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(129, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(130, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-20
+(131, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(132, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(133, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-03
+(134, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(135, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(136, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-06
+(137, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(138, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(139, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-09
+(140, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(141, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(142, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-12
+(143, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(144, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(145, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-15
+(146, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(147, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(148, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-18
+(149, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
+(150, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn');
 
 ---
----
+
 INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
 VALUES
-('DV001', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 3000000.00, 'VN203', 'KH001'), -- A02
-('DV002', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 3000000.00, 'VN203', 'KH002'), -- A04
-('DV003', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 3000000.00, 'VN203', 'KH003'), -- A06
-('DV004', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 3000000.00, 'VN203', 'KH004'), -- A08
-('DV005', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 3000000.00, 'VN203', 'KH005'), -- A11
--- Thuong gia (25 gh? dã d?t)
-('DV006', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH006'), -- B01
-('DV007', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH007'), -- B02
-('DV008', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH008'), -- B03
-('DV009', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH009'), -- B05
-('DV010', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH010'), -- B06
-('DV011', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH011'), -- B08
-('DV012', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH012'), -- B09
-('DV013', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH013'), -- B11
-('DV014', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH014'), -- B12
-('DV015', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH015'), -- B14
-('DV016', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH016'), -- B15
-('DV017', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH017'), -- B17
-('DV018', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH018'), -- B18
-('DV019', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH019'), -- B20
-('DV020', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH020'), -- B21
-('DV021', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH021'), -- B23
-('DV022', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH022'), -- B24
-('DV023', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH023'), -- B26
-('DV024', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH024'), -- B27
-('DV025', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH025'), -- B29
-('DV026', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH026'), -- B30
-('DV027', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH027'), -- B32
-('DV028', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH028'), -- B34
-('DV029', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 2000000.00, 'VN203', 'KH029'), -- B35
--- Ph? thông (40 gh? dã d?t)
-('DV030', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH030'), -- C01
-('DV031', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH031'), -- C02
-('DV032', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH032'), -- C03
-('DV033', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH033'), -- C05
-('DV034', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH034'), -- C06
-('DV035', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH035'), -- C08
-('DV036', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH036'), -- C09
-('DV037', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH037'), -- C11
-('DV038', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH038'), -- C12
-('DV039', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH039'), -- C14
-('DV040', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH040'), -- C15
-('DV041', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH041'), -- C17
-('DV042', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH042'), -- C18
-('DV043', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH043'), -- C20
-('DV044', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH044'), -- D01
-('DV045', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH045'), -- D03
-('DV046', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH046'), -- D04
-('DV047', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH047'), -- D06
-('DV048', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH048'), -- D07
-('DV049', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH049'), -- D09
-('DV050', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH050'), -- D10
-('DV051', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH051'), -- D12
-('DV052', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH052'), -- D13
-('DV053', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH053'), -- D15
-('DV054', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH054'), -- D16
-('DV055', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH055'), -- D18
-('DV056', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH056'), -- D19
-('DV057', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH057'), -- E01
-('DV058', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH058'), -- E02
-('DV059', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH059'), -- E04
-('DV060', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH060'), -- E05
-('DV061', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH061'), -- E07
-('DV062', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH062'), -- E08
-('DV063', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH063'), -- E10
-('DV064', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH064'), -- E11
-('DV065', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH065'), -- E13
-('DV066', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH066'), -- E14
-('DV067', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH067'), -- E16
-('DV068', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH068'), -- E17
-('DV069', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH069'), -- E19
-('DV070', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH070'), -- E20
-('DV071', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH071'), -- F01
-('DV072', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH072'), -- F02
-('DV073', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH073'), -- F05
-('DV074', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH074'), -- F08
-('DV075', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH075'), -- F11
-('DV076', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH076'), -- F14
-('DV077', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH077'), -- F17
-('DV078', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH078'), -- F20
-('DV079', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH079'), -- G03
-('DV080', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH080'), -- G06
-('DV081', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH081'), -- G09
-('DV082', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH082'), -- G12
-('DV083', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH083'), -- G15
-('DV084', '2025-05-22', '2025-06-15', N'Ðã thanh toán', 1, 1000000.00, 'VN203', 'KH084'); -- G18
-----
+-- Hạng nhất (5 ghế đã đặt)
+('DV053', '2025-05-22', '2025-06-15', N'Đã thanh toán', 2, 3000000.00, 'VN203', 'KH001'), -- A-02
+('DV054', '2025-05-22', '2025-06-15', N'Đã thanh toán', 4, 3000000.00, 'VN203', 'KH002'), -- A-04
+('DV055', '2025-05-22', '2025-06-15', N'Đã thanh toán', 6, 3000000.00, 'VN203', 'KH003'), -- A-06
+('DV056', '2025-05-22', '2025-06-15', N'Đã thanh toán', 8, 3000000.00, 'VN203', 'KH004'), -- A-08
+('DV057', '2025-05-22', '2025-06-15', N'Đã thanh toán', 11, 3000000.00, 'VN203', 'KH005'), -- A-11
+
+-- Thương gia (25 ghế đã đặt)
+('DV058', '2025-05-22', '2025-06-15', N'Đã thanh toán', 16, 2000000.00, 'VN203', 'KH006'), -- B-01
+('DV059', '2025-05-22', '2025-06-15', N'Đã thanh toán', 17, 2000000.00, 'VN203', 'KH007'), -- B-02
+('DV060', '2025-05-22', '2025-06-15', N'Đã thanh toán', 18, 2000000.00, 'VN203', 'KH008'), -- B-03
+('DV061', '2025-05-22', '2025-06-15', N'Đã thanh toán', 20, 2000000.00, 'VN203', 'KH009'), -- B-05
+('DV062', '2025-05-22', '2025-06-15', N'Đã thanh toán', 21, 2000000.00, 'VN203', 'KH010'), -- B-06
+('DV063', '2025-05-22', '2025-06-15', N'Đã thanh toán', 23, 2000000.00, 'VN203', 'KH011'), -- B-08
+('DV064', '2025-05-22', '2025-06-15', N'Đã thanh toán', 24, 2000000.00, 'VN203', 'KH012'), -- B-09
+('DV065', '2025-05-22', '2025-06-15', N'Đã thanh toán', 26, 2000000.00, 'VN203', 'KH013'), -- B-11
+('DV066', '2025-05-22', '2025-06-15', N'Đã thanh toán', 27, 2000000.00, 'VN203', 'KH014'), -- B-12
+('DV067', '2025-05-22', '2025-06-15', N'Đã thanh toán', 29, 2000000.00, 'VN203', 'KH015'), -- B-14
+('DV068', '2025-05-22', '2025-06-15', N'Đã thanh toán', 30, 2000000.00, 'VN203', 'KH016'), -- B-15
+('DV069', '2025-05-22', '2025-06-15', N'Đã thanh toán', 32, 2000000.00, 'VN203', 'KH017'), -- B-17
+('DV070', '2025-05-22', '2025-06-15', N'Đã thanh toán', 33, 2000000.00, 'VN203', 'KH018'), -- B-18
+('DV071', '2025-05-22', '2025-06-15', N'Đã thanh toán', 35, 2000000.00, 'VN203', 'KH019'), -- B-20
+('DV072', '2025-05-22', '2025-06-15', N'Đã thanh toán', 36, 2000000.00, 'VN203', 'KH020'), -- B-21
+('DV073', '2025-05-22', '2025-06-15', N'Đã thanh toán', 38, 2000000.00, 'VN203', 'KH021'), -- B-23
+('DV074', '2025-05-22', '2025-06-15', N'Đã thanh toán', 39, 2000000.00, 'VN203', 'KH022'), -- B-24
+('DV075', '2025-05-22', '2025-06-15', N'Đã thanh toán', 41, 2000000.00, 'VN203', 'KH023'), -- B-26
+('DV076', '2025-05-22', '2025-06-15', N'Đã thanh toán', 42, 2000000.00, 'VN203', 'KH024'), -- B-27
+('DV077', '2025-05-22', '2025-06-15', N'Đã thanh toán', 44, 2000000.00, 'VN203', 'KH025'), -- B-29
+('DV078', '2025-05-22', '2025-06-15', N'Đã thanh toán', 45, 2000000.00, 'VN203', 'KH026'), -- B-30
+('DV079', '2025-05-22', '2025-06-15', N'Đã thanh toán', 47, 2000000.00, 'VN203', 'KH027'), -- B-32
+('DV080', '2025-05-22', '2025-06-15', N'Đã thanh toán', 49, 2000000.00, 'VN203', 'KH028'), -- B-34
+('DV081', '2025-05-22', '2025-06-15', N'Đã thanh toán', 50, 2000000.00, 'VN203', 'KH029'), -- B-35
+
+-- Phổ thông (40 ghế đã đặt)
+('DV082', '2025-05-22', '2025-06-15', N'Đã thanh toán', 51, 1000000.00, 'VN203', 'KH030'), -- C-01
+('DV083', '2025-05-22', '2025-06-15', N'Đã thanh toán', 52, 1000000.00, 'VN203', 'KH031'), -- C-02
+('DV084', '2025-05-22', '2025-06-15', N'Đã thanh toán', 53, 1000000.00, 'VN203', 'KH032'), -- C-03
+('DV085', '2025-05-22', '2025-06-15', N'Đã thanh toán', 55, 1000000.00, 'VN203', 'KH033'), -- C-05
+('DV086', '2025-05-22', '2025-06-15', N'Đã thanh toán', 56, 1000000.00, 'VN203', 'KH034'), -- C-06
+('DV087', '2025-05-22', '2025-06-15', N'Đã thanh toán', 58, 1000000.00, 'VN203', 'KH035'), -- C-08
+('DV088', '2025-05-22', '2025-06-15', N'Đã thanh toán', 59, 1000000.00, 'VN203', 'KH036'), -- C-09
+('DV089', '2025-05-22', '2025-06-15', N'Đã thanh toán', 61, 1000000.00, 'VN203', 'KH037'), -- C-11
+('DV090', '2025-05-22', '2025-06-15', N'Đã thanh toán', 62, 1000000.00, 'VN203', 'KH038'), -- C-12
+('DV091', '2025-05-22', '2025-06-15', N'Đã thanh toán', 64, 1000000.00, 'VN203', 'KH039'), -- C-14
+('DV092', '2025-05-22', '2025-06-15', N'Đã thanh toán', 65, 1000000.00, 'VN203', 'KH040'), -- C-15
+('DV093', '2025-05-22', '2025-06-15', N'Đã thanh toán', 67, 1000000.00, 'VN203', 'KH041'), -- C-17
+('DV094', '2025-05-22', '2025-06-15', N'Đã thanh toán', 68, 1000000.00, 'VN203', 'KH042'), -- C-18
+('DV095', '2025-05-22', '2025-06-15', N'Đã thanh toán', 70, 1000000.00, 'VN203', 'KH043'), -- C-20
+('DV096', '2025-05-22', '2025-06-15', N'Đã thanh toán', 71, 1000000.00, 'VN203', 'KH044'), -- D-01
+('DV097', '2025-05-22', '2025-06-15', N'Đã thanh toán', 73, 1000000.00, 'VN203', 'KH045'), -- D-03
+('DV098', '2025-05-22', '2025-06-15', N'Đã thanh toán', 74, 1000000.00, 'VN203', 'KH046'), -- D-04
+('DV099', '2025-05-22', '2025-06-15', N'Đã thanh toán', 76, 1000000.00, 'VN203', 'KH047'), -- D-06
+('DV100', '2025-05-22', '2025-06-15', N'Đã thanh toán', 77, 1000000.00, 'VN203', 'KH048'), -- D-07
+('DV101', '2025-05-22', '2025-06-15', N'Đã thanh toán', 79, 1000000.00, 'VN203', 'KH049'), -- D-09
+('DV102', '2025-05-22', '2025-06-15', N'Đã thanh toán', 80, 1000000.00, 'VN203', 'KH050'), -- D-10
+('DV103', '2025-05-22', '2025-06-15', N'Đã thanh toán', 82, 1000000.00, 'VN203', 'KH051'), -- D-12
+('DV104', '2025-05-22', '2025-06-15', N'Đã thanh toán', 83, 1000000.00, 'VN203', 'KH052'), -- D-13
+('DV105', '2025-05-22', '2025-06-15', N'Đã thanh toán', 85, 1000000.00, 'VN203', 'KH053'), -- D-15
+('DV106', '2025-05-22', '2025-06-15', N'Đã thanh toán', 86, 1000000.00, 'VN203', 'KH054'), -- D-16
+('DV107', '2025-05-22', '2025-06-15', N'Đã thanh toán', 88, 1000000.00, 'VN203', 'KH055'), -- D-18
+('DV108', '2025-05-22', '2025-06-15', N'Đã thanh toán', 89, 1000000.00, 'VN203', 'KH056'), -- D-19
+('DV109', '2025-05-22', '2025-06-15', N'Đã thanh toán', 91, 1000000.00, 'VN203', 'KH057'), -- E-01
+('DV110', '2025-05-22', '2025-06-15', N'Đã thanh toán', 92, 1000000.00, 'VN203', 'KH058'), -- E-02
+('DV111', '2025-05-22', '2025-06-15', N'Đã thanh toán', 94, 1000000.00, 'VN203', 'KH059'), -- E-04
+('DV112', '2025-05-22', '2025-06-15', N'Đã thanh toán', 95, 1000000.00, 'VN203', 'KH060'), -- E-05
+('DV113', '2025-05-22', '2025-06-15', N'Đã thanh toán', 97, 1000000.00, 'VN203', 'KH061'), -- E-07
+('DV114', '2025-05-22', '2025-06-15', N'Đã thanh toán', 98, 1000000.00, 'VN203', 'KH062'), -- E-08
+('DV115', '2025-05-22', '2025-06-15', N'Đã thanh toán', 100, 1000000.00, 'VN203', 'KH063'), -- E-10
+('DV116', '2025-05-22', '2025-06-15', N'Đã thanh toán', 101, 1000000.00, 'VN203', 'KH064'), -- E-11
+('DV117', '2025-05-22', '2025-06-15', N'Đã thanh toán', 103, 1000000.00, 'VN203', 'KH065'), -- E-13
+('DV118', '2025-05-22', '2025-06-15', N'Đã thanh toán', 104, 1000000.00, 'VN203', 'KH066'), -- E-14
+('DV119', '2025-05-22', '2025-06-15', N'Đã thanh toán', 106, 1000000.00, 'VN203', 'KH067'), -- E-16
+('DV120', '2025-05-22', '2025-06-15', N'Đã thanh toán', 107, 1000000.00, 'VN203', 'KH068'), -- E-17
+('DV121', '2025-05-22', '2025-06-15', N'Đã thanh toán', 109, 1000000.00, 'VN203', 'KH069'), -- E-19
+('DV122', '2025-05-22', '2025-06-15', N'Đã thanh toán', 110, 1000000.00, 'VN203', 'KH070'), -- E-20
+('DV123', '2025-05-22', '2025-06-15', N'Đã thanh toán', 111, 1000000.00, 'VN203', 'KH071'), -- F-01
+('DV124', '2025-05-22', '2025-06-15', N'Đã thanh toán', 112, 1000000.00, 'VN203', 'KH072'), -- F-02
+('DV125', '2025-05-22', '2025-06-15', N'Đã thanh toán', 115, 1000000.00, 'VN203', 'KH073'), -- F-05
+('DV126', '2025-05-22', '2025-06-15', N'Đã thanh toán', 118, 1000000.00, 'VN203', 'KH074'), -- F-08
+('DV127', '2025-05-22', '2025-06-15', N'Đã thanh toán', 121, 1000000.00, 'VN203', 'KH075'), -- F-11
+('DV128', '2025-05-22', '2025-06-15', N'Đã thanh toán', 124, 1000000.00, 'VN203', 'KH076'), -- F-14
+('DV129', '2025-05-22', '2025-06-15', N'Đã thanh toán', 127, 1000000.00, 'VN203', 'KH077'), -- F-17
+('DV130', '2025-05-22', '2025-06-15', N'Đã thanh toán', 130, 1000000.00, 'VN203', 'KH078'), -- F-20
+('DV131', '2025-05-22', '2025-06-15', N'Đã thanh toán', 133, 1000000.00, 'VN203', 'KH079'), -- G-03
+('DV132', '2025-05-22', '2025-06-15', N'Đã thanh toán', 136, 1000000.00, 'VN203', 'KH080'), -- G-06
+('DV133', '2025-05-22', '2025-06-15', N'Đã thanh toán', 139, 1000000.00, 'VN203', 'KH081'), -- G-09
+('DV134', '2025-05-22', '2025-06-15', N'Đã thanh toán', 142, 1000000.00, 'VN203', 'KH082'), -- G-12
+('DV135', '2025-05-22', '2025-06-15', N'Đã thanh toán', 145, 1000000.00, 'VN203', 'KH083'), -- G-15
+('DV136', '2025-05-22', '2025-06-15', N'Đã thanh toán', 148, 1000000.00, 'VN203', 'KH084'); -- G-18
 ----
 INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
 -- Ghế cho chuyến bay VN204
--- Dữ liệu ghế đã được cập nhật trạng thái
 -- Hạng nhất (15 ghế)
-('A-01', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-02', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-03', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-04', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-05', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-06', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-07', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-08', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-09', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-10', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-11', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-12', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-13', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-14', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-15', 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(1, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(2, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(3, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(4, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(5, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(6, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(7, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(8, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(9, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(10, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(11, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(12, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(13, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(14, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(15, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
 
 -- Thương gia (35 ghế)
-('B-01', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-02', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-03', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-04', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-05', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-06', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-07', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-08', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-09', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-10', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-11', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-12', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-13', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-14', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-15', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-16', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-17', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-18', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-19', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-20', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-21', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-22', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-23', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-24', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-25', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-26', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-27', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-28', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-29', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-30', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-31', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-32', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-33', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-34', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-35', 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(16, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(17, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(18, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(19, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(20, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(21, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(22, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(23, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(24, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(25, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(26, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(27, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(28, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(29, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(30, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(31, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(32, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(33, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(34, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(35, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(36, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(37, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(38, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(39, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(40, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(41, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(42, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(43, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(44, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(45, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(46, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(47, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(48, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(49, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+(50, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
 
 -- Phổ thông (100 ghế)
-('C-01', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-02', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-03', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-04', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-05', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-06', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-07', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-08', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-09', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-10', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-11', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-12', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-13', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-14', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-15', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-16', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-17', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-18', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-19', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-20', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-01', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-02', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-03', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-04', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-05', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-06', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-07', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-08', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-09', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-10', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-11', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-12', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-13', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-14', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-15', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-16', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-17', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-18', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-19', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-20', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-01', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-02', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-03', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-04', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-05', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-06', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-07', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-08', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-09', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-10', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-11', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-12', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-13', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-14', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-15', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-16', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-17', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-18', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-19', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-20', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-01', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-02', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-03', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-04', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-05', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-06', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-07', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-08', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-09', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-10', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-11', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-12', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-13', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-14', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-15', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-16', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-17', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-18', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-19', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-20', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-01', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-02', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-03', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-04', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-05', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-06', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-07', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-08', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-09', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-10', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-11', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-12', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-13', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-14', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-15', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-16', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-17', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-18', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-19', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-20', 'VN204', 1000000.00, N'Phổ thông', N'có sẵn');
+(51, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(52, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(53, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(54, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(55, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(56, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(57, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(58, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(59, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(60, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(61, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(62, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(63, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(64, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(65, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(66, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(67, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(68, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(69, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(70, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(71, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(72, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(73, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(74, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(75, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(76, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(77, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(78, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(79, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(80, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(81, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(82, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(83, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(84, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(85, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(86, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(87, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(88, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(89, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(90, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(91, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(92, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(93, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(94, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(95, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(96, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(97, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(98, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(99, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(100, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(101, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(102, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(103, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(104, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(105, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(106, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(107, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(108, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(109, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(110, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(111, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(112, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(113, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(114, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(115, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(116, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(117, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(118, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(119, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(120, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(121, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(122, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(123, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(124, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(125, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(126, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(127, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(128, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(129, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(130, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(131, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(132, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(133, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(134, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(135, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(136, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(137, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(138, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(139, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(140, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(141, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(142, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(143, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(144, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(145, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(146, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(147, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(148, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(149, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
+(150, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn');
 ----
 ----
 INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
--- Ghế cho chuyến bay VN205
 -- Hạng nhất (15 ghế) - 3 ghế đã đặt
-('A-01', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-02', 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-03', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-04', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-05', 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-06', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-07', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-08', 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
-('A-09', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-10', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-11', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-12', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-13', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-14', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-('A-15', 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(1, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(2, 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(3, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(4, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(5, 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(6, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(7, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(8, 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
+(9, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(10, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(11, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(12, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(13, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(14, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
+(15, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
 -- Thương gia (35 ghế) - 7 ghế đã đặt
-('B-01', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-02', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-03', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-04', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-05', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-06', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-07', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-08', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-09', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-10', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-11', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-12', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-13', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-14', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-15', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-16', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-17', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-18', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-19', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-20', 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-('B-21', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-22', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-23', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-24', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-25', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-26', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-27', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-28', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-29', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-30', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-31', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-32', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-33', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-34', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-('B-35', 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(16, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(17, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(18, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(19, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(20, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(21, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(22, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(23, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(24, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(25, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(26, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(27, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(28, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(29, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(30, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(31, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(32, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(33, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(34, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(35, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
+(36, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(37, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(38, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(39, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(40, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(41, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(42, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(43, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(44, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(45, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(46, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(47, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(48, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(49, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
+(50, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
 -- Phổ thông (100 ghế) - 20 ghế đã đặt
-('C-01', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-02', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-03', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-04', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-05', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-06', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-07', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-08', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-09', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-10', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-11', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-12', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-13', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-14', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-15', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-16', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-17', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('C-18', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-19', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('C-20', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-01', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-02', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-03', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-04', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-05', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-06', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-07', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-08', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-09', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-10', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-11', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-12', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-13', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-14', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-15', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-16', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-17', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-18', 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-('D-19', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('D-20', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-01', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-02', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-03', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-04', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-05', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-06', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-07', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-08', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-09', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-10', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-11', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-12', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-13', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-14', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-15', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-16', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-17', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-18', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-19', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('E-20', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-01', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-02', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-03', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-04', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-05', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-06', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-07', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-08', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-09', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-10', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-11', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-12', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-13', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-14', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-15', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-16', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-17', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-18', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-19', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('F-20', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-01', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-02', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-03', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-04', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-05', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-06', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-07', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-08', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-09', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-10', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-11', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-12', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-13', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-14', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-15', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-16', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-17', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-18', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-19', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-('G-20', 'VN205', 1000000.00, N'Phổ thông', N'có sẵn');
-
+(51, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(52, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(53, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(54, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(55, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(56, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(57, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(58, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(59, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(60, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(61, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(62, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(63, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(64, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(65, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(66, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(67, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(68, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(69, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(70, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(71, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(72, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(73, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(74, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(75, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(76, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(77, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(78, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(79, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(80, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(81, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(82, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(83, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(84, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(85, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(86, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(87, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(88, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
+(89, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(90, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(91, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(92, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(93, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(94, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(95, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(96, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(97, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(98, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(99, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(100, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(101, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(102, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(103, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(104, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(105, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(106, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(107, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(108, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(109, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(110, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(111, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(112, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(113, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(114, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(115, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(116, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(117, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(118, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(119, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(120, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(121, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(122, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(123, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(124, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(125, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(126, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(127, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(128, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(129, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(130, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(131, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(132, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(133, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(134, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(135, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(136, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(137, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(138, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(139, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(140, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(141, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(142, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(143, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(144, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(145, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(146, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(147, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(148, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(149, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
+(150, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn');
 
 INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
 VALUES
 -- Hạng nhất (3 ghế đã đặt)
-('DV085', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 3000000.00, 'VN205', 'KH085'),
-('DV086', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 3000000.00, 'VN205', 'KH086'),
-('DV087', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 3000000.00, 'VN205', 'KH087'),
+('DV137', '2025-05-22', '2025-06-15', N'Đã thanh toán', 2, 3000000.00, 'VN205', 'KH085'),
+('DV138', '2025-05-22', '2025-06-15', N'Đã thanh toán', 5, 3000000.00, 'VN205', 'KH086'),
+('DV139', '2025-05-22', '2025-06-15', N'Đã thanh toán', 8, 3000000.00, 'VN205', 'KH087'),
 -- Thương gia (7 ghế đã đặt)
-('DV088', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1 , 2000000.00, 'VN205', 'KH088'),
-('DV089', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 2000000.00, 'VN205', 'KH089'),
-('DV090', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 2000000.00, 'VN205', 'KH090'),
-('DV091', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 2000000.00, 'VN205', 'KH091'),
-('DV092', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 2000000.00, 'VN205', 'KH092'),
-('DV093', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 2000000.00, 'VN205', 'KH093'),
-('DV094', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 2000000.00, 'VN205', 'KH094'),
+('DV140', '2025-05-22', '2025-06-15', N'Đã thanh toán', 17, 2000000.00, 'VN205', 'KH088'),
+('DV141', '2025-05-22', '2025-06-15', N'Đã thanh toán', 20, 2000000.00, 'VN205', 'KH089'),
+('DV142', '2025-05-22', '2025-06-15', N'Đã thanh toán', 23, 2000000.00, 'VN205', 'KH090'),
+('DV143', '2025-05-22', '2025-06-15', N'Đã thanh toán', 26, 2000000.00, 'VN205', 'KH091'),
+('DV144', '2025-05-22', '2025-06-15', N'Đã thanh toán', 29, 2000000.00, 'VN205', 'KH092'),
+('DV145', '2025-05-22', '2025-06-15', N'Đã thanh toán', 32, 2000000.00, 'VN205', 'KH093'),
+('DV146', '2025-05-22', '2025-06-15', N'Đã thanh toán', 35, 2000000.00, 'VN205', 'KH094'),
 -- Phổ thông (10 ghế đã đặt)
-('DV095', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH095'),
-('DV096', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH096'),
-('DV097', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH097'),
-('DV098', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH098'),
-('DV099', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH099'),
-('DV100', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH100'),
-('DV101', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH101'),
-('DV102', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH102'),
-('DV103', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH103'),
-('DV104', '2025-05-22', '2025-06-15', N'Đã thanh toán', 1, 1000000.00, 'VN205', 'KH104');
-
-
+('DV147', '2025-05-22', '2025-06-15', N'Đã thanh toán', 52, 1000000.00, 'VN205', 'KH095'),
+('DV148', '2025-05-22', '2025-06-15', N'Đã thanh toán', 55, 1000000.00, 'VN205', 'KH096'),
+('DV149', '2025-05-22', '2025-06-15', N'Đã thanh toán', 58, 1000000.00, 'VN205', 'KH097'),
+('DV150', '2025-05-22', '2025-06-15', N'Đã thanh toán', 61, 1000000.00, 'VN205', 'KH098'),
+('DV151', '2025-05-22', '2025-06-15', N'Đã thanh toán', 64, 1000000.00, 'VN205', 'KH099'),
+('DV152', '2025-05-22', '2025-06-15', N'Đã thanh toán', 67, 1000000.00, 'VN205', 'KH100'),
+('DV153', '2025-05-22', '2025-06-15', N'Đã thanh toán', 70, 1000000.00, 'VN205', 'KH001'),
+('DV154', '2025-05-22', '2025-06-15', N'Đã thanh toán', 73, 1000000.00, 'VN205', 'KH100'),
+('DV155', '2025-05-22', '2025-06-15', N'Đã thanh toán', 76, 1000000.00, 'VN205', 'KH099'),
+('DV156', '2025-05-22', '2025-06-15', N'Đã thanh toán', 79, 1000000.00, 'VN205', 'KH100');
 ---
 ----
-
 INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
-('TT001', '2025-03-15', 2000000.00, N'Thẻ tín dụng', 'DV087'),
-('TT002', '2025-01-20', 1000000.00, N'Tiền mặt', 'DV023'),
-('TT003', '2025-05-01', 3000000.00, N'Chuyển khoản', 'DV055'),
-('TT004', '2025-02-28', 1000000.00, N'Thẻ tín dụng', 'DV012'),
-('TT005', '2025-04-05', 2000000.00, N'Chuyển khoản', 'DV101'),
-('TT006', '2025-03-22', 3000000.00, N'Tiền mặt', 'DV076'),
-('TT007', '2025-01-08', 1000000.00, N'Thẻ tín dụng', 'DV039'),
-('TT008', '2025-05-11', 2000000.00, N'Chuyển khoản', 'DV092'),
-('TT009', '2025-02-14', 3000000.00, N'Tiền mặt', 'DV005'),
-('TT010', '2025-04-19', 1000000.00, N'Thẻ tín dụng', 'DV068'),
-('TT011', '2025-03-03', 2000000.00, N'Chuyển khoản', 'DV041'),
-('TT012', '2025-01-25', 3000000.00, N'Tiền mặt', 'DV110'),
-('TT013', '2025-05-07', 1000000.00, N'Thẻ tín dụng', 'DV073'),
-('TT014', '2025-02-09', 2000000.00, N'Chuyển khoản', 'DV018'),
-('TT015', '2025-04-14', 3000000.00, N'Tiền mặt', 'DV099'),
-('TT016', '2025-03-18', 1000000.00, N'Thẻ tín dụng', 'DV031'),
-('TT017', '2025-01-02', 2000000.00, N'Chuyển khoản', 'DV065'),
-('TT018', '2025-05-20', 3000000.00, N'Tiền mặt', 'DV105'),
-('TT019', '2025-02-23', 1000000.00, N'Thẻ tín dụng', 'DV047'),
-('TT020', '2025-04-28', 2000000.00, N'Chuyển khoản', 'DV080'),
-('TT021', '2025-03-07', 3000000.00, N'Tiền mặt', 'DV009'),
-('TT022', '2025-01-11', 1000000.00, N'Thẻ tín dụng', 'DV059'),
-('TT023', '2025-05-16', 2000000.00, N'Chuyển khoản', 'DV096'),
-('TT024', '2025-02-04', 3000000.00, N'Tiền mặt', 'DV027'),
-('TT025', '2025-04-10', 1000000.00, N'Thẻ tín dụng', 'DV113'),
-('TT026', '2025-03-29', 2000000.00, N'Chuyển khoản', 'DV044'),
-('TT027', '2025-01-17', 3000000.00, N'Tiền mặt', 'DV078'),
-('TT028', '2025-05-03', 1000000.00, N'Thẻ tín dụng', 'DV015'),
-('TT029', '2025-02-19', 2000000.00, N'Chuyển khoản', 'DV090'),
-('TT030', '2025-04-24', 3000000.00, N'Tiền mặt', 'DV036'),
-('TT031', '2025-03-12', 1000000.00, N'Thẻ tín dụng', 'DV062'),
-('TT032', '2025-01-05', 2000000.00, N'Chuyển khoản', 'DV108'),
-('TT033', '2025-05-09', 3000000.00, N'Tiền mặt', 'DV050'),
-('TT034', '2025-02-10', 1000000.00, N'Thẻ tín dụng', 'DV083'),
-('TT035', '2025-04-16', 2000000.00, N'Chuyển khoản', 'DV021'),
-('TT036', '2025-03-25', 3000000.00, N'Tiền mặt', 'DV094'),
-('TT037', '2025-01-13', 1000000.00, N'Thẻ tín dụng', 'DV034'),
-('TT038', '2025-05-18', 2000000.00, N'Chuyển khoản', 'DV060'),
-('TT039', '2025-02-06', 3000000.00, N'Tiền mặt', 'DV102'),
-('TT040', '2025-04-22', 1000000.00, N'Thẻ tín dụng', 'DV045'),
-('TT041', '2025-03-01', 2000000.00, N'Chuyển khoản', 'DV071'),
-('TT042', '2025-01-28', 3000000.00, N'Tiền mặt', 'DV003'),
-('TT043', '2025-05-05', 1000000.00, N'Thẻ tín dụng', 'DV085'),
-('TT044', '2025-02-12', 2000000.00, N'Chuyển khoản', 'DV025'),
-('TT045', '2025-04-08', 3000000.00, N'Tiền mặt', 'DV098'),
-('TT046', '2025-03-20', 1000000.00, N'Thẻ tín dụng', 'DV038'),
-('TT047', '2025-01-09', 2000000.00, N'Chuyển khoản', 'DV069'),
-('TT048', '2025-05-14', 3000000.00, N'Tiền mặt', 'DV111'),
-('TT049', '2025-02-01', 1000000.00, N'Thẻ tín dụng', 'DV049'),
-('TT050', '2025-04-26', 2000000.00, N'Chuyển khoản', 'DV081'),
-('TT051', '2025-03-06', 3000000.00, N'Tiền mặt', 'DV010'),
-('TT052', '2025-01-10', 1000000.00, N'Thẻ tín dụng', 'DV058'),
-('TT053', '2025-05-15', 2000000.00, N'Chuyển khoản', 'DV095'),
-('TT054', '2025-02-03', 3000000.00, N'Tiền mặt', 'DV026'),
-('TT055', '2025-04-09', 1000000.00, N'Thẻ tín dụng', 'DV112'),
-('TT056', '2025-03-28', 2000000.00, N'Chuyển khoản', 'DV043'),
-('TT057', '2025-01-16', 3000000.00, N'Tiền mặt', 'DV077'),
-('TT058', '2025-05-02', 1000000.00, N'Thẻ tín dụng', 'DV014'),
-('TT059', '2025-02-18', 2000000.00, N'Chuyển khoản', 'DV089'),
-('TT060', '2025-04-23', 3000000.00, N'Tiền mặt', 'DV035'),
-('TT061', '2025-03-11', 1000000.00, N'Thẻ tín dụng', 'DV061'),
-('TT062', '2025-01-04', 2000000.00, N'Chuyển khoản', 'DV107'),
-('TT063', '2025-05-08', 3000000.00, N'Tiền mặt', 'DV048'),
-('TT064', '2025-02-09', 1000000.00, N'Thẻ tín dụng', 'DV082'),
-('TT065', '2025-04-15', 2000000.00, N'Chuyển khoản', 'DV020'),
-('TT066', '2025-03-24', 3000000.00, N'Tiền mặt', 'DV093'),
-('TT067', '2025-01-12', 1000000.00, N'Thẻ tín dụng', 'DV033'),
-('TT068', '2025-05-17', 2000000.00, N'Chuyển khoản', 'DV057'),
-('TT069', '2025-02-05', 3000000.00, N'Tiền mặt', 'DV100'),
-('TT070', '2025-04-21', 1000000.00, N'Thẻ tín dụng', 'DV046'),
-('TT071', '2025-03-02', 2000000.00, N'Chuyển khoản', 'DV070'),
-('TT072', '2025-01-27', 3000000.00, N'Tiền mặt', 'DV002'),
-('TT073', '2025-05-04', 1000000.00, N'Thẻ tín dụng', 'DV084'),
-('TT074', '2025-02-11', 2000000.00, N'Chuyển khoản', 'DV024'),
-('TT075', '2025-04-07', 3000000.00, N'Tiền mặt', 'DV097'),
-('TT076', '2025-03-19', 1000000.00, N'Thẻ tín dụng', 'DV037'),
-('TT077', '2025-01-07', 2000000.00, N'Chuyển khoản', 'DV067'),
-('TT078', '2025-05-13', 3000000.00, N'Tiền mặt', 'DV109'),
-('TT079', '2025-02-28', 1000000.00, N'Thẻ tín dụng', 'DV040'),
-('TT080', '2025-04-25', 2000000.00, N'Chuyển khoản', 'DV079'),
-('TT081', '2025-03-05', 3000000.00, N'Tiền mặt', 'DV008'),
-('TT082', '2025-01-06', 1000000.00, N'Thẻ tín dụng', 'DV056'),
-('TT083', '2025-05-12', 2000000.00, N'Chuyển khoản', 'DV091'),
-('TT084', '2025-02-02', 3000000.00, N'Tiền mặt', 'DV022'),
-('TT085', '2025-04-18', 1000000.00, N'Thẻ tín dụng', 'DV106'),
-('TT086', '2025-03-27', 2000000.00, N'Chuyển khoản', 'DV042'),
-('TT087', '2025-01-15', 3000000.00, N'Tiền mặt', 'DV075'),
-('TT088', '2025-05-01', 1000000.00, N'Thẻ tín dụng', 'DV013'),
-('TT089', '2025-02-17', 2000000.00, N'Chuyển khoản', 'DV088'),
-('TT090', '2025-04-20', 3000000.00, N'Tiền mặt', 'DV030'),
-('TT091', '2025-03-10', 1000000.00, N'Thẻ tín dụng', 'DV066'),
-('TT092', '2025-01-03', 2000000.00, N'Chuyển khoản', 'DV104'),
-('TT093', '2025-05-06', 3000000.00, N'Tiền mặt', 'DV054'),
-('TT094', '2025-02-08', 1000000.00, N'Thẻ tín dụng', 'DV086'),
-('TT095', '2025-04-13', 2000000.00, N'Chuyển khoản', 'DV019'),
-('TT096', '2025-03-23', 3000000.00, N'Tiền mặt', 'DV099'),
-('TT097', '2025-01-14', 1000000.00, N'Thẻ tín dụng', 'DV032'),
-('TT098', '2025-05-19', 2000000.00, N'Chuyển khoản', 'DV064'),
-('TT099', '2025-02-07', 3000000.00, N'Tiền mặt', 'DV103'),
-('TT100', '2025-04-20', 1000000.00, N'Thẻ tín dụng', 'DV045');
+-- Hạng nhất (5 ghế đã đặt)
+('TT203-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV053'),
+('TT203-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV054'),
+('TT203-003', '2025-05-22', 3000000.00, N'Chuyển khoản', 'DV055'),
+('TT203-004', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV056'),
+('TT203-005', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV057'),
 
+-- Thương gia (25 ghế đã đặt)
+('TT203-006', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV058'),
+('TT203-007', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV059'),
+('TT203-008', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV060'),
+('TT203-009', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV061'),
+('TT203-010', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV062'),
+('TT203-011', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV063'),
+('TT203-012', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV064'),
+('TT203-013', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV065'),
+('TT203-014', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV066'),
+('TT203-015', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV067'),
+('TT203-016', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV068'),
+('TT203-017', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV069'),
+('TT203-018', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV070'),
+('TT203-019', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV071'),
+('TT203-020', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV072'),
+('TT203-021', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV073'),
+('TT203-022', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV074'),
+('TT203-023', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV075'),
+('TT203-024', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV076'),
+('TT203-025', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV077'),
+('TT203-026', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV078'),
+('TT203-027', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV079'),
+('TT203-028', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV080'),
+('TT203-029', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV081'),
+
+-- Phổ thông (40 ghế đã đặt)
+('TT203-030', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV082'),
+('TT203-031', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV083'),
+('TT203-032', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV084'),
+('TT203-033', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV085'),
+('TT203-034', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV086'),
+('TT203-035', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV087'),
+('TT203-036', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV088'),
+('TT203-037', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV089'),
+('TT203-038', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV090'),
+('TT203-039', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV091'),
+('TT203-040', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV092'),
+('TT203-041', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV093'),
+('TT203-042', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV094'),
+('TT203-043', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV095'),
+('TT203-044', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV096'),
+('TT203-045', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV097'),
+('TT203-046', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV098'),
+('TT203-047', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV099'),
+('TT203-048', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV100'),
+('TT203-049', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV101'),
+('TT203-050', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV102'),
+('TT203-051', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV103'),
+('TT203-052', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV104'),
+('TT203-053', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV105'),
+('TT203-054', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV106'),
+('TT203-055', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV107'),
+('TT203-056', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV108'),
+('TT203-057', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV109'),
+('TT203-058', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV110'),
+('TT203-059', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV111'),
+('TT203-060', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV112'),
+('TT203-061', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV113'),
+('TT203-062', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV114'),
+('TT203-063', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV115'),
+('TT203-064', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV116'),
+('TT203-065', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV117'),
+('TT203-066', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV118'),
+('TT203-067', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV119'),
+('TT203-068', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV120'),
+('TT203-069', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV121'),
+('TT203-070', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV122'),
+('TT203-071', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV123'),
+('TT203-072', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV124'),
+('TT203-073', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV125'),
+('TT203-074', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV126'),
+('TT203-075', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV127'),
+('TT203-076', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV128'),
+('TT203-077', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV129'),
+('TT203-078', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV130'),
+('TT203-079', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV131'),
+('TT203-080', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV132'),
+('TT203-081', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV133'),
+('TT203-082', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV134'),
+('TT203-083', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV135'),
+('TT203-084', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV136');
+INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
+-- Hạng nhất (2 ghế đã đặt)
+('TT202-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV043'),
+('TT202-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV044'),
+
+-- Thương gia (3 ghế đã đặt)
+('TT202-003', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV045'),
+('TT202-004', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV046'),
+('TT202-005', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV047'),
+
+-- Phổ thông (5 ghế đã đặt)
+('TT202-006', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV048'),
+('TT202-007', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV049'),
+('TT202-008', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV050'),
+('TT202-009', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV051'),
+('TT202-010', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV052');
+INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
+-- Hạng nhất (5 ghế đã đặt)
+('TT201-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV001'),
+('TT201-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV002'),
+('TT201-003', '2025-05-22', 3000000.00, N'Chuyển khoản', 'DV003'),
+('TT201-004', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV004'),
+('TT201-005', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV005'),
+
+-- Thương gia (9 ghế đã đặt)
+('TT201-006', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV006'),
+('TT201-007', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV007'),
+('TT201-008', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV008'),
+('TT201-009', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV009'),
+('TT201-010', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV010'),
+('TT201-011', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV011'),
+('TT201-012', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV012'),
+('TT201-013', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV013'),
+('TT201-014', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV014'),
+
+-- Phổ thông (28 ghế đã đặt)
+('TT201-015', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV015'),
+('TT201-016', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV016'),
+('TT201-017', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV017'),
+('TT201-018', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV018'),
+('TT201-019', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV019'),
+('TT201-020', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV020'),
+('TT201-021', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV021'),
+('TT201-022', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV022'),
+('TT201-023', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV023'),
+('TT201-024', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV024'),
+('TT201-025', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV025'),
+('TT201-026', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV026'),
+('TT201-027', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV027'),
+('TT201-028', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV028'),
+('TT201-029', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV029'),
+('TT201-030', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV030'),
+('TT201-031', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV031'),
+('TT201-032', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV032'),
+('TT201-033', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV033'),
+('TT201-034', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV034'),
+('TT201-035', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV035'),
+('TT201-036', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV036'),
+('TT201-037', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV037'),
+('TT201-038', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV038'),
+('TT201-039', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV039'),
+('TT201-040', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV040'),
+('TT201-041', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV041'),
+('TT201-042', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV042');
+INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
+-- Các thanh toán cho vé Hạng nhất (SoTien = 3000000.00)
+('TT205-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV137'),
+('TT205-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV138'),
+('TT205-003', '2025-05-22', 3000000.00, N'Chuyển khoản', 'DV139'),
+
+-- Các thanh toán cho vé Thương gia (SoTien = 2000000.00)
+('TT205-004', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV140'),
+('TT205-005', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV141'),
+('TT205-006', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV142'),
+('TT205-007', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV143'),
+('TT205-008', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV144'),
+('TT205-009', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV145'),
+('TT205-010', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV146'),
+
+-- Các thanh toán cho vé Phổ thông (SoTien = 1000000.00)
+('TT205-011', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV147'),
+('TT205-012', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV148'),
+('TT205-013', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV149'),
+('TT205-014', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV150'),
+('TT205-015', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV151'),
+('TT205-016', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV152'),
+('TT205-017', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV153'),
+('TT205-018', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV154'),
+('TT205-019', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV155'),
+('TT205-020', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV156');
+
+
+------
+INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
+('HD205-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-001'),
+('HD205-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-002'),
+('HD205-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-003'),
+('HD205-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-004'),
+('HD205-005', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-005'),
+('HD205-006', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-006'),
+('HD205-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-007'),
+('HD205-008', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-008'),
+('HD205-009', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-009'),
+('HD205-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-010'),
+('HD205-011', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-011'),
+('HD205-012', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-012'),
+('HD205-013', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-013'),
+('HD205-014', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-014'),
+('HD205-015', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-015'),
+('HD205-016', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-016'),
+('HD205-017', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-017'),
+('HD205-018', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-018'),
+('HD205-019', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-019'),
+('HD205-020', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-020');
 
 INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
-('HD001', '2025-03-13', N'Thẻ tín dụng', '2025-03-15', 'TT001'),
-('HD002', '2025-01-14', N'Tiền mặt', '2025-01-20', 'TT002'),
-('HD003', '2025-04-26', N'Chuyển khoản', '2025-05-01', 'TT003'),
-('HD004', '2025-02-23', N'Thẻ tín dụng', '2025-02-28', 'TT004'),
-('HD005', '2025-03-29', N'Chuyển khoản', '2025-04-05', 'TT005'),
-('HD006', '2025-03-15', N'Tiền mặt', '2025-03-22', 'TT006'),
-('HD007', '2025-01-02', N'Thẻ tín dụng', '2025-01-08', 'TT007'),
-('HD008', '2025-05-06', N'Chuyển khoản', '2025-05-11', 'TT008'),
-('HD009', '2025-02-11', N'Tiền mặt', '2025-02-14', 'TT009'),
-('HD010', '2025-04-12', N'Thẻ tín dụng', '2025-04-19', 'TT010'),
-('HD011', '2025-02-27', N'Chuyển khoản', '2025-03-03', 'TT011'),
-('HD012', '2025-01-20', N'Tiền mặt', '2025-01-25', 'TT012'),
-('HD013', '2025-05-03', N'Thẻ tín dụng', '2025-05-07', 'TT013'),
-('HD014', '2025-02-03', N'Chuyển khoản', '2025-02-09', 'TT014'),
-('HD015', '2025-04-07', N'Tiền mặt', '2025-04-14', 'TT015'),
-('HD016', '2025-03-11', N'Thẻ tín dụng', '2025-03-18', 'TT016'),
-('HD017', '2025-01-01', N'Chuyển khoản', '2025-01-02', 'TT017'),
-('HD018', '2025-05-13', N'Tiền mặt', '2025-05-20', 'TT018'),
-('HD019', '2025-02-17', N'Thẻ tín dụng', '2025-02-23', 'TT019'),
-('HD020', '2025-04-22', N'Chuyển khoản', '2025-04-28', 'TT020'),
-('HD021', '2025-03-01', N'Tiền mặt', '2025-03-07', 'TT021'),
-('HD022', '2025-01-05', N'Thẻ tín dụng', '2025-01-11', 'TT022'),
-('HD023', '2025-05-10', N'Chuyển khoản', '2025-05-16', 'TT023'),
-('HD024', '2025-01-28', N'Tiền mặt', '2025-02-04', 'TT024'),
-('HD025', '2025-04-05', N'Thẻ tín dụng', '2025-04-10', 'TT025'),
-('HD026', '2025-03-22', N'Chuyển khoản', '2025-03-29', 'TT026'),
-('HD027', '2025-01-10', N'Tiền mặt', '2025-01-17', 'TT027'),
-('HD028', '2025-04-27', N'Thẻ tín dụng', '2025-05-03', 'TT028'),
-('HD029', '2025-02-13', N'Chuyển khoản', '2025-02-19', 'TT029'),
-('HD030', '2025-04-17', N'Tiền mặt', '2025-04-24', 'TT030'),
-('HD031', '2025-03-06', N'Thẻ tín dụng', '2025-03-12', 'TT031'),
-('HD032', '2025-01-01', N'Chuyển khoản', '2025-01-05', 'TT032'),
-('HD033', '2025-05-02', N'Tiền mặt', '2025-05-09', 'TT033'),
-('HD034', '2025-02-04', N'Thẻ tín dụng', '2025-02-10', 'TT034'),
-('HD035', '2025-04-09', N'Chuyển khoản', '2025-04-16', 'TT035'),
-('HD036', '2025-03-18', N'Tiền mặt', '2025-03-25', 'TT036'),
-('HD037', '2025-01-06', N'Thẻ tín dụng', '2025-01-13', 'TT037'),
-('HD038', '2025-05-11', N'Chuyển khoản', '2025-05-18', 'TT038'),
-('HD039', '2025-01-31', N'Tiền mặt', '2025-02-06', 'TT039'),
-('HD040', '2025-04-15', N'Thẻ tín dụng', '2025-04-22', 'TT040'),
-('HD041', '2025-02-23', N'Chuyển khoản', '2025-03-01', 'TT041'),
-('HD042', '2025-01-21', N'Tiền mặt', '2025-01-28', 'TT042'),
-('HD043', '2025-04-29', N'Thẻ tín dụng', '2025-05-05', 'TT043'),
-('HD044', '2025-02-06', N'Chuyển khoản', '2025-02-12', 'TT044'),
-('HD045', '2025-04-01', N'Tiền mặt', '2025-04-08', 'TT045'),
-('HD046', '2025-03-14', N'Thẻ tín dụng', '2025-03-20', 'TT046'),
-('HD047', '2025-01-03', N'Chuyển khoản', '2025-01-09', 'TT047'),
-('HD048', '2025-05-07', N'Tiền mặt', '2025-05-14', 'TT048'),
-('HD049', '2025-01-26', N'Thẻ tín dụng', '2025-02-01', 'TT049'),
-('HD050', '2025-04-19', N'Chuyển khoản', '2025-04-26', 'TT050'),
-('HD051', '2025-02-28', N'Tiền mặt', '2025-03-06', 'TT051'),
-('HD052', '2025-01-04', N'Thẻ tín dụng', '2025-01-10', 'TT052'),
-('HD053', '2025-05-08', N'Chuyển khoản', '2025-05-15', 'TT053'),
-('HD054', '2025-01-28', N'Tiền mặt', '2025-02-03', 'TT054'),
-('HD055', '2025-04-02', N'Thẻ tín dụng', '2025-04-09', 'TT055'),
-('HD056', '2025-03-21', N'Chuyển khoản', '2025-03-28', 'TT056'),
-('HD057', '2025-01-10', N'Tiền mặt', '2025-01-16', 'TT057'),
-('HD058', '2025-04-26', N'Thẻ tín dụng', '2025-05-02', 'TT058'),
-('HD059', '2025-02-12', N'Chuyển khoản', '2025-02-18', 'TT059'),
-('HD060', '2025-04-16', N'Tiền mặt', '2025-04-23', 'TT060'),
-('HD061', '2025-03-04', N'Thẻ tín dụng', '2025-03-11', 'TT061'),
-('HD062', '2025-01-01', N'Chuyển khoản', '2025-01-04', 'TT062'),
-('HD063', '2025-05-01', N'Tiền mặt', '2025-05-08', 'TT063'),
-('HD064', '2025-02-03', N'Thẻ tín dụng', '2025-02-09', 'TT064'),
-('HD065', '2025-04-08', N'Chuyển khoản', '2025-04-15', 'TT065'),
-('HD066', '2025-03-17', N'Tiền mặt', '2025-03-24', 'TT066'),
-('HD067', '2025-01-06', N'Thẻ tín dụng', '2025-01-12', 'TT067'),
-('HD068', '2025-05-10', N'Chuyển khoản', '2025-05-17', 'TT068'),
-('HD069', '2025-01-30', N'Tiền mặt', '2025-02-05', 'TT069'),
-('HD070', '2025-04-14', N'Thẻ tín dụng', '2025-04-21', 'TT070'),
-('HD071', '2025-02-24', N'Chuyển khoản', '2025-03-02', 'TT071'),
-('HD072', '2025-01-20', N'Tiền mặt', '2025-01-27', 'TT072'),
-('HD073', '2025-04-28', N'Thẻ tín dụng', '2025-05-04', 'TT073'),
-('HD074', '2025-02-05', N'Chuyển khoản', '2025-02-11', 'TT074'),
-('HD075', '2025-04-01', N'Tiền mặt', '2025-04-07', 'TT075'),
-('HD076', '2025-03-12', N'Thẻ tín dụng', '2025-03-19', 'TT076'),
-('HD077', '2025-01-01', N'Chuyển khoản', '2025-01-07', 'TT077'),
-('HD078', '2025-05-06', N'Tiền mặt', '2025-05-13', 'TT078'),
-('HD079', '2025-02-23', N'Thẻ tín dụng', '2025-02-28', 'TT079'),
-('HD080', '2025-04-18', N'Chuyển khoản', '2025-04-25', 'TT080'),
-('HD081', '2025-02-27', N'Tiền mặt', '2025-03-05', 'TT081'),
-('HD082', '2025-01-01', N'Thẻ tín dụng', '2025-01-06', 'TT082'),
-('HD083', '2025-05-05', N'Chuyển khoản', '2025-05-12', 'TT083'),
-('HD084', '2025-01-27', N'Tiền mặt', '2025-02-02', 'TT084'),
-('HD085', '2025-04-11', N'Thẻ tín dụng', '2025-04-18', 'TT085'),
-('HD086', '2025-03-20', N'Chuyển khoản', '2025-03-27', 'TT086'),
-('HD087', '2025-01-08', N'Tiền mặt', '2025-01-15', 'TT087'),
-('HD088', '2025-04-25', N'Thẻ tín dụng', '2025-05-01', 'TT088'),
-('HD089', '2025-02-11', N'Chuyển khoản', '2025-02-17', 'TT089'),
-('HD090', '2025-04-13', N'Tiền mặt', '2025-04-20', 'TT090'),
-('HD091', '2025-03-03', N'Thẻ tín dụng', '2025-03-10', 'TT091'),
-('HD092', '2025-01-01', N'Chuyển khoản', '2025-01-03', 'TT092'),
-('HD093', '2025-04-29', N'Tiền mặt', '2025-05-06', 'TT093'),
-('HD094', '2025-02-02', N'Thẻ tín dụng', '2025-02-08', 'TT094'),
-('HD095', '2025-04-06', N'Chuyển khoản', '2025-04-13', 'TT095'),
-('HD096', '2025-03-16', N'Tiền mặt', '2025-03-23', 'TT096'),
-('HD097', '2025-01-07', N'Thẻ tín dụng', '2025-01-14', 'TT097'),
-('HD098', '2025-05-12', N'Chuyển khoản', '2025-05-19', 'TT098'),
-('HD099', '2025-02-01', N'Tiền mặt', '2025-02-07', 'TT099'),
-('HD100', '2025-04-13', N'Thẻ tín dụng', '2025-04-20', 'TT100');
-GO
+('HD203-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-001'),
+('HD203-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-002'),
+('HD203-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-003'),
+('HD203-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-004'),
+('HD203-005', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-005'),
+('HD203-006', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-006'),
+('HD203-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-007'),
+('HD203-008', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-008'),
+('HD203-009', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-009'),
+('HD203-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-010'),
+('HD203-011', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-011'),
+('HD203-012', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-012'),
+('HD203-013', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-013'),
+('HD203-014', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-014'),
+('HD203-015', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-015'),
+('HD203-016', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-016'),
+('HD203-017', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-017'),
+('HD203-018', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-018'),
+('HD203-019', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-019'),
+('HD203-020', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-020'),
+('HD203-021', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-021'),
+('HD203-022', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-022'),
+('HD203-023', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-023'),
+('HD203-024', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-024'),
+('HD203-025', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-025'),
+('HD203-026', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-026'),
+('HD203-027', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-027'),
+('HD203-028', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-028'),
+('HD203-029', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-029'),
+('HD203-030', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-030'),
+('HD203-031', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-031'),
+('HD203-032', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-032'),
+('HD203-033', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-033'),
+('HD203-034', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-034'),
+('HD203-035', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-035'),
+('HD203-036', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-036'),
+('HD203-037', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-037'),
+('HD203-038', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-038'),
+('HD203-039', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-039'),
+('HD203-040', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-040'),
+('HD203-041', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-041'),
+('HD203-042', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-042'),
+('HD203-043', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-043'),
+('HD203-044', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-044'),
+('HD203-045', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-045'),
+('HD203-046', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-046'),
+('HD203-047', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-047'),
+('HD203-048', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-048'),
+('HD203-049', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-049'),
+('HD203-050', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-050'),
+('HD203-051', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-051'),
+('HD203-052', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-052'),
+('HD203-053', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-053'),
+('HD203-054', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-054'),
+('HD203-055', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-055'),
+('HD203-056', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-056'),
+('HD203-057', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-057'),
+('HD203-058', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-058'),
+('HD203-059', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-059'),
+('HD203-060', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-060'),
+('HD203-061', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-061'),
+('HD203-062', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-062'),
+('HD203-063', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-063'),
+('HD203-064', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-064'),
+('HD203-065', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-065'),
+('HD203-066', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-066'),
+('HD203-067', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-067'),
+('HD203-068', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-068'),
+('HD203-069', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-069'),
+('HD203-070', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-070'),
+('HD203-071', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-071'),
+('HD203-072', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-072'),
+('HD203-073', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-073'),
+('HD203-074', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-074'),
+('HD203-075', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-075'),
+('HD203-076', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-076'),
+('HD203-077', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-077'),
+('HD203-078', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-078'),
+('HD203-079', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-079'),
+('HD203-080', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-080'),
+('HD203-081', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-081'),
+('HD203-082', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-082'),
+('HD203-083', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-083'),
+('HD203-084', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-084');
+
+INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
+('HD202-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-001'),
+('HD202-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT202-002'),
+('HD202-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT202-003'),
+('HD202-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-004'),
+('HD202-005', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT202-005'),
+('HD202-006', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT202-006'),
+('HD202-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-007'),
+('HD202-008', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT202-008'),
+('HD202-009', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT202-009'),
+('HD202-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-010');
+
+INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
+('HD201-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-001'),
+('HD201-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-002'),
+('HD201-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-003'),
+('HD201-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-004'),
+('HD201-005', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-005'),
+('HD201-006', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-006'),
+('HD201-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-007'),
+('HD201-008', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-008'),
+('HD201-009', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-009'),
+('HD201-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-010'),
+('HD201-011', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-011'),
+('HD201-012', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-012'),
+('HD201-013', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-013'),
+('HD201-014', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-014'),
+('HD201-015', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-015'),
+('HD201-016', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-016'),
+('HD201-017', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-017'),
+('HD201-018', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-018'),
+('HD201-019', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-019'),
+('HD201-020', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-020'),
+('HD201-021', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-021'),
+('HD201-022', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-022'),
+('HD201-023', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-023'),
+('HD201-024', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-024'),
+('HD201-025', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-025'),
+('HD201-026', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-026'),
+('HD201-027', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-027'),
+('HD201-028', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-028'),
+('HD201-029', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-029'),
+('HD201-030', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-030'),
+('HD201-031', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-031'),
+('HD201-032', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-032'),
+('HD201-033', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-033'),
+('HD201-034', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-034'),
+('HD201-035', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-035'),
+('HD201-036', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-036'),
+('HD201-037', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-037'),
+('HD201-038', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-038'),
+('HD201-039', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-039'),
+('HD201-040', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-040'),
+('HD201-041', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-041'),
+('HD201-042', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-042');
