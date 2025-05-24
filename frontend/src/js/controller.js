@@ -208,6 +208,7 @@ function openControllerModal(mode, controller = null) {
 // Save controller data
 // controller.js
 async function saveController() {
+    console.log("");
     const form = document.getElementById('controllerForm');
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
@@ -225,13 +226,13 @@ async function saveController() {
     // Định dạng dữ liệu gửi đi
     const payload = {
         maNV: data.maNV,
+        taiKhoan: data.taiKhoan, // Send taiKhoan as a separate field
         ten: data.hoTen,
         email: data.email,
         sdt: data.soDienThoai,
         ngaySinh: new Date(data.ngaySinh).toISOString().split('T')[0],
         gioiTinh: data.gioiTinh,
         soCCCD: data.CMND_CCCD,
-        taiKhoan: data.maNV, // Giả sử taiKhoan trùng với maNV, hoặc lấy từ input riêng
         matKhau: data.matKhau || undefined
     };
 
@@ -257,7 +258,13 @@ async function saveController() {
         alert(window.currentMode === 'add' ? 'Thêm nhân viên kiểm soát thành công' : 'Cập nhật nhân viên kiểm soát thành công');
     } catch (error) {
         console.error('Error saving controller:', error);
-        alert('Có lỗi xảy ra khi lưu dữ liệu: ' + error.message);
+        if (error.message.includes('Tài khoản đã tồn tại')) {
+            alert('Tài khoản đã tồn tại. Vui lòng chọn tài khoản khác.');
+        } else if (error.message.includes('Mã nhân viên đã tồn tại')) {
+            alert('Mã nhân viên đã tồn tại. Vui lòng chọn mã nhân viên khác.');
+        } else {
+            alert('Có lỗi xảy ra khi lưu dữ liệu: ' + error.message);
+        }
     }
 }
 
