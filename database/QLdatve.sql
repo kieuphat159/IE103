@@ -138,6 +138,24 @@ BEGIN
 END;
 GO
 
+CREATE TRIGGER trg_Check_Flight_Status
+ON ThongTinDatVe
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN ChuyenBay cb ON i.MaChuyenBay = cb.MaChuyenBay
+        WHERE cb.TinhTrangChuyenBay != N'Chưa khởi hành'
+    )
+    BEGIN
+        RAISERROR (N'Chỉ có thể đặt vé cho các chuyến bay chưa khởi hành!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
+
 -- Trigger kiểm tra số lượng ghế trống trước khi đặt vé
 CREATE TRIGGER trg_Check_Available_Seats
 ON ThongTinDatVe

@@ -896,7 +896,6 @@ app.get('/api/bookings/generate-code', async (req, res) => {
 
 
 // API đặt vé
-// API đặt vé
 app.post('/api/bookings', async (req, res) => {
     const { MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, HangGhe, SoTien, MaChuyenBay, MaKH } = req.body;
 
@@ -908,7 +907,27 @@ app.post('/api/bookings', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Chọn ghế trống theo HangGhe
+        // Kiểm tra trạng thái chuyến bay
+        const flightCheck = await transaction.request()
+            .input('maChuyenBay', sql.VarChar, MaChuyenBay)
+            .query(`
+                SELECT TinhTrangChuyenBay, GioBay
+                FROM ChuyenBay
+                WHERE MaChuyenBay = @maChuyenBay
+            `);
+
+        if (flightCheck.recordset.length === 0) {
+            await transaction.rollback();
+            return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
+        }
+
+        const { TinhTrangChuyenBay, GioBay } = flightCheck.recordset[0];
+        if (TinhTrangChuyenBay !== 'Chưa khởi hành' || new Date(GioBay) < new Date()) {
+            await transaction.rollback();
+            return res.status(400).json({ error: 'Chỉ có thể đặt vé cho các chuyến bay chưa khởi hành và chưa đến giờ bay' });
+        }
+
+        // Kiểm tra ghế trống
         const seatResult = await transaction.request()
             .input('maChuyenBay', sql.VarChar, MaChuyenBay)
             .input('hangGhe', sql.NVarChar, HangGhe)
@@ -925,15 +944,14 @@ app.post('/api/bookings', async (req, res) => {
             return res.status(400).json({ error: `Hết ghế ở hạng ${HangGhe} cho chuyến bay này.` });
         }
 
-        const soGhe = seatResult.recordset[0].SoGhe; // This is already an INT from the DB
+        const soGhe = seatResult.recordset[0].SoGhe;
 
-        // Gọi stored procedure để thêm đặt vé
         await transaction.request()
             .input('maDatVe', sql.VarChar, MaDatVe)
             .input('ngayDatVe', sql.Date, NgayDatVe)
             .input('ngayBay', sql.Date, NgayBay)
             .input('trangThaiThanhToan', sql.NVarChar, TrangThaiThanhToan)
-            .input('soGhe', sql.Int, soGhe) // Explicitly set as INT
+            .input('soGhe', sql.Int, soGhe)
             .input('soTien', sql.Decimal(18, 2), SoTien)
             .input('maChuyenBay', sql.VarChar, MaChuyenBay)
             .input('maKH', sql.VarChar, MaKH)
@@ -946,6 +964,14 @@ app.post('/api/bookings', async (req, res) => {
         if (transaction) await transaction.rollback();
         console.error('Lỗi khi đặt vé:', err);
         res.status(500).json({ error: 'Lỗi server khi đặt vé: ' + err.message });
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (err) {
+                console.error('Lỗi khi đóng kết nối pool:', err);
+            }
+        }
     }
 });
 
