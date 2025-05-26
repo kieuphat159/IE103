@@ -127,6 +127,7 @@ app.post('/api/controllers', async (req, res) => {
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
+        const VaiTro = 'Employee'
 
         await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
@@ -137,9 +138,10 @@ app.post('/api/controllers', async (req, res) => {
             .input('ngaySinh', sql.Date, ngaySinh)
             .input('gioiTinh', sql.NVarChar, gioiTinh)
             .input('soCCCD', sql.VarChar, soCCCD)
+            .input('vaiTro', sql.VarChar, VaiTro)
             .query(`
-                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD)
-                VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
+                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD, VaiTro)
+                VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD, @vaiTro)
             `);
 
         await transaction.request()
@@ -212,6 +214,7 @@ app.post('/api/customers', async (req, res) => {
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
+        const vaiTro = 'Customer'
 
         await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
@@ -222,9 +225,10 @@ app.post('/api/customers', async (req, res) => {
             .input('ngaySinh', sql.Date, ngaySinh)
             .input('gioiTinh', sql.NVarChar, gioiTinh)
             .input('soCCCD', sql.VarChar, soCCCD)
+            .input('vaiTro', sql.VarChar, vaiTro)
             .query(`
-                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD)
-                VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD)
+                INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD, VaiTro)
+                VALUES (@taiKhoan, @ten, @matKhau, @email, @sdt, @ngaySinh, @gioiTinh, @soCCCD, @vaiTro)
             `);
 
         await transaction.request()

@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const table = document.createElement('table');
         table.classList.add('vertical-table');
 
-        const headers = ['Mã KH', 'Tên', 'Email', 'Số Điện Thoại', 'Địa Chỉ', 'Passport'];
+        const headers = ['Mã KH', 'Tên', 'Email', 'Số Điện Thoại', 'Passport'];
 
         if (!data || Object.keys(data).length === 0) {
             const noDataMessage = document.createElement('p');
