@@ -1,7 +1,5 @@
 CREATE USER [AppUser] FOR LOGIN [AppUser];
 GO
-EXEC sp_addrolemember 'AdminRole', 'AppUser';
-GO
 -- Tạo các vai trò trong SQL Server
 CREATE ROLE AdminRole;
 CREATE ROLE EmployeeRole;
