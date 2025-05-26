@@ -57,6 +57,7 @@
      npm install
      npm install cors
      ```
+   - ***<u>Cấu hình dbconfig trong </u>*** `server.js`***<u>:</u>***
 
 4. ***<u>Khởi động backend:</u>***
 
