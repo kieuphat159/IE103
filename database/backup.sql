@@ -1,0 +1,2 @@
+BACKUP DATABASE QLdatve
+TO DISK = 'C:\Backup\QLdatve.BAK'
