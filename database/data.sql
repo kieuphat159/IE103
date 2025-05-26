@@ -1,1841 +1,385 @@
--- nguoidung 
-INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD, Vaitro) VALUES
-('nguyenvana', N'Nguyễn Van A', '$2b$10$tD4h9t1j2n3m4l5k6j7i8OQd.zS2m.yA6fG7h8i9j0q1w2e3r4t5y6u7i8o9p0', 'nguyenvana@gmail.com', '0901234567', '1990-05-15', N'Nam', '001123456789', 'Customer'),
-('tranthinga', N'Trần Thị Nga', '$2b$10$uV5i0o1p2q3w4e5r6t7y8.vW5b.xC7d.xE7f.xG7h.xI7j.xK7l.xM7n.xO7p.xQ7r.xS7t.xV7u.xX7v.xZ7w.yA8x.yB8y.yC8z', 'tranthinga@gmail.com', '0902345678', '1992-11-22', N'Nữ', '002234567890', 'Customer'),
-('leminhhai', N'Lê Minh Hải', '$2b$10$wX6k1j2h3g4f5d6s7a8Qj.zP3n.yC7d.xM8n.xO8p.xQ8r.xS8t.xV8u.xX8v.xZ8w.yA9x.yB9y.yC9z', 'leminhhai@gmail.com', '0903456789', '1988-03-01', N'Nam', '003345678901', 'Customer'),
-('phamthihuong', N'Phạm Thị Hương', '$2b$10$xY7l2k3j4h5g6f7d8s9Qk.zR4o.yD8e.xN9o.xP9q.xR9s.xT9u.xW9v.xY9w.xZ9x.yA0y.yB0z', 'phamhuong@gmail.com', '0904567890', '1995-07-30', N'Nữ', '004456789012', 'Customer'),
-('hoanganhtuan', N'Hoàng Anh Tuấn', '$2b$10$zZ8m3l4k5j6h7g8f9d0Qi.zS5p.yE9f.xO0p.xQ0r.xS0s.xU0t.xW0u.xY0v.xZ0w.yA1x.yB1y.yC1z', 'hoanganhtuan@gmail.com', '0905678901', '1991-01-10', N'Nam', '005567890123', 'Customer'),
-('nguyenthib', N'Nguyễn Thị B', '$2b$10$aA9n4m5l6k7j8h9g0Qh.zT6q.yF0g.xP1q.xR1s.xT1u.xV1v.xX1w.xY1x.yA2y.yB2z', 'nguyenthib@gmail.com', '0906789012', '1993-09-05', N'Nữ', '006678901234', 'Customer'),
-('votuananh', N'Võ Tuấn Anh', '$2b$10$bB0o5n6m7l8k9j0h1Qg.zU7r.yG1h.xQ2r.xS2s.xU2t.xW2u.xY2v.xZ2w.yA3x.yB3y.yC3z', 'votuananh@gmail.com', '0907890123', '1987-04-18', N'Nam', '007789012345', 'Customer'),
-('dangthuyduong', N'Đặng Thúy Dương', '$2b$10$cC1p6o7n8m9l0k1j2Qf.zV8s.yH2i.xR3s.xT3u.xV3v.xX3w.xY3x.yA4y.yB4z', 'dangduong@gmail.com', '0908901234', '1996-12-03', N'Nữ', '008890123456', 'Customer'),
-('truongvanduc', N'Trương Văn Đức', '$2b$10$dD2q7p8o9n0m1l2k3Qe.zW9t.yI3j.xS4t.xU4u.xW4v.xX4w.xY4x.yA5y.yB5z', 'truongduc@gmail.com', '0909012345', '1990-06-25', N'Nam', '009901234567', 'Customer'),
-('dothihuyen', N'Đỗ Thị Huyền', '$2b$10$eE3r8q9p0o1n2m3l4Qd.zX0u.yJ4k.xT5u.xV5v.xX5w.xY5x.yA6y.yB6z', 'dohuyen@gmail.com', '0910123456', '1994-02-14', N'Nữ', '010012345678', 'Customer'),
-('phanvanduc', N'Phan Văn Đức', '$2b$10$fF4s9r0q1o2n3m4l5Qc.zY1v.yK5l.xU6v.xW6w.xX6x.xY6y.yA7z', 'ducphan@gmail.com', '0911234567', '1989-08-08', N'Nam', '011123456789', 'Customer'),
-('nguyenquynhchi', N'Nguyễn Quỳnh Chi', '$2b$10$gG5t0s1r2q3o4n5m6Qb.zZ2w.yL6m.xV7w.xX7x.xY7y.yA8z', 'quynhchi@gmail.com', '0912345678', '1997-03-20', N'Nữ', '012234567890', 'Customer'),
-('tranvietanh', N'Trần Việt Anh', '$2b$10$hH6u1t2s3r4q5o6n7Qa.z03x.yM7n.xW8x.xY8y.yA9z', 'vietanh@gmail.com', '0913456789', '1991-01-28', N'Nam', '013345678901', 'Customer'),
-('lethithuy', N'Lê Thị Thúy', '$2b$10$iI7v2u3t4s5r6q7o8Q0.z14y.yN8o.xX9y.yA0z', 'thuynguyen@gmail.com', '0914567890', '1993-10-10', N'Nữ', '014456789012', 'Customer'),
-('phamnhatminh', N'Phạm Nhật Minh', '$2b$10$jJ8w3v4u5t6s7r8q9Q1.z25z.yO9p.yB0z', 'nhatminh@gmail.com', '0915678901', '1986-05-05', N'Nam', '015567890123', 'Customer'),
-('nguyenthanhhoa', N'Nguyễn Thanh Hòa', '$2b$10$kK9x4w5v6u7t8s9r0Q2.z36A.yP0q.yC1A', 'thanhhoa@gmail.com', '0916789012', '1995-04-01', N'Nữ', '016678901234', 'Customer'),
-('vuvanhung', N'Vũ Văn Hùng', '$2b$10$lL0y5x6w7v8u9t0s1Q3.z47B.yQ1r.yD2B', 'vanhung@gmail.com', '0917890123', '1990-11-11', N'Nam', '017789012345', 'Customer'),
-('hochithanh', N'Hồ Chí Thanh', '$2b$10$mM1z6y7x8w9v0u1t2Q4.z58C.yR2s.yE3C', 'chithanh@gmail.com', '0918901234', '1992-06-19', N'Nam', '018890123456', 'Customer'),
-('maithuytrang', N'Mai Thúy Trang', '$2b$10$nN2A7z8y9x0w1v2u3Q5.z69D.yS3t.yF4D', 'thuytrang@gmail.com', '0919012345', '1996-08-28', N'Nữ', '019901234567', 'Customer'),
-('nguyenvanc', N'Nguyễn Văn C', '$2b$10$oO3B8A9z0y1x2w3v4Q6.z70E.yT4u.yG5E', 'nguyenvanc@gmail.com', '0920123456', '1985-02-09', N'Nam', '020012345678', 'Customer'),
-('tranvanquy', N'Trần Văn Quý', '$2b$10$pP4C9B0A1z2y3x4w5Q7.z81F.yU5v.yH6F', 'tranvanquy@gmail.com', '0921234567', '1994-07-07', N'Nam', '021123456789', 'Customer'),
-('phanthidung', N'Phan Thị Dung', '$2b$10$qQ5D0C1B2A3z4y5x6Q8.z92G.yV6w.yI7G', 'phanthidung@gmail.com', '0922345678', '1991-03-17', N'Nữ', '022234567890', 'Customer'),
-('dogiatuan', N'Đỗ Gia Tuấn', '$2b$10$rR6E1D2C3B4A5z6y7Q9.z03H.yW7x.yJ8H', 'dogiatuan@gmail.com', '0923456789', '1988-09-01', N'Nam', '023345678901', 'Customer'),
-('nguyenthiminh', N'Nguyễn Thị Minh', '$2b$10$sS7F2E3D4C5B6A7z8Q0.z14I.yX8y.yK9I', 'nguyenthiminh@gmail.com', '0924567890', '1996-01-25', N'Nữ', '024456789012', 'Customer'),
-('dinhtheanh', N'Đinh Thế Anh', '$2b$10$tT8G3F4E5D6C7B8A9Q1.z25J.yY9z.yL0J', 'dinhtheanh@gmail.com', '0925678901', '1990-04-12', N'Nam', '025567890123', 'Customer'),
-('nguyenthuha', N'Nguyễn Thu Hà', '$2b$10$uU9H4G5F6E7D8C9B0Q2.z36K.yZ0A.yM1K', 'nguyenthuha@gmail.com', '0926789012', '1992-12-08', N'Nữ', '026678901234', 'Customer'),
-('lehoangviet', N'Lê Hoàng Việt', '$2b$10$vV0I5H6G7F8E9D0C1Q3.z47L.y01B.yN2L', 'lehoangviet@gmail.com', '0927890123', '1987-06-03', N'Nam', '027789012345', 'Customer'),
-('phamthithu', N'Phạm Thị Thu', '$2b$10$wW1J6I7H8G9F0E1D2Q4.z58M.y12C.yO3M', 'phamthithu@gmail.com', '0928901234', '1995-08-14', N'Nữ', '028890123456', 'Customer'),
-('tranthanhlong', N'Trần Thanh Long', '$2b$10$xX2K7J8I9H0G1F2E3Q5.z69N.y23D.yP4N', 'tranthanhlong@gmail.com', '0929012345', '1991-02-23', N'Nam', '029901234567', 'Customer'),
-('nguyenthuoc', N'Nguyễn Thu Ước', '$2b$10$yY3L8K9J0I1H2G3F4Q6.z70O.y34E.yQ5O', 'nguyenthuoc@gmail.com', '0930123456', '1993-09-09', N'Nữ', '030012345678', 'Customer'),
-('hoangvanhuy', N'Hoàng Văn Huy', '$2b$10$zZ4M9L0K1I2H3G4F5Q7.z81P.y45F.yR6P', 'hoangvanhuy@gmail.com', '0931234567', '1989-05-18', N'Nam', '031123456789', 'Customer'),
-('duongthithu', N'Dương Thị Thu', '$2b$10$aA5N0M1L2K3I4H5G6Q8.z92Q.y56G.yS7Q', 'duongthithu@gmail.com', '0932345678', '1997-01-05', N'Nữ', '032234567890', 'Customer'),
-('nguyenvananh', N'Nguyễn Văn Ánh', '$2b$10$bB6O1N2M3L4K5I6H7Q9.z03R.y67H.yT8R', 'nguyenvananh@gmail.com', '0933456789', '1990-07-29', N'Nam', '033345678901', 'Customer'),
-('tranvanthanh', N'Trần Văn Thanh', '$2b$10$cC7P2O3N4M5L6K7I8Q0.z14S.y78I.yU9S', 'tranvanthanh@gmail.com', '0934567890', '1992-03-02', N'Nam', '034456789012', 'Customer'),
-('lethuhang', N'Lê Thu Hằng', '$2b$10$dD8Q3P4O5N6M7L8K9Q1.z25T.y89J.yV0T', 'lethuhang@gmail.com', '0935678901', '1994-11-21', N'Nữ', '035567890123', 'Customer'),
-('nguyenthithuyduong', N'Nguyễn Thị Thùy Dương', '$2b$10$eE9R4Q5P6O7N8M9L0Q2.z36U.y90K.yW1U', 'thuyduong@gmail.com', '0936789012', '1996-06-15', N'Nữ', '036678901234', 'Customer'),
-('phamanhvu', N'Phạm Anh Vũ', '$2b$10$fF0S5R6Q7P8O9N0M1Q3.z47V.y01L.yX2V', 'phamanhvu@gmail.com', '0937890123', '1988-08-04', N'Nam', '037789012345', 'Customer'),
-('nguyenthihuong', N'Nguyễn Thị Hương', '$2b$10$gG1T6S7R8Q9O0N1M2Q4.z58W.y12M.yY3W', 'nguyenthihuong@gmail.com', '0938901234', '1993-01-19', N'Nữ', '038890123456', 'Customer'),
-('dovanlong', N'Đỗ Văn Long', '$2b$10$hH2U7T8S9R0Q1O2N3Q5.z69X.y23N.yZ4X', 'dovanlong@gmail.com', '0939012345', '1990-04-27', N'Nam', '039901234567', 'Customer'),
-('tranvanhao', N'Trần Văn Hào', '$2b$10$iI3V8U9T0S1R2Q3O4Q6.z70Y.y34O.yA5Y', 'tranvanhao@gmail.com', '0940123456', '1987-10-06', N'Nam', '040012345678', 'Customer'),
-('nguyenductrung', N'Nguyễn Đức Trung', '$2b$10$jJ4W9V0U1T2S3R4Q5Q7.z81Z.y45P.yB6Z', 'nguyenductrung@gmail.com', '0941234567', '1991-12-12', N'Nam', '041123456789', 'Customer'),
-('phamanhthu', N'Phạm Anh Thu', '$2b$10$kK5X0W1V2U3T4S5R6Q8.z920.y56Q.yC70', 'phamanhthu@gmail.com', '0942345678', '1995-05-23', N'Nữ', '042234567890', 'Customer'),
-('lethanhhien', N'Lê Thanh Hiền', '$2b$10$lL6Y1X2W3V4U5T6S7Q9.z031.y67R.yD81', 'lethanhhien@gmail.com', '0943456789', '1994-02-01', N'Nữ', '043345678901', 'Customer'),
-('nguyenthaithu', N'Nguyễn Thái Thu', '$2b$10$mM7Z2Y3X4W5U6T7S8Q0.z142.y78S.yE92', 'nguyenthaithu@gmail.com', '0944567890', '1997-07-16', N'Nữ', '044456789012', 'Customer'),
-('tranhoangnam', N'Trần Hoàng Nam', '$2b$10$nN803Z4Y5X6W7U8T9Q1.z253.y89T.yF03', 'tranhoangnam@gmail.com', '0945678901', '1989-03-08', N'Nam', '045567890123', 'Customer'),
-('vuthithuong', N'Vũ Thị Thương', '$2b$10$oO91405Z6Y7X8W9U0Q2.z364.y90U.yG14', 'vuthithuong@gmail.com', '0946789012', '1993-09-29', N'Nữ', '046678901234', 'Customer'),
-('nguyenminhquan', N'Nguyễn Minh Quân', '$2b$10$pP0251607Z8Y9X0W1Q3.z475.y01V.yH25', 'nguyenminhquan@gmail.com', '0947890123', '1990-11-03', N'Nam', '047789012345', 'Customer'),
-('phamthithuong', N'Phạm Thị Thường', '$2b$10$qQ136271809Z0Y1X2Q4.z586.y12W.yI36', 'phamthithuong@gmail.com', '0948901234', '1992-06-21', N'Nữ', '048890123456', 'Customer'),
-('lehoanghai', N'Lê Hoàng Hải', '$2b$10$rR24738291001Z2Y3Q5.z697.y23X.yJ47', 'lehoanghai@gmail.com', '0949012345', '1986-08-10', N'Nam', '049901234567', 'Customer'),
-('nguyenthanhnam', N'Nguyễn Thanh Nam', '$2b$10$sS35849302112Z3Y4Q6.z708.y34Y.yK58', 'nguyenthanhnam@gmail.com', '0950123456', '1995-04-14', N'Nam', '050012345678', 'Customer'),
-('tranvanlinh', N'Trần Văn Linh', '$2b$10$tT46950413223Z4Y5Q7.z819.y45Z.yL69', 'tranvanlinh@gmail.com', '0951234567', '1988-01-07', N'Nam', '051123456789', 'Customer'),
-('phamdanghuy', N'Phạm Đăng Huy', '$2b$10$uU57061524334Z5Y6Q8.z920.y560.yM70', 'phamdanghuy@gmail.com', '0952345678', '1996-03-22', N'Nam', '052234567890', 'Customer'),
-('nguyentranthuy', N'Nguyễn Trần Thúy', '$2b$10$vV68172635445Z6Y7Q9.z031.y671.yN81', 'nguyentranthuy@gmail.com', '0953456789', '1994-10-09', N'Nữ', '053345678901', 'Customer'),
-('dovuhoang', N'Đỗ Vũ Hoàng', '$2b$10$wW79283746556Z7Y8Q0.z142.y782.yO92', 'dovuhoang@gmail.com', '0954567890', '1991-05-01', N'Nam', '054456789012', 'Customer'),
-('nguyenthidiem', N'Nguyễn Thị Diễm', '$2b$10$xX80394857667Z8Y9Q1.z253.y893.yP03', 'nguyenthidiem@gmail.com', '0955678901', '1997-02-18', N'Nữ', '055567890123', 'Customer'),
-('lequanganh', N'Lê Quang Anh', '$2b$10$yY91405968778Z9Y0Q2.z364.y904.yQ14', 'lequanganh@gmail.com', '0956789012', '1989-07-25', N'Nam', '056678901234', 'Customer'),
-('tranthiminhhien', N'Trần Thị Minh Hiền', '$2b$10$zZ02516079889Z0Y1Q3.z475.y015.yR25', 'tranthiminhhien@gmail.com', '0957890123', '1993-01-04', N'Nữ', '057789012345', 'Customer'),
-('nguyenduckhoa', N'Nguyễn Đức Khoa', '$2b$10$aA13627180990Z1Y2Q4.z586.y126.yS36', 'nguyenduckhoa@gmail.com', '0958901234', '1990-11-20', N'Nam', '058890123456', 'Customer'),
-('phambichhang', N'Phạm Bích Hằng', '$2b$10$bB24738291001Z2Y3Q5.z697.y237.yT47', 'phambichhang@gmail.com', '0959012345', '1995-06-08', N'Nữ', '059901234567', 'Customer'),
-('tranminhduc', N'Trần Minh Đức', '$2b$10$cC35849302112Z3Y4Q6.z708.y348.yU58', 'tranminhduc@gmail.com', '0960123456', '1987-09-15', N'Nam', '060012345678', 'Customer'),
-('nguyenthanhnga', N'Nguyễn Thanh Nga', '$2b$10$dD46950413223Z4Y5Q7.z819.y459.yV69', 'nguyenthanhnga@gmail.com', '0961234567', '1992-04-26', N'Nữ', '061123456789', 'Customer'),
-('lequanghung', N'Lê Quang Hùng', '$2b$10$eE57061524334Z5Y6Q8.z920.y560.yW70', 'lequanghung@gmail.com', '0962345678', '1988-02-13', N'Nam', '062234567890', 'Customer'),
-('nguyenthanhhuyen', N'Nguyễn Thanh Huyền', '$2b$10$fF68172635445Z6Y7Q9.z031.y671.yX81', 'nguyenthanhhuyen@gmail.com', '0963456789', '1996-12-05', N'Nữ', '063345678901', 'Customer'),
-('phamquangtrung', N'Phạm Quang Trung', '$2b$10$gG79283746556Z7Y8Q0.z142.y782.yY92', 'phamquangtrung@gmail.com', '0964567890', '1991-07-30', N'Nam', '064456789012', 'Customer'),
-('hoangthithao', N'Hoàng Thị Thảo', '$2b$10$hH80394857667Z8Y9Q1.z253.y893.yZ03', 'hoangthithao@gmail.com', '0965678901', '1993-03-07', N'Nữ', '065567890123', 'Customer'),
-('dovanviet', N'Đỗ Văn Việt', '$2b$10$iI91405968778Z9Y0Q2.z364.y904.yA14', 'dovanviet@gmail.com', '0966789012', '1986-09-02', N'Nam', '066678901234', 'Customer'),
-('nguyenthiyen', N'Nguyễn Thị Yến', '$2b$10$jJ02516079889Z0Y1Q3.z475.y015.yB25', 'nguyenthiyen@gmail.com', '0967890123', '1995-08-20', N'Nữ', '067789012345', 'Customer'),
-('trandaiduong', N'Trần Đại Dương', '$2b$10$kK13627180990Z1Y2Q4.z586.y126.yC36', 'trandaiduong@gmail.com', '0968901234', '1989-04-11', N'Nam', '068890123456', 'Customer'),
-('lethanhthao', N'Lê Thanh Thảo', '$2b$10$lL24738291001Z2Y3Q5.z697.y237.yD47', 'lethanhthao@gmail.com', '0969012345', '1997-01-13', N'Nữ', '069901234567', 'Customer'),
-('nguyenbaoquang', N'Nguyễn Bảo Quang', '$2b$10$mM35849302112Z3Y4Q6.z708.y348.yE58', 'nguyenbaoquang@gmail.com', '0970123456', '1990-10-25', N'Nam', '070012345678', 'Customer'),
-('phamthithuytrang', N'Phạm Thị Thùy Trang', '$2b$10$nN46950413223Z4Y5Q7.z819.y459.yF69', 'phamthithuytrang@gmail.com', '0971234567', '1992-05-09', N'Nữ', '071123456789', 'Customer'),
-('nguyenvanthinh', N'Nguyễn Văn Thịnh', '$2b$10$oO57061524334Z5Y6Q8.z920.y560.yG70', 'nguyenvanthinh@gmail.com', '0972345678', '1988-03-16', N'Nam', '072234567890', 'Customer'),
-('tranvanthang', N'Trần Văn Thắng', '$2b$10$pP68172635445Z6Y7Q9.z031.y671.yH81', 'tranvanthang@gmail.com', '0973456789', '1996-02-28', N'Nam', '073345678901', 'Customer'),
-('lethianhdao', N'Lê Thị Anh Đào', '$2b$10$qQ79283746556Z7Y8Q0.z142.y782.yI92', 'lethianhdao@gmail.com', '0974567890', '1994-09-03', N'Nữ', '074456789012', 'Customer'),
-('nguyenthanhhai', N'Nguyễn Thanh Hải', '$2b$10$rR80394857667Z8Y9Q1.z253.y893.yJ03', 'nguyenthanhhai@gmail.com', '0975678901', '1991-06-10', N'Nam', '075567890123', 'Customer'),
-('tranvanhieu', N'Trần Văn Hiếu', '$2b$10$sS91405968778Z9Y0Q2.z364.y904.yK14', 'tranvanhieu@gmail.com', '0976789012', '1987-12-01', N'Nam', '076678901234', 'Customer'),
-('phamthihuonggiang', N'Phạm Thị Hương Giang', '$2b$10$tT02516079889Z0Y1Q3.z475.y015.yL25', 'phamthihuonggiang@gmail.com', '0977890123', '1995-07-22', N'Nữ', '077789012345', 'Customer'),
-('nguyenvantu', N'Nguyễn Văn Tú', '$2b$10$uU13627180990Z1Y2Q4.z586.y126.yM36', 'nguyenvantu@gmail.com', '0978901234', '1993-04-19', N'Nam', '078890123456', 'Customer'),
-('dothimyanh', N'Đỗ Thị Mỹ Anh', '$2b$10$vV24738291001Z2Y3Q5.z697.y237.yN47', 'dothimyanh@gmail.com', '0979012345', '1997-03-06', N'Nữ', '079901234567', 'Customer'),
-('hoangminhkhai', N'Hoàng Minh Khải', '$2b$10$wW35849302112Z3Y4Q6.z708.y348.yO58', 'hoangminhkhai@gmail.com', '0980123456', '1990-08-28', N'Nam', '080012345678', 'Customer'),
-('nguyenthithanhtruyen', N'Nguyễn Thị Thanh Truyền', '$2b$10$xX46950413223Z4Y5Q7.z819.y459.yP69', 'nguyenthithanhtruyen@gmail.com', '0981234567', '1992-02-15', N'Nữ', '081123456789', 'Customer'),
-('tranlehuu', N'Trần Lê Hữu', '$2b$10$yY57061524334Z5Y6Q8.z920.y560.yQ70', 'tranlehuu@gmail.com', '0982345678', '1989-06-04', N'Nam', '082234567890', 'Customer'),
-('lethibichngoc', N'Lê Thị Bích Ngọc', '$2b$10$zZ68172635445Z6Y7Q9.z031.y671.yR81', 'lethibichngoc@gmail.com', '0983456789', '1996-10-18', N'Nữ', '083345678901', 'Customer'),
-('nguyenthanhphong', N'Nguyễn Thanh Phong', '$2b$10$aA79283746556Z7Y8Q0.z142.y782.yS92', 'nguyenthanhphong@gmail.com', '0984567890', '1991-01-09', N'Nam', '084456789012', 'Customer'),
-('phamvanquang', N'Phạm Văn Quang', '$2b$10$bB80394857667Z8Y9Q1.z253.y893.yT03', 'phamvanquang@gmail.com', '0985678901', '1988-11-27', N'Nam', '085567890123', 'Customer'),
-('nguyenthingocthao', N'Nguyễn Thị Ngọc Thảo', '$2b$10$cC91405968778Z9Y0Q2.z364.y904.yU14', 'nguyenthingocthao@gmail.com', '0986789012', '1995-05-17', N'Nữ', '086678901234', 'Customer'),
-('tranhuonggiang', N'Trần Hương Giang', '$2b$10$dD02516079889Z0Y1Q3.z475.y015.yV25', 'tranhuonggiang@gmail.com', '0987890123', '1993-12-02', N'Nữ', '087789012345', 'Customer'),
-('lethanhdat', N'Lê Thanh Đạt', '$2b$10$eE13627180990Z1Y2Q4.z586.y126.yW36', 'lethanhdat@gmail.com', '0988901234', '1990-06-29', N'Nam', '088890123456', 'Customer'),
-('nguyenthithanhtuyen', N'Nguyễn Thị Thanh Tuyến', '$2b$10$fF24738291001Z2Y3Q5.z697.y237.yX47', 'nguyenthithanhtuyen@gmail.com', '0989012345', '1994-02-08', N'Nữ', '089901234567', 'Customer'),
-('phanvanthuan', N'Phan Văn Thuận', '$2b$10$gG35849302112Z3Y4Q6.z708.y348.yY58', 'phanvanthuan@gmail.com', '0990123456', '1987-07-20', N'Nam', '090012345678', 'Customer'),
-('nguyenthuhoai', N'Nguyễn Thu Hoài', '$2b$10$hH46950413223Z4Y5Q7.z819.y459.yZ69', 'nguyenthuhoai@gmail.com', '0991234567', '1997-01-26', N'Nữ', '091123456789', 'Customer'),
-('tranvanhai', N'Trần Văn Hải', '$2b$10$iI57061524334Z5Y6Q8.z920.y560.yA70', 'tranvanhai@gmail.com', '0992345678', '1989-09-05', N'Nam', '092234567890', 'Customer'),
-('lethuytrang', N'Lê Thùy Trang', '$2b$10$jJ68172635445Z6Y7Q9.z031.y671.yB81', 'lethuytrang@gmail.com', '0993456789', '1993-04-01', N'Nữ', '093345678901', 'Customer'),
-('nguyenhoangnam', N'Nguyễn Hoàng Nam', '$2b$10$kK79283746556Z7Y8Q0.z142.y782.yC92', 'nguyenhoangnam@gmail.com', '0994567890', '1990-11-19', N'Nam', '094456789012', 'Customer'),
-('phamanhthao', N'Phạm Anh Thảo', '$2b$10$lL80394857667Z8Y9Q1.z253.y893.yD03', 'phamanhthao@gmail.com', '0995678901', '1992-06-27', N'Nữ', '095567890123', 'Customer'),
-('nguyenthanhngoc', N'Nguyễn Thanh Ngọc', '$2b$10$mM91405968778Z9Y0Q2.z364.y904.yE14', 'nguyenthanhngoc@gmail.com', '0996789012', '1996-08-11', N'Nữ', '096678901234', 'Customer'),
-('tranvannhan', N'Trần Văn Nhàn', '$2b$10$nN02516079889Z0Y1Q3.z475.y015.yF25', 'tranvannhan@gmail.com', '0997890123', '1986-12-08', N'Nam', '097789012345', 'Customer'),
-('lethanhhieu', N'Lê Thanh Hiếu', '$2b$10$oO13627180990Z1Y2Q4.z586.y126.yG36', 'lethanhhieu@gmail.com', '0998901234', '1995-03-04', N'Nam', '098890123456', 'Customer'),
-('nguyenthihaiduong', N'Nguyễn Thị Hải Đường', '$2b$10$pP24738291001Z2Y3Q5.z697.y237.yH47', 'nguyenthihaiduong@gmail.com', '0999012345', '1994-09-10', N'Nữ', '099901234567', 'Customer'),
-('tranminhanh', N'Trần Minh Anh', '$2b$10$qQ35849302112Z3Y4Q6.z708.y348.yI58', 'tranminhanh@gmail.com', '0800123456', '1991-07-07', N'Nam', '100012345678', 'Customer'),
-('nguyenthihoangyen', N'Nguyễn Thị Hoàng Yến', '$2b$10$rR46950413223Z4Y5Q7.z819.y459.yJ69', 'nguyenthihoangyen@gmail.com', '0801234567', '1993-02-28', N'Nữ', '101123456789', 'Customer'),
-('phamanhlinh', N'Phạm Anh Linh', '$2b$10$sS57061524334Z5Y6Q8.z920.y560.yK70', 'phamanhlinh@gmail.com', '0802345678', '1988-05-13', N'Nam', '102234567890', 'Customer'),
-('lethidieulinh', N'Lê Thị Diệu Linh', '$2b$10$tT68172635445Z6Y7Q9.z031.y671.yL81', 'lethidieulinh@gmail.com', '0803456789', '1996-01-02', N'Nữ', '103345678901', 'Customer'),
-('nguyenvandat', N'Nguyễn Văn Đạt', '$2b$10$uU79283746556Z7Y8Q0.z142.y782.yM92', 'nguyenvandat@gmail.com', '0804567890', '1990-10-16', N'Nam', '104456789012', 'Customer'),
-('tranvanhuy', N'Trần Văn Huy', '$2b$10$vV80394857667Z8Y9Q1.z253.y893.yN03', 'tranvanhuy@gmail.com', '0805678901', '1987-03-24', N'Nam', '105567890123', 'Customer'),
-('nguyenthicamlinh', N'Nguyễn Thị Cẩm Linh', '$2b$10$wW91405968778Z9Y0Q2.z364.y904.yO14', 'nguyenthicamlinh@gmail.com', '0806789012', '1995-08-05', N'Nữ', '106678901234', 'Customer'),
-('dovanminh', N'Đỗ Văn Minh', '$2b$10$xX02516079889Z0Y1Q3.z475.y015.yP25', 'dovanminh@gmail.com', '0807890123', '1993-11-14', N'Nam', '107789012345', 'Customer'),
-('hoangthuyquynh', N'Hoàng Thùy Quỳnh', '$2b$10$yY13627180990Z1Y2Q4.z586.y126.yQ36', 'hoangthuyquynh@gmail.com', '0808901234', '1997-04-21', N'Nữ', '108890123456', 'Customer'),
-('nguyenthehai', N'Nguyễn Thế Hải', '$2b$10$zZ24738291001Z2Y3Q5.z697.y237.yR47', 'nguyenthehai@gmail.com', '0809012345', '1989-09-09', N'Nam', '109901234567', 'Customer'),
-('tranthingocanh', N'Trần Thị Ngọc Ánh', '$2b$10$aA35849302112Z3Y4Q6.z708.y348.yS58', 'tranthingocanh@gmail.com', '0810123456', '1994-01-01', N'Nữ', '110012345678', 'Customer'),
-('phamhoanglong', N'Phạm Hoàng Long', '$2b$10$bB46950413223Z4Y5Q7.z819.y459.yT69', 'phamhoanglong@gmail.com', '0811234567', '1991-06-16', N'Nam', '111123456789', 'Customer'),
-('nguyenthithanhmai', N'Nguyễn Thị Thanh Mai', '$2b$10$cC57061524334Z5Y6Q8.z920.y560.yU70', 'nguyenthithanhmai@gmail.com', '0812345678', '1992-12-25', N'Nữ', '112234567890', 'Customer'),
-('leminhhoang', N'Lê Minh Hoàng', '$2b$10$dD68172635445Z6Y7Q9.z031.y671.yV81', 'leminhhoang@gmail.com', '0813456789', '1986-07-03', N'Nam', '113345678901', 'Customer'),
-('nguyenthithuongthuong', N'Nguyễn Thị Thường Thường', '$2b$10$eE79283746556Z7Y8Q0.z142.y782.yW92', 'nguyenthithuongthuong@gmail.com', '0814567890', '1995-02-11', N'Nữ', '114456789012', 'Customer'),
-('tranvanduy', N'Trần Văn Duy', '$2b$10$fF80394857667Z8Y9Q1.z253.y893.yX03', 'tranvanduy@gmail.com', '0815678901', '1988-04-29', N'Nam', '115567890123', 'Customer'),
-('hoangthanhson', N'Hoàng Thanh Sơn', '$2b$10$gG91405968778Z9Y0Q2.z364.y904.yY14', 'hoangthanhson@gmail.com', '0816789012', '1996-09-19', N'Nam', '116678901234', 'Customer'),
-('nguyenthithanhloan', N'Nguyễn Thị Thanh Loan', '$2b$10$hH02516079889Z0Y1Q3.z475.y015.yZ25', 'nguyenthithanhloan@gmail.com', '0817890123', '1994-05-24', N'Nữ', '117789012345', 'Customer'),
-('phanminhduc', N'Phan Minh Đức', '$2b$10$iI13627180990Z1Y2Q4.z586.y126.yA36', 'phanminhduc@gmail.com', '0818901234', '1991-10-08', N'Nam', '118890123456', 'Customer'),
-('nguyenthithanhtrang', N'Nguyễn Thị Thanh Trang', '$2b$10$jJ24738291001Z2Y3Q5.z697.y237.yB47', 'nguyenthithanhtrang@gmail.com', '0819012345', '1997-03-12', N'Nữ', '119901234567', 'Customer'),
-('dovanhoa', N'Đỗ Văn Hòa', '$2b$10$kK35849302112Z3Y4Q6.z708.y348.yC58', 'dovanhoa@gmail.com', '0820123456', '1990-08-01', N'Nam', '120012345678', 'Customer'),
-('tranvannguyen', N'Trần Văn Nguyên', '$2b$10$lL46950413223Z4Y5Q7.z819.y459.yD69', 'tranvannguyen@gmail.com', '0821234567', '1987-02-09', N'Nam', '121123456789', 'Customer'),
-('lethithuyhang', N'Lê Thị Thùy Hằng', '$2b$10$mM57061524334Z5Y6Q8.z920.y560.yE70', 'lethithuyhang@gmail.com', '0822345678', '1995-11-20', N'Nữ', '122234567890', 'Customer'),
-('nguyenthanhhaiyen', N'Nguyễn Thanh Hải Yến', '$2b$10$nN68172635445Z6Y7Q9.z031.y671.yF81', 'nguyenthanhhaiyen@gmail.com', '0823456789', '1993-06-25', N'Nữ', '123345678901', 'Customer'),
-('phamanhdao', N'Phạm Anh Đào', '$2b$10$oO79283746556Z7Y8Q0.z142.y782.yG92', 'phamanhdao@gmail.com', '0824567890', '1989-01-14', N'Nam', '124456789012', 'Customer'),
-('nguyenthidiemhuong', N'Nguyễn Thị Diễm Hương', '$2b$10$pP80394857667Z8Y9Q1.z253.y893.yH03', 'nguyenthidiemhuong@gmail.com', '0825678901', '1996-04-03', N'Nữ', '125567890123', 'Customer'),
-('tranvanlam', N'Trần Văn Lâm', '$2b$10$qQ91405968778Z9Y0Q2.z364.y904.yI14', 'tranvanlam@gmail.com', '0826789012', '1990-09-17', N'Nam', '126678901234', 'Customer'),
-('lethithuha', N'Lê Thị Thu Hà', '$2b$10$rR02516079889Z0Y1Q3.z475.y015.yJ25', 'lethithuha@gmail.com', '0827890123', '1992-07-07', N'Nữ', '127789012345', 'Customer'),
-('nguyenthanhduy', N'Nguyễn Thanh Duy', '$2b$10$sS13627180990Z1Y2Q4.z586.y126.yK36', 'nguyenthanhduy@gmail.com', '0828901234', '1986-12-01', N'Nam', '128890123456', 'Customer'),
-('phamvandai', N'Phạm Văn Đại', '$2b$10$tT24738291001Z2Y3Q5.z697.y237.yL47', 'phamvandai@gmail.com', '0829012345', '1995-03-29', N'Nam', '129901234567', 'Customer'),
-('nguyenthikieuanh', N'Nguyễn Thị Kiều Anh', '$2b$10$uU35849302112Z3Y4Q6.z708.y348.yM58', 'nguyenthikieuanh@gmail.com', '0830123456', '1994-10-11', N'Nữ', '130012345678', 'Customer'),
-('tranvanthanglong', N'Trần Văn Thắng Long', '$2b$10$vV46950413223Z4Y5Q7.z819.y459.yN69', 'tranvanthanglong@gmail.com', '0831234567', '1991-05-02', N'Nam', '131123456789', 'Customer'),
-('lethithuongmai', N'Lê Thị Thương Mại', '$2b$10$wW57061524334Z5Y6Q8.z920.y560.yO70', 'lethithuongmai@gmail.com', '0832345678', '1997-02-23', N'Nữ', '132234567890', 'Customer'),
-('nguyenthanhphuong', N'Nguyễn Thanh Phương', '$2b$10$xX68172635445Z6Y7Q9.z031.y671.yP81', 'nguyenthanhphuong@gmail.com', '0833456789', '1990-08-16', N'Nữ', '133345678901', 'Customer'),
-('phamvanlinh', N'Phạm Văn Linh', '$2b$10$yY79283746556Z7Y8Q0.z142.y782.yQ92', 'phamvanlinh@gmail.com', '0834567890', '1987-01-05', N'Nam', '134456789012', 'Customer'),
-('nguyenthithuonguyen', N'Nguyễn Thị Thu Uyên', '$2b$10$zZ80394857667Z8Y9Q1.z253.y893.yR03', 'nguyenthihuonguyen@gmail.com', '0835678901', '1995-12-09', N'Nữ', '135567890123', 'Customer'),
-('tranvantuan', N'Trần Văn Tuấn', '$2b$10$aA91405968778Z9Y0Q2.z364.y904.yS14', 'tranvantuan@gmail.com', '0836789012', '1993-07-27', N'Nam', '136678901234', 'Customer'),
-('lethithuhoa', N'Lê Thị Thu Hòa', '$2b$10$bB02516079889Z0Y1Q3.z475.y015.yT25', 'lethithuhoa@gmail.com', '0837890123', '1996-03-10', N'Nữ', '137789012345', 'Customer'),
-('nguyenthanhkhoa', N'Nguyễn Thanh Khoa', '$2b$10$cC13627180990Z1Y2Q4.z586.y126.yU36', 'nguyenthanhkhoa@gmail.com', '0838901234', '1989-09-06', N'Nam', '138890123456', 'Customer'),
-('phamthihuynhhuong', N'Phạm Thị Huỳnh Hương', '$2b$10$dD24738291001Z2Y3Q5.z697.y237.yV47', 'phamthihuynhhuong@gmail.com', '0839012345', '1994-04-15', N'Nữ', '139901234567', 'Customer'),
-('nguyenvancuong', N'Nguyễn Văn Cường', '$2b$10$eE35849302112Z3Y4Q6.z708.y348.yW58', 'nguyenvancuong@gmail.com', '0840123456', '1991-08-08', N'Nam', '140012345678', 'Customer'),
-('tranthingochuyen', N'Trần Thị Ngọc Huyền', '$2b$10$fF46950413223Z4Y5Q7.z819.y459.yX69', 'tranthingochuyen@gmail.com', '0841234567', '1992-01-21', N'Nữ', '141123456789', 'Customer'),
-('lethanhhien_a', N'Lê Thanh Hiền', '$2b$10$gG57061524334Z5Y6Q8.z920.y560.yY70', 'lethanhhien@gmail.com', '0842345678', '1988-06-18', N'Nữ', '142234567890', 'Customer'),
-('nguyenthanhtrung', N'Nguyễn Thanh Trung', '$2b$10$hH68172635445Z6Y7Q9.z031.y671.yZ81', 'nguyenthanhtrung@gmail.com', '0843456789', '1996-10-04', N'Nam', '143345678901', 'Customer'),
-('phamvanminh_a', N'Phạm Văn Minh', '$2b$10$iI79283746556Z7Y8Q0.z142.y782.yA92', 'phamvanminh@gmail.com', '0844567890', '1993-05-30', N'Nam', '144456789012', 'Customer'),
-('nguyenthihuongly', N'Nguyễn Thị Hương Ly', '$2b$10$jJ80394857667Z8Y9Q1.z253.y893.yB03', 'nguyenthihuongly@gmail.com', '0845678901', '1997-01-17', N'Nữ', '145567890123', 'Customer'),
-('tranvanphuong_a', N'Trần Văn Phương', '$2b$10$kK91405968778Z9Y0Q2.z364.y904.yC14', 'tranvanphuong@gmail.com', '0846789012', '1990-04-20', N'Nam', '146678901234', 'Customer'),
-('lethithuong', N'Lê Thị Thường', '$2b$10$lL02516079889Z0Y1Q3.z475.y015.yD25', 'lethithuong@gmail.com', '0847890123', '1992-09-02', N'Nữ', '147789012345', 'Customer'),
-('nguyenthanhtam', N'Nguyễn Thanh Tâm', '$2b$10$mM13627180990Z1Y2Q4.z586.y126.yE36', 'nguyenthanhtam@gmail.com', '0848901234', '1987-03-11', N'Nam', '148890123456', 'Customer'),
-('phamnhatnam', N'Phạm Nhật Nam', '$2b$10$nN24738291001Z2Y3Q5.z697.y237.yF47', 'phamnhatnam@gmail.com', '0849012345', '1995-06-06', N'Nam', '149901234567', 'Customer'),
-('tranvanhieu_a', N'Trần Văn Hiếu', '$2b$10$oO35849302112Z3Y4Q6.z708.y348.yG58', 'tranvanhieu_a@gmail.com', '0850123456', '1994-01-28', N'Nam', '150012345678', 'Customer'),
-('nguyenthibichloan', N'Nguyễn Thị Bích Loan', '$2b$10$pP46950413223Z4Y5Q7.z819.y459.yH69', 'nguyenthibichloan@gmail.com', '0851234567', '1993-08-19', N'Nữ', '151123456789', 'Customer'),
-('levanlinh', N'Lê Văn Linh', '$2b$10$qQ57061524334Z5Y6Q8.z920.y560.yI70', 'levanlinh@gmail.com', '0852345678', '1989-02-12', N'Nam', '152234567890', 'Customer'),
-('nguyenthihoangthao', N'Nguyễn Thị Hoàng Thảo', '$2b$10$rR68172635445Z6Y7Q9.z031.y671.yJ81', 'nguyenthihoangthao@gmail.com', '0853456789', '1996-05-01', N'Nữ', '153345678901', 'Customer'),
-('phamvanduong', N'Phạm Văn Dương', '$2b$10$sS79283746556Z7Y8Q0.z142.y782.yK92', 'phamvanduong@gmail.com', '0854567890', '1990-10-09', N'Nam', '154456789012', 'Customer'),
-('tranvandung', N'Trần Văn Dũng', '$2b$10$tT80394857667Z8Y9Q1.z253.y893.yL03', 'tranvandung@gmail.com', '0855678901', '1987-04-04', N'Nam', '155567890123', 'Customer'),
-('nguyenthithuonglan', N'Nguyễn Thị Thường Lan', '$2b$10$uU91405968778Z9Y0Q2.z364.y904.yM14', 'nguyenthithuonglan@gmail.com', '0856789012', '1995-09-22', N'Nữ', '156678901234', 'Customer'),
-('leminhquang', N'Lê Minh Quang', '$2b$10$vV02516079889Z0Y1Q3.z475.y015.yN25', 'leminhquang@gmail.com', '0857890123', '1993-01-31', N'Nam', '157789012345', 'Customer'),
-('nguyenthanhhoa_a', N'Nguyễn Thanh Hòa', '$2b$10$wW13627180990Z1Y2Q4.z586.y126.yO36', 'nguyenthanhhoa_a@gmail.com', '0858901234', '1997-06-15', N'Nữ', '158890123456', 'Customer'),
-('dovanloc', N'Đỗ Văn Lộc', '$2b$10$xX24738291001Z2Y3Q5.z697.y237.yP47', 'dovanloc@gmail.com', '0859012345', '1990-11-29', N'Nam', '159901234567', 'Customer'),
-('tranvanthuy', N'Trần Văn Thúy', '$2b$10$yY35849302112Z3Y4Q6.z708.y348.yQ58', 'tranvanthuy@gmail.com', '0860123456', '1988-02-07', N'Nữ', '160012345678', 'Customer'),
-('nguyenthithanhtuyen_a', N'Nguyễn Thị Thanh Tuyến', '$2b$10$zZ46950413223Z4Y5Q7.z819.y459.yR69', 'nguyenthihuonguyen@gmail.com', '0861234567', '1996-07-03', N'Nữ', '161123456789', 'Customer'),
-('lethanhgiang', N'Lê Thanh Giang', '$2b$10$aA57061524334Z5Y6Q8.z920.y560.yS70', 'lethanhgiang@gmail.com', '0862345678', '1989-12-10', N'Nam', '162234567890', 'Customer'),
-('nguyenthibichhang', N'Nguyễn Thị Bích Hằng', '$2b$10$bB68172635445Z6Y7Q9.z031.y671.yT81', 'nguyenthibichhang@gmail.com', '0863456789', '1994-05-25', N'Nữ', '163345678901', 'Customer'),
-('phamvanhuy_a', N'Phạm Văn Huy', '$2b$10$cC79283746556Z7Y8Q0.z142.y782.yU92', 'phamvanhuy@gmail.com', '0864567890', '1991-03-18', N'Nam', '164456789012', 'Customer'),
-('tranvannghia', N'Trần Văn Nghĩa', '$2b$10$dD80394857667Z8Y9Q1.z253.y893.yV03', 'tranvannghia@gmail.com', '0865678901', '1986-09-01', N'Nam', '165567890123', 'Customer'),
-('nguyenthuhoai_a', N'Nguyễn Thu Hoài', '$2b$10$eE91405968778Z9Y0Q2.z364.y904.yW14', 'nguyenthuhoai_a@gmail.com', '0866789012', '1995-04-10', N'Nữ', '166678901234', 'Customer'),
-('lethithanhanh', N'Lê Thị Thanh Anh', '$2b$10$fF02516079889Z0Y1Q3.z475.y015.yX25', 'lethithanhanh@gmail.com', '0867890123', '1993-01-07', N'Nữ', '167789012345', 'Customer'),
-('nguyenvancuong_a', N'Nguyễn Văn Cường', '$2b$10$gG13627180990Z1Y2Q4.z586.y126.yY36', 'nguyenvancuong_a@gmail.com', '0868901234', '1990-10-23', N'Nam', '168890123456', 'Customer'),
-('phamanhthao_a', N'Phạm Anh Thảo', '$2b$10$hH24738291001Z2Y3Q5.z697.y237.yZ47', 'phamanhthao_a@gmail.com', '0869012345', '1992-06-05', N'Nữ', '169901234567', 'Customer'),
-('tranvanthang_b', N'Trần Văn Thắng', '$2b$10$iI35849302112Z3Y4Q6.z708.y348.yA58', 'tranvanthang_b@gmail.com', '0870123456', '1989-11-16', N'Nam', '170012345678', 'Customer'),
-('nguyenthingoclinh', N'Nguyễn Thị Ngọc Linh', '$2b$10$jJ46950413223Z4Y5Q7.z819.y459.yB69', 'nguyenthingoclinh@gmail.com', '0871234567', '1996-08-27', N'Nữ', '171123456789', 'Customer'),
-('lethanhlong', N'Lê Thanh Long', '$2b$10$kK57061524334Z5Y6Q8.z920.y560.yC70', 'lethanhlong@gmail.com', '0872345678', '1987-03-03', N'Nam', '172234567890', 'Customer'),
-('nguyentranthuy_a', N'Nguyễn Trần Thúy', '$2b$10$lL68172635445Z6Y7Q9.z031.y671.yD81', 'nguyentranthuy_a@gmail.com', '0873456789', '1995-02-14', N'Nữ', '173345678901', 'Customer'),
-('phamvanquang_a', N'Phạm Văn Quang', '$2b$10$mM79283746556Z7Y8Q0.z142.y782.yE92', 'phamvanquang_a@gmail.com', '0874567890', '1993-07-20', N'Nam', '174456789012', 'Customer'),
-('tranvanquy_b', N'Trần Văn Quý', '$2b$10$nN80394857667Z8Y9Q1.z253.y893.yF03', 'tranvanquy_b@gmail.com', '0875678901', '1990-04-08', N'Nam', '175567890123', 'Customer'),
-('nguyenthithanhbinh', N'Nguyễn Thị Thanh Bình', '$2b$10$oO91405968778Z9Y0Q2.z364.y904.yG14', 'nguyenthithanhbinh@gmail.com', '0876789012', '1997-01-05', N'Nữ', '176678901234', 'Customer'),
-('leminhanh', N'Lê Minh Anh', '$2b$10$pP02516079889Z0Y1Q3.z475.y015.yH25', 'leminhanh@gmail.com', '0877890123', '1989-09-12', N'Nam', '177789012345', 'Customer'),
-('nguyenthithuylinh', N'Nguyễn Thị Thùy Linh', '$2b$10$qQ13627180990Z1Y2Q4.z586.y126.yI36', 'nguyenthithuylinh@gmail.com', '0878901234', '1994-02-23', N'Nữ', '178890123456', 'Customer'),
-('phamvanhung_a', N'Phạm Văn Hùng', '$2b$10$rR24738291001Z2Y3Q5.z697.y237.yJ47', 'phamvanhung_a@gmail.com', '0879012345', '1991-06-11', N'Nam', '179901234567', 'Customer'),
-('tranvanthanh_b', N'Trần Văn Thanh', '$2b$10$sS35849302112Z3Y4Q6.z708.y348.yK58', 'tranvanthanh_b@gmail.com', '0880123456', '1986-12-04', N'Nam', '180012345678', 'Customer'),
-('nguyenthibichhong', N'Nguyễn Thị Bích Hồng', '$2b$10$tT46950413223Z4Y5Q7.z819.y459.yL69', 'nguyenthibichhong@gmail.com', '0881234567', '1995-07-18', N'Nữ', '181123456789', 'Customer'),
-('levanduc', N'Lê Văn Đức', '$2b$10$uU57061524334Z5Y6Q8.z920.y560.yM70', 'levanduc@gmail.com', '0882345678', '1993-03-09', N'Nam', '182234567890', 'Customer'),
-('nguyenthanhhoa_b', N'Nguyễn Thanh Hòa', '$2b$10$vV68172635445Z6Y7Q9.z031.y671.yN81', 'nguyenthanhhoa_b@gmail.com', '0883456789', '1997-05-20', N'Nữ', '183345678901', 'Customer'),
-('phamminhtrung', N'Phạm Minh Trung', '$2b$10$wW79283746556Z7Y8Q0.z142.y782.yO92', 'phamminhtrung@gmail.com', '0884567890', '1990-11-01', N'Nam', '184456789012', 'Customer'),
-('tranvancuong_b', N'Trần Văn Cường', '$2b$10$xX80394857667Z8Y9Q1.z253.y893.yP03', 'tranvancuong_b@gmail.com', '0885678901', '1987-08-25', N'Nam', '185567890123', 'Customer'),
-('nguyenthithanhnguyen', N'Nguyễn Thị Thanh Nguyên', '$2b$10$yY91405968778Z9Y0Q2.z364.y904.yQ14', 'nguyenthithanhnguyen@gmail.com', '0886789012', '1996-04-07', N'Nữ', '186678901234', 'Customer'),
-('lehoanghai_a', N'Lê Hoàng Hải', '$2b$10$zZ02516079889Z0Y1Q3.z475.y015.yR25', 'lehoanghai_a@gmail.com', '0887890123', '1989-10-14', N'Nam', '187789012345', 'Customer'),
-('nguyenthithuonghoai', N'Nguyễn Thị Thường Hoài', '$2b$10$aA13627180990Z1Y2Q4.z586.y126.yS36', 'nguyenthithuonghoai@gmail.com', '0888901234', '1994-09-08', N'Nữ', '188890123456', 'Customer'),
-('phamanhthao_b', N'Phạm Anh Thảo', '$2b$10$bB24738291001Z2Y3Q5.z697.y237.yT47', 'phamanhthao_b@gmail.com', '0889012345', '1991-02-01', N'Nữ', '189901234567', 'Customer'),
-('tranvanduy_b', N'Trần Văn Duy', '$2b$10$cC35849302112Z3Y4Q6.z708.y348.yU58', 'tranvanduy_b@gmail.com', '0890123456', '1986-06-20', N'Nam', '190012345678', 'Customer'),
-('nguyenthibichthuy', N'Nguyễn Thị Bích Thúy', '$2b$10$dD46950413223Z4Y5Q7.z819.y459.yV69', 'nguyenthibichthuy@gmail.com', '0891234567', '1995-11-11', N'Nữ', '191123456789', 'Customer'),
-('lehoangviet_a', N'Lê Hoàng Việt', '$2b$10$eE57061524334Z5Y6Q8.z920.y560.yW70', 'lehoangviet_a@gmail.com', '0892345678', '1993-08-03', N'Nam', '192234567890', 'Customer'),
-('nguyenthanhhoa_c', N'Nguyễn Thanh Hòa', '$2b$10$fF68172635445Z6Y7Q9.z031.y671.yX81', 'nguyenthanhhoa_c@gmail.com', '0893456789', '1997-04-25', N'Nữ', '193345678901', 'Customer'),
-('phamvanlam', N'Phạm Văn Lâm', '$2b$10$gG79283746556Z7Y8Q0.z142.y782.yY92', 'phamvanlam@gmail.com', '0894567890', '1990-12-19', N'Nam', '194456789012', 'Customer'),
-('tranvanlong_b', N'Trần Văn Long', '$2b$10$hH80394857667Z8Y9Q1.z253.y893.yZ03', 'tranvanlong_b@gmail.com', '0895678901', '1987-05-08', N'Nam', '195567890123', 'Customer'),
-('nguyenthithanhngoc_a', N'Nguyễn Thị Thanh Ngọc', '$2b$10$iI91405968778Z9Y0Q2.z364.y904.yA14', 'nguyenthihuonguyen@gmail.com', '0896789012', '1996-01-30', N'Nữ', '196678901234', 'Customer'),
-('leminhquy', N'Lê Minh Quý', '$2b$10$jJ02516079889Z0Y1Q3.z475.y015.yB25', 'leminhquy@gmail.com', '0897890123', '1989-03-27', N'Nam', '197789012345', 'Customer'),
-('nguyenthihuong_b', N'Nguyễn Thị Hương', '$2b$10$kK13627180990Z1Y2Q4.z586.y126.yC36', 'huong_b@gmail.com', '0898901234', '1994-10-06', N'Nữ', '198890123456', 'Customer'),
-('phamvananh', N'Phạm Văn Anh', '$2b$10$lL24738291001Z2Y3Q5.z697.y237.yD47', 'vananh@gmail.com', '0899012345', '1991-07-14', N'Nam', '199901234567', 'Customer'),
-('tranvanlinh_b', N'Trần Văn Linh', '$2b$10$mM35849302112Z3Y4Q6.z708.y348.yE58', 'tranvanlinh_b@gmail.com', '0900123456', '1988-04-02', N'Nam', '200012345678', 'Customer');
---
---
+-- Dữ liệu mẫu cho bảng NguoiDung
+-- (Bao gồm admin đã có, thêm 99 bản ghi khác)
+INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD, VaiTro) VALUES
+('khachhang1', N'Nguyễn Văn A', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nva@example.com', '0901234567', '1990-01-15', N'Nam', '123456789001', 'Customer'),
+('khachhang2', N'Trần Thị B', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ttb@example.com', '0901234568', '1992-03-20', N'Nữ', '123456789002', 'Customer'),
+('khachhang3', N'Lê Văn C', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lvc@example.com', '0901234569', '1988-05-10', N'Nam', '123456789003', 'Customer'),
+('khachhang4', N'Phạm Thị D', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ptd@example.com', '0901234570', '1995-07-25', N'Nữ', '123456789004', 'Customer'),
+('khachhang5', N'Hoàng Văn E', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hve@example.com', '0901234571', '1991-09-01', N'Nam', '123456789005', 'Customer'),
+('khachhang6', N'Đỗ Thị F', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtf@example.com', '0901234572', '1987-11-12', N'Nữ', '123456789006', 'Customer'),
+('khachhang7', N'Võ Văn G', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vvg@example.com', '0901234573', '1993-02-28', N'Nam', '123456789007', 'Customer'),
+('khachhang8', N'Bùi Thị H', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bth@example.com', '0901234574', '1990-04-05', N'Nữ', '123456789008', 'Customer'),
+('khachhang9', N'Đặng Văn I', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvi@example.com', '0901234575', '1994-06-18', N'Nam', '123456789009', 'Customer'),
+('khachhang10', N'Nguyễn Thị K', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ntk@example.com', '0901234576', '1989-08-03', N'Nữ', '123456789010', 'Customer'),
+('khachhang11', N'Trần Văn L', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tvl@example.com', '0901234577', '1996-10-09', N'Nam', '123456789011', 'Customer'),
+('khachhang12', N'Lê Thị M', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ltm@example.com', '0901234578', '1985-12-22', N'Nữ', '123456789012', 'Customer'),
+('khachhang13', N'Phạm Văn N', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'pvn@example.com', '0901234579', '1997-01-30', N'Nam', '123456789013', 'Customer'),
+('khachhang14', N'Hoàng Thị O', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hto@example.com', '0901234580', '1980-03-14', N'Nữ', '123456789014', 'Customer'),
+('khachhang15', N'Đỗ Văn P', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvp@example.com', '0901234581', '1998-05-07', N'Nam', '123456789015', 'Customer'),
+('khachhang16', N'Võ Thị Q', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vtq@example.com', '0901234582', '1983-07-21', N'Nữ', '123456789016', 'Customer'),
+('khachhang17', N'Bùi Văn R', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bvr@example.com', '0901234583', '1999-09-02', N'Nam', '123456789017', 'Customer'),
+('khachhang18', N'Đặng Thị S', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dts@example.com', '0901234584', '1986-11-11', N'Nữ', '123456789018', 'Customer'),
+('khachhang19', N'Nguyễn Văn T', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nvt@example.com', '0901234585', '2000-01-26', N'Nam', '123456789019', 'Customer'),
+('khachhang20', N'Trần Thị U', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ttu@example.com', '0901234586', '1982-03-08', N'Nữ', '123456789020', 'Customer'),
+('khachhang21', N'Lê Văn V', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lvv@example.com', '0901234587', '1991-05-19', N'Nam', '123456789021', 'Customer'),
+('khachhang22', N'Phạm Thị X', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ptx@example.com', '0901234588', '1984-07-04', N'Nữ', '123456789022', 'Customer'),
+('khachhang23', N'Hoàng Văn Y', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hvy@example.com', '0901234589', '1992-09-15', N'Nam', '123456789023', 'Customer'),
+('khachhang24', N'Đỗ Thị Z', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtz@example.com', '0901234590', '1981-11-29', N'Nữ', '123456789024', 'Customer'),
+('khachhang25', N'Võ Văn AA', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vvaa@example.com', '0901234591', '1995-02-10', N'Nam', '123456789025', 'Customer'),
+('khachhang26', N'Bùi Thị BB', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'btbb@example.com', '0901234592', '1988-04-23', N'Nữ', '123456789026', 'Customer'),
+('khachhang27', N'Đặng Văn CC', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvcc@example.com', '0901234593', '1990-06-05', N'Nam', '123456789027', 'Customer'),
+('khachhang28', N'Nguyễn Thị DD', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ntdd@example.com', '0901234594', '1987-08-17', N'Nữ', '123456789028', 'Customer'),
+('khachhang29', N'Trần Văn EE', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tvee@example.com', '0901234595', '1993-10-28', N'Nam', '123456789029', 'Customer'),
+('khachhang30', N'Lê Thị FF', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ltff@example.com', '0901234596', '1986-12-01', N'Nữ', '123456789030', 'Customer'),
+('khachhang31', N'Phạm Văn GG', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'pvgg@example.com', '0901234597', '1994-02-14', N'Nam', '123456789031', 'Customer'),
+('khachhang32', N'Hoàng Thị HH', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hthh@example.com', '0901234598', '1989-04-27', N'Nữ', '123456789032', 'Customer'),
+('khachhang33', N'Đỗ Văn II', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvii@example.com', '0901234599', '1996-06-08', N'Nam', '123456789033', 'Customer'),
+('khachhang34', N'Võ Thị JJ', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vtjj@example.com', '0901234600', '1985-08-01', N'Nữ', '123456789034', 'Customer'),
+('khachhang35', N'Bùi Văn KK', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bvkk@example.com', '0901234601', '1997-10-12', N'Nam', '123456789035', 'Customer'),
+('khachhang36', N'Đặng Thị LL', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtll@example.com', '0901234602', '1982-12-25', N'Nữ', '123456789036', 'Customer'),
+('khachhang37', N'Nguyễn Văn MM', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nvmm@example.com', '0901234603', '1998-01-05', N'Nam', '123456789037', 'Customer'),
+('khachhang38', N'Trần Thị NN', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ttnn@example.com', '0901234604', '1980-03-18', N'Nữ', '123456789038', 'Customer'),
+('khachhang39', N'Lê Văn OO', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lvoo@example.com', '0901234605', '1999-05-29', N'Nam', '123456789039', 'Customer'),
+('khachhang40', N'Phạm Thị PP', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ptpp@example.com', '0901234606', '1983-07-02', N'Nữ', '123456789040', 'Customer'),
+('khachhang41', N'Hoàng Văn QQ', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hvqq@example.com', '0901234607', '2000-09-13', N'Nam', '123456789041', 'Customer'),
+('khachhang42', N'Đỗ Thị RR', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtrr@example.com', '0901234608', '1981-11-26', N'Nữ', '123456789042', 'Customer'),
+('khachhang43', N'Võ Văn SS', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vvss@example.com', '0901234609', '1995-02-07', N'Nam', '123456789043', 'Customer'),
+('khachhang44', N'Bùi Thị TT', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bttt@example.com', '0901234610', '1988-04-20', N'Nữ', '123456789044', 'Customer'),
+('khachhang45', N'Đặng Văn UU', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvuu@example.com', '0901234611', '1990-06-01', N'Nam', '123456789045', 'Customer'),
+('khachhang46', N'Nguyễn Thị VV', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ntvv@example.com', '0901234612', '1987-08-13', N'Nữ', '123456789046', 'Customer'),
+('khachhang47', N'Trần Văn XX', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tvxx@example.com', '0901234613', '1993-10-24', N'Nam', '123456789047', 'Customer'),
+('khachhang48', N'Lê Thị YY', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ltyy@example.com', '0901234614', '1986-12-07', N'Nữ', '123456789048', 'Customer'),
+('khachhang49', N'Phạm Văn ZZ', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'pvzz@example.com', '0901234615', '1994-02-18', N'Nam', '123456789049', 'Customer'),
+('khachhang50', N'Hoàng Thị AAA', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'htaaa@example.com', '0901234616', '1989-04-03', N'Nữ', '123456789050', 'Customer'),
+('khachhang51', N'Đỗ Văn BBB', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvbbb@example.com', '0901234617', '1996-06-14', N'Nam', '123456789051', 'Customer'),
+('khachhang52', N'Võ Thị CCC', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vtccc@example.com', '0901234618', '1985-08-27', N'Nữ', '123456789052', 'Customer'),
+('khachhang53', N'Bùi Văn DDD', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bvddd@example.com', '0901234619', '1997-10-08', N'Nam', '123456789053', 'Customer'),
+('khachhang54', N'Đặng Thị EEE', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtee@example.com', '0901234620', '1982-12-03', N'Nữ', '123456789054', 'Customer'),
+('khachhang55', N'Nguyễn Văn FFF', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nvfff@example.com', '0901234621', '1998-01-16', N'Nam', '123456789055', 'Customer'),
+('khachhang56', N'Trần Thị GGG', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ttggg@example.com', '0901234622', '1980-03-29', N'Nữ', '123456789056', 'Customer'),
+('khachhang57', N'Lê Văn HHH', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lvhhh@example.com', '0901234623', '1999-05-10', N'Nam', '123456789057', 'Customer'),
+('khachhang58', N'Phạm Thị III', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ptiii@example.com', '0901234624', '1983-07-23', N'Nữ', '123456789058', 'Customer'),
+('khachhang59', N'Hoàng Văn JJJ', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hvjjj@example.com', '0901234625', '2000-09-04', N'Nam', '123456789059', 'Customer'),
+('khachhang60', N'Đỗ Thị KKK', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtkkk@example.com', '0901234626', '1981-11-17', N'Nữ', '123456789060', 'Customer'),
+('khachhang61', N'Võ Văn LLL', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vvlll@example.com', '0901234627', '1995-02-28', N'Nam', '123456789061', 'Customer'),
+('khachhang62', N'Bùi Thị MMM', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'btmmm@example.com', '0901234628', '1988-04-11', N'Nữ', '123456789062', 'Customer'),
+('khachhang63', N'Đặng Văn NNN', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvnnn@example.com', '0901234629', '1990-06-22', N'Nam', '123456789063', 'Customer'),
+('khachhang64', N'Nguyễn Thị OOO', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ntooo@example.com', '0901234630', '1987-08-05', N'Nữ', '123456789064', 'Customer'),
+('khachhang65', N'Trần Văn PPP', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tvppp@example.com', '0901234631', '1993-10-16', N'Nam', '123456789065', 'Customer'),
+('khachhang66', N'Lê Thị QQQ', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ltqqq@example.com', '0901234632', '1986-12-29', N'Nữ', '123456789066', 'Customer'),
+('khachhang67', N'Phạm Văn RRR', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'pvrrr@example.com', '0901234633', '1994-02-09', N'Nam', '123456789067', 'Customer'),
+('khachhang68', N'Hoàng Thị SSS', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'htsss@example.com', '0901234634', '1989-04-22', N'Nữ', '123456789068', 'Customer'),
+('khachhang69', N'Đỗ Văn TTT', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvttt@example.com', '0901234635', '1996-06-03', N'Nam', '123456789069', 'Customer'),
+('khachhang70', N'Võ Thị UUU', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vtuuu@example.com', '0901234636', '1985-08-16', N'Nữ', '123456789070', 'Customer'),
+('khachhang71', N'Bùi Văn VVV', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bvvvv@example.com', '0901234637', '1997-10-27', N'Nam', '123456789071', 'Customer'),
+('khachhang72', N'Đặng Thị XXX', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtxxx@example.com', '0901234638', '1982-12-10', N'Nữ', '123456789072', 'Customer'),
+('khachhang73', N'Nguyễn Văn YYY', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nvyyy@example.com', '0901234639', '1998-01-23', N'Nam', '123456789073', 'Customer'),
+('khachhang74', N'Trần Thị ZZZ', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ttzzz@example.com', '0901234640', '1980-03-06', N'Nữ', '123456789074', 'Customer'),
+('khachhang75', N'Lê Văn A1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lva1@example.com', '0901234641', '1999-05-17', N'Nam', '123456789075', 'Customer'),
+('khachhang76', N'Phạm Thị B1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ptb1@example.com', '0901234642', '1983-07-30', N'Nữ', '123456789076', 'Customer'),
+('khachhang77', N'Hoàng Văn C1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hvc1@example.com', '0901234643', '2000-09-11', N'Nam', '123456789077', 'Customer'),
+('khachhang78', N'Đỗ Thị D1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtd1@example.com', '0901234644', '1981-11-24', N'Nữ', '123456789078', 'Customer'),
+('khachhang79', N'Võ Văn E1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vve1@example.com', '0901234645', '1995-02-05', N'Nam', '123456789079', 'Customer'),
+('khachhang80', N'Bùi Thị F1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'btf1@example.com', '0901234646', '1988-04-18', N'Nữ', '123456789080', 'Customer'),
+('khachhang81', N'Đặng Văn G1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvg1@example.com', '0901234647', '1990-06-29', N'Nam', '123456789081', 'Customer'),
+('khachhang82', N'Nguyễn Thị H1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nth1@example.com', '0901234648', '1987-08-11', N'Nữ', '123456789082', 'Customer'),
+('khachhang83', N'Trần Văn I1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tvi1@example.com', '0901234649', '1993-10-22', N'Nam', '123456789083', 'Customer'),
+('khachhang84', N'Lê Thị K1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ltk1@example.com', '0901234650', '1986-12-05', N'Nữ', '123456789084', 'Customer'),
+('khachhang85', N'Phạm Văn L1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'pvl1@example.com', '0901234651', '1994-02-16', N'Nam', '123456789085', 'Customer'),
+('khachhang86', N'Hoàng Thị M1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'htm1@example.com', '0901234652', '1989-04-29', N'Nữ', '123456789086', 'Customer'),
+('khachhang87', N'Đỗ Văn N1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dvn1@example.com', '0901234653', '1996-06-10', N'Nam', '123456789087', 'Customer'),
+('khachhang88', N'Võ Thị O1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vto1@example.com', '0901234654', '1985-08-23', N'Nữ', '123456789088', 'Customer'),
+('khachhang89', N'Bùi Văn P1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'bvp1@example.com', '0901234655', '1997-10-04', N'Nam', '123456789089', 'Customer'),
+('khachhang90', N'Đặng Thị Q1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtq1@example.com', '0901234656', '1982-12-17', N'Nữ', '123456789090', 'Customer'),
+('khachhang91', N'Nguyễn Văn R1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'nvr1@example.com', '0901234657', '1998-01-30', N'Nam', '123456789091', 'Customer'),
+('khachhang92', N'Trần Thị S1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tts1@example.com', '0901234658', '1980-03-13', N'Nữ', '123456789092', 'Customer'),
+('khachhang93', N'Lê Văn T1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lvt1@example.com', '0901234659', '1999-05-24', N'Nam', '123456789093', 'Customer'),
+('khachhang94', N'Phạm Thị U1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ptu1@example.com', '0901234660', '1983-07-07', N'Nữ', '123456789094', 'Customer'),
+('khachhang95', N'Hoàng Văn V1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'hvv1@example.com', '0901234661', '2000-09-18', N'Nam', '123456789095', 'Customer'),
+('khachhang96', N'Đỗ Thị X1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtx1@example.com', '0901234662', '1981-11-01', N'Nữ', '123456789096', 'Customer'),
+('khachhang97', N'Võ Văn Y1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vvy1@example.com', '0901234663', '1995-02-12', N'Nam', '123456789097', 'Customer'),
+('khachhang98', N'Bùi Thị Z1', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'btz1@example.com', '0901234664', '1988-04-25', N'Nữ', '123456789098', 'Customer'),
+('khachhang99', N'Đặng Văn A2', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dva2@example.com', '0901234665', '1990-06-06', N'Nam', '123456789099', 'Customer'),
+('nhanvien1', N'Lê Hoàng Anh', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'lha@example.com', '0911223344', '1985-02-10', N'Nam', '100000000001', 'Employee'),
+('nhanvien2', N'Trần Minh Tú', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tmt@example.com', '0911223345', '1990-07-22', N'Nữ', '100000000002', 'Employee'),
+('nhanvien3', N'Phạm Gia Bảo', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'pgb@example.com', '0911223346', '1988-09-03', N'Nam', '100000000003', 'Employee'),
+('nhanvien4', N'Nguyễn Thanh Thảo', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'ntt@example.com', '0911223347', '1993-01-14', N'Nữ', '100000000004', 'Employee'),
+('nhanvien5', N'Vũ Đức Mạnh', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'vdm@example.com', '0911223348', '1987-04-26', N'Nam', '100000000005', 'Employee'),
+('nhanvien6', N'Đặng Phương Linh', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dpl@example.com', '0911223349', '1991-06-08', N'Nữ', '100000000006', 'Employee'),
+('nhanvien7', N'Tô Minh Quang', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'tmq@example.com', '0911223350', '1989-08-19', N'Nam', '100000000007', 'Employee'),
+('nhanvien8', N'Dương Thùy Trang', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'dtt@example.com', '0911223351', '1994-10-30', N'Nữ', '100000000008', 'Employee'),
+('nhanvien9', N'Cao Xuân Hùng', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'cxh@example.com', '0911223352', '1986-12-01', N'Nam', '100000000009', 'Employee'),
+('nhanvien10', N'Bùi Thanh Tâm', '$2b$10$eJCDxbyTqGrsX5YF1Iy6TOrMQUri4nGC1ltcF27XexNx9aC2pkYe.', 'btt@example.com', '0911223353', '1992-03-13', N'Nữ', '100000000010', 'Employee');
+GO
+
+-- Dữ liệu mẫu cho bảng KhachHang
 INSERT INTO KhachHang (MaKH, Passport, TaiKhoan) VALUES
-('KH001', 'AB123456', 'nguyenvana'),
-('KH002', 'CD789012', 'tranthinga'),
-('KH003', 'EF345678', 'leminhhai'),
-('KH004', 'GH901234', 'phamthihuong'),
-('KH005', 'IJ567890', 'hoanganhtuan'),
-('KH006', 'KL123457', 'nguyenthib'),
-('KH007', 'MN789013', 'votuananh'),
-('KH008', 'OP345679', 'dangthuyduong'),
-('KH009', 'QR901235', 'truongvanduc'),
-('KH010', 'ST567891', 'dothihuyen'),
-('KH011', 'UV123458', 'phanvanduc'),
-('KH012', 'WX789014', 'nguyenquynhchi'),
-('KH013', 'YZ345680', 'tranvietanh'),
-('KH014', 'AA901236', 'lethithuy'),
-('KH015', 'BB567892', 'phamnhatminh'),
-('KH016', 'CC123459', 'nguyenthanhhoa'),
-('KH017', 'DD789015', 'vuvanhung'),
-('KH018', 'EE345681', 'hochithanh'),
-('KH019', 'FF901237', 'maithuytrang'),
-('KH020', 'GG567893', 'nguyenvanc'),
-('KH021', 'HH123460', 'tranvanquy'),
-('KH022', 'II789016', 'phanthidung'),
-('KH023', 'JJ345682', 'dogiatuan'),
-('KH024', 'KK901238', 'nguyenthiminh'),
-('KH025', 'LL567894', 'dinhtheanh'),
-('KH026', 'MM123461', 'nguyenthuha'),
-('KH027', 'NN789017', 'lehoangviet'),
-('KH028', 'OO345683', 'phamthithu'),
-('KH029', 'PP901239', 'tranthanhlong'),
-('KH030', 'QQ567895', 'nguyenthuoc'),
-('KH031', 'RR123462', 'hoangvanhuy'),
-('KH032', 'SS789018', 'duongthithu'),
-('KH033', 'TT345684', 'nguyenvananh'),
-('KH034', 'UU901240', 'tranvanthanh'),
-('KH035', 'VV567896', 'lethuhang'),
-('KH036', 'WW123463', 'nguyenthithuyduong'),
-('KH037', 'XX789019', 'phamanhvu'),
-('KH038', 'YY345685', 'nguyenthihuong'),
-('KH039', 'ZZ901241', 'dovanlong'),
-('KH040', 'AC123464', 'tranvanhao'),
-('KH041', 'BD789020', 'nguyenductrung'),
-('KH042', 'CE345686', 'phamanhthu'),
-('KH043', 'DF901242', 'lethanhhien'),
-('KH044', 'EG567897', 'nguyenthaithu'),
-('KH045', 'FH123465', 'tranhoangnam'),
-('KH046', 'GI789021', 'vuthithuong'),
-('KH047', 'HJ345687', 'nguyenminhquan'),
-('KH048', 'IK901243', 'phamthithuong'),
-('KH049', 'JL567898', 'lehoanghai'),
-('KH050', 'KM123466', 'nguyenthanhnam'),
-('KH051', 'LN789022', 'tranvanlinh'),
-('KH052', 'MO345688', 'phamdanghuy'),
-('KH053', 'NP901244', 'nguyentranthuy'),
-('KH054', 'OQ567899', 'dovuhoang'),
-('KH055', 'PR123467', 'nguyenthidiem'),
-('KH056', 'QS789023', 'lequanganh'),
-('KH057', 'RT345689', 'tranthiminhhien'),
-('KH058', 'SU901245', 'nguyenduckhoa'),
-('KH059', 'TV567900', 'phambichhang'),
-('KH060', 'UW123468', 'tranminhduc'),
-('KH061', 'VX789024', 'nguyenthanhnga'),
-('KH062', 'WY345690', 'lequanghung'),
-('KH063', 'XZ901246', 'nguyenthanhhuyen'),
-('KH064', 'YA567901', 'phamquangtrung'),
-('KH065', 'ZB123469', 'hoangthithao'),
-('KH066', 'CC789025', 'dovanviet'),
-('KH067', 'DD345691', 'nguyenthiyen'),
-('KH068', 'EE901247', 'trandaiduong'),
-('KH069', 'FF567902', 'lethanhthao'),
-('KH070', 'GG123470', 'nguyenbaoquang'),
-('KH071', 'HH789026', 'phamthithuytrang'),
-('KH072', 'II345692', 'nguyenvanthinh'),
-('KH073', 'JJ901248', 'tranvanthang'),
-('KH074', 'KK567903', 'lethianhdao'),
-('KH075', 'LL123471', 'nguyenthanhhai'),
-('KH076', 'MM789027', 'tranvanhieu'),
-('KH077', 'NN345693', 'phamthihuonggiang'),
-('KH078', 'OO901249', 'nguyenvantu'),
-('KH079', 'PP567904', 'dothimyanh'),
-('KH080', 'QQ123472', 'hoangminhkhai'),
-('KH081', 'RR789028', 'nguyenthithanhtruyen'),
-('KH082', 'SS345694', 'tranlehuu'),
-('KH083', 'TT901250', 'lethibichngoc'),
-('KH084', 'UU567905', 'nguyenthanhphong'),
-('KH085', 'VV123473', 'phamvanquang'),
-('KH086', 'WW789029', 'nguyenthingocthao'),
-('KH087', 'XX345695', 'tranhuonggiang'),
-('KH088', 'YY901251', 'lethanhdat'),
-('KH089', 'ZZ567906', 'nguyenthithanhtuyen'),
-('KH090', 'AD123474', 'phanvanthuan'),
-('KH091', 'BE789030', 'nguyenthuhoai'),
-('KH092', 'CF345696', 'tranvanhai'),
-('KH093', 'DG901252', 'lethuytrang'),
-('KH094', 'EH567907', 'nguyenhoangnam'),
-('KH095', 'FI123475', 'phamanhthao'),
-('KH096', 'GJ789031', 'nguyenthanhngoc'),
-('KH097', 'HK345697', 'tranvannhan'),
-('KH098', 'IL901253', 'lethanhhieu'),
-('KH099', 'JM567908', 'nguyenthihaiduong'),
-('KH100', 'KN123476', 'tranminhanh');
---
---
+('KH001', 'PAS001', 'khachhang1'),
+('KH002', 'PAS002', 'khachhang2'),
+('KH003', 'PAS003', 'khachhang3'),
+('KH004', 'PAS004', 'khachhang4'),
+('KH005', 'PAS005', 'khachhang5'),
+('KH006', 'PAS006', 'khachhang6'),
+('KH007', 'PAS007', 'khachhang7'),
+('KH008', 'PAS008', 'khachhang8'),
+('KH009', 'PAS009', 'khachhang9'),
+('KH010', 'PAS010', 'khachhang10'),
+('KH011', 'PAS011', 'khachhang11'),
+('KH012', 'PAS012', 'khachhang12'),
+('KH013', 'PAS013', 'khachhang13'),
+('KH014', 'PAS014', 'khachhang14'),
+('KH015', 'PAS015', 'khachhang15'),
+('KH016', 'PAS016', 'khachhang16'),
+('KH017', 'PAS017', 'khachhang17'),
+('KH018', 'PAS018', 'khachhang18'),
+('KH019', 'PAS019', 'khachhang19'),
+('KH020', 'PAS020', 'khachhang20'),
+('KH021', 'PAS021', 'khachhang21'),
+('KH022', 'PAS022', 'khachhang22'),
+('KH023', 'PAS023', 'khachhang23'),
+('KH024', 'PAS024', 'khachhang24'),
+('KH025', 'PAS025', 'khachhang25'),
+('KH026', 'PAS026', 'khachhang26'),
+('KH027', 'PAS027', 'khachhang27'),
+('KH028', 'PAS028', 'khachhang28'),
+('KH029', 'PAS029', 'khachhang29'),
+('KH030', 'PAS030', 'khachhang30'),
+('KH031', 'PAS031', 'khachhang31'),
+('KH032', 'PAS032', 'khachhang32'),
+('KH033', 'PAS033', 'khachhang33'),
+('KH034', 'PAS034', 'khachhang34'),
+('KH035', 'PAS035', 'khachhang35'),
+('KH036', 'PAS036', 'khachhang36'),
+('KH037', 'PAS037', 'khachhang37'),
+('KH038', 'PAS038', 'khachhang38'),
+('KH039', 'PAS039', 'khachhang39'),
+('KH040', 'PAS040', 'khachhang40'),
+('KH041', 'PAS041', 'khachhang41'),
+('KH042', 'PAS042', 'khachhang42'),
+('KH043', 'PAS043', 'khachhang43'),
+('KH044', 'PAS044', 'khachhang44'),
+('KH045', 'PAS045', 'khachhang45'),
+('KH046', 'PAS046', 'khachhang46'),
+('KH047', 'PAS047', 'khachhang47'),
+('KH048', 'PAS048', 'khachhang48'),
+('KH049', 'PAS049', 'khachhang49'),
+('KH050', 'PAS050', 'khachhang50'),
+('KH051', 'PAS051', 'khachhang51'),
+('KH052', 'PAS052', 'khachhang52'),
+('KH053', 'PAS053', 'khachhang53'),
+('KH054', 'PAS054', 'khachhang54'),
+('KH055', 'PAS055', 'khachhang55'),
+('KH056', 'PAS056', 'khachhang56'),
+('KH057', 'PAS057', 'khachhang57'),
+('KH058', 'PAS058', 'khachhang58'),
+('KH059', 'PAS059', 'khachhang59'),
+('KH060', 'PAS060', 'khachhang60'),
+('KH061', 'PAS061', 'khachhang61'),
+('KH062', 'PAS062', 'khachhang62'),
+('KH063', 'PAS063', 'khachhang63'),
+('KH064', 'PAS064', 'khachhang64'),
+('KH065', 'PAS065', 'khachhang65'),
+('KH066', 'PAS066', 'khachhang66'),
+('KH067', 'PAS067', 'khachhang67'),
+('KH068', 'PAS068', 'khachhang68'),
+('KH069', 'PAS069', 'khachhang69'),
+('KH070', 'PAS070', 'khachhang70'),
+('KH071', 'PAS071', 'khachhang71'),
+('KH072', 'PAS072', 'khachhang72'),
+('KH073', 'PAS073', 'khachhang73'),
+('KH074', 'PAS074', 'khachhang74'),
+('KH075', 'PAS075', 'khachhang75'),
+('KH076', 'PAS076', 'khachhang76'),
+('KH077', 'PAS077', 'khachhang77'),
+('KH078', 'PAS078', 'khachhang78'),
+('KH079', 'PAS079', 'khachhang79'),
+('KH080', 'PAS080', 'khachhang80'),
+('KH081', 'PAS081', 'khachhang81'),
+('KH082', 'PAS082', 'khachhang82'),
+('KH083', 'PAS083', 'khachhang83'),
+('KH084', 'PAS084', 'khachhang84'),
+('KH085', 'PAS085', 'khachhang85'),
+('KH086', 'PAS086', 'khachhang86'),
+('KH087', 'PAS087', 'khachhang87'),
+('KH088', 'PAS088', 'khachhang88'),
+('KH089', 'PAS089', 'khachhang89'),
+('KH090', 'PAS090', 'khachhang90'),
+('KH091', 'PAS091', 'khachhang91'),
+('KH092', 'PAS092', 'khachhang92'),
+('KH093', 'PAS093', 'khachhang93'),
+('KH094', 'PAS094', 'khachhang94'),
+('KH095', 'PAS095', 'khachhang95'),
+('KH096', 'PAS096', 'khachhang96'),
+('KH097', 'PAS097', 'khachhang97'),
+('KH098', 'PAS098', 'khachhang98'),
+('KH099', 'PAS099', 'khachhang99');
+GO
 
+-- Dữ liệu mẫu cho bảng NhanVienKiemSoat
 INSERT INTO NhanVienKiemSoat (MaNV, TaiKhoan) VALUES
-('NV001', 'nguyenthihoangyen'),
-('NV002', 'phamanhlinh'),
-('NV003', 'lethidieulinh'),
-('NV004', 'nguyenvandat'),
-('NV005', 'tranvanhuy'),
-('NV006', 'nguyenthicamlinh'),
-('NV007', 'dovanminh'),
-('NV008', 'hoangthuyquynh'),
-('NV009', 'nguyenthehai'),
-('NV010', 'tranthingocanh'),
-('NV011', 'phamhoanglong'),
-('NV012', 'nguyenthithanhmai'),
-('NV013', 'leminhhoang'),
-('NV014', 'nguyenthithuongthuong'),
-('NV015', 'tranvanduy'),
-('NV016', 'hoangthanhson'),
-('NV017', 'nguyenthithanhloan'),
-('NV018', 'phanminhduc'),
-('NV019', 'nguyenthithanhtrang'),
-('NV020', 'dovanhoa'),
-('NV021', 'tranvannguyen'),
-('NV022', 'lethithuyhang'),
-('NV023', 'nguyenthanhhaiyen'),
-('NV024', 'phamanhdao'),
-('NV025', 'nguyenthidiemhuong'),
-('NV026', 'tranvanlam'),
-('NV027', 'lethithuha'),
-('NV028', 'nguyenthanhduy'),
-('NV029', 'phamvandai'),
-('NV030', 'nguyenthikieuanh'),
-('NV031', 'tranvanthanglong'),
-('NV032', 'lethithuongmai'),
-('NV033', 'nguyenthanhphuong'),
-('NV034', 'phamvanlinh'),
-('NV035', 'nguyenthithuonguyen'),
-('NV036', 'tranvantuan'),
-('NV037', 'lethithuhoa'),
-('NV038', 'nguyenthanhkhoa'),
-('NV039', 'phamthihuynhhuong'),
-('NV040', 'nguyenvancuong'),
-('NV041', 'tranthingochuyen'),
-('NV042', 'lethanhhien_a'),
-('NV043', 'nguyenthanhtrung'),
-('NV044', 'phamvanminh_a'),
-('NV045', 'nguyenthihuongly'),
-('NV046', 'tranvanphuong_a'),
-('NV047', 'lethithuong'),
-('NV048', 'nguyenthanhtam'),
-('NV049', 'phamnhatnam'),
-('NV050', 'tranvanhieu_a'),
-('NV051', 'nguyenthibichloan'),
-('NV052', 'levanlinh'),
-('NV053', 'nguyenthihoangthao'),
-('NV054', 'phamvanduong'),
-('NV055', 'tranvandung'),
-('NV056', 'nguyenthithuonglan'),
-('NV057', 'leminhquang'),
-('NV058', 'nguyenthanhhoa_a'),
-('NV059', 'dovanloc'),
-('NV060', 'tranvanthuy'),
-('NV061', 'nguyenthithanhtuyen_a'),
-('NV062', 'lethanhgiang'),
-('NV063', 'nguyenthibichhang'),
-('NV064', 'phamvanhuy_a'),
-('NV065', 'tranvannghia'),
-('NV066', 'nguyenthuhoai_a'),
-('NV067', 'lethithanhanh'),
-('NV068', 'nguyenvancuong_a'),
-('NV069', 'phamanhthao_a'),
-('NV070', 'tranvanthang_b'),
-('NV071', 'nguyenthingoclinh'),
-('NV072', 'lethanhlong'),
-('NV073', 'nguyentranthuy_a'),
-('NV074', 'phamvanquang_a'),
-('NV075', 'tranvanquy_b'),
-('NV076', 'nguyenthithanhbinh'),
-('NV077', 'leminhanh'),
-('NV078', 'nguyenthithuylinh'),
-('NV079', 'phamvanhung_a'),
-('NV080', 'tranvanthanh_b'),
-('NV081', 'nguyenthibichhong'),
-('NV082', 'levanduc'),
-('NV083', 'nguyenthanhhoa_b'),
-('NV084', 'phamminhtrung'),
-('NV085', 'tranvancuong_b'),
-('NV086', 'nguyenthithanhnguyen'),
-('NV087', 'lehoanghai_a'),
-('NV088', 'nguyenthithuonghoai'),
-('NV089', 'phamanhthao_b'),
-('NV090', 'tranvanduy_b'),
-('NV091', 'nguyenthibichthuy'),
-('NV092', 'lehoangviet_a'),
-('NV093', 'nguyenthanhhoa_c'),
-('NV094', 'phamvanlam'),
-('NV095', 'tranvanlong_b'),
-('NV096', 'nguyenthithanhngoc_a'),
-('NV097', 'leminhquy'),
-('NV098', 'nguyenthihuong_b'),
-('NV099', 'phamvananh'),
-('NV100', 'tranvanlinh_b');
+('NV001', 'nhanvien1'),
+('NV002', 'nhanvien2'),
+('NV003', 'nhanvien3'),
+('NV004', 'nhanvien4'),
+('NV005', 'nhanvien5'),
+('NV006', 'nhanvien6'),
+('NV007', 'nhanvien7'),
+('NV008', 'nhanvien8'),
+('NV009', 'nhanvien9'),
+('NV010', 'nhanvien10');
+GO
 
---
-INSERT INTO BaoCao (MaBaoCao, NgayBaoCao, NoiDungBaoCao, MaNV, TrangThai) VALUES
-('BC001', '2025-01-01', N'Báo cáo kiểm tra an toàn chuyến bay VN101. Tình trạng tốt.', 'NV001', N'Đã xử lý'),
-('BC002', '2025-01-02', N'Phát hiện lỗi nhỏ trên hệ thống giải trí chuyến bay VN102. Đã khắc phục.', 'NV002', N'Chưa xử lý'),
-('BC003', '2025-01-03', N'Kiểm tra định kỳ trang thiết bị phòng cháy chữa cháy trên VN103. Đạt yêu cầu.', 'NV003', N'Đã xử lý'),
-('BC004', '2025-01-04', N'Báo cáo sự cố mất điện tạm thời tại khu vực sảnh chờ A.', 'NV004', N'Chưa xử lý'),
-('BC005', '2025-01-05', N'Kiểm tra vệ sinh buồng lái chuyến bay VN105. Hoàn thành.', 'NV005', N'Đã xử lý'),
-('BC006', '2025-01-06', N'Báo cáo về việc thiếu tài liệu hướng dẫn an toàn trên một số ghế.', 'NV006', N'Chưa xử lý'),
-('BC007', '2025-01-07', N'Kiểm tra hệ thống điều hòa không khí tại khu vực VIP. Hoạt động ổn định.', 'NV007', N'Đã xử lý'),
-('BC008', '2025-01-08', N'Phát hiện vết nứt nhỏ trên cửa khoang hành lý VN108. Cần kiểm tra thêm.', 'NV008', N'Chưa xử lý'),
-('BC009', '2025-01-09', N'Báo cáo về tình hình giám sát an ninh tại cổng B3. Bình thường.', 'NV009', N'Đã xử lý'),
-('BC010', '2025-01-10', N'Kiểm tra hiệu suất đèn tín hiệu đường băng. Có một đèn cần thay thế.', 'NV010', N'Chưa xử lý'),
-('BC011', '2025-01-11', N'Báo cáo kiểm tra hệ thống thông gió tại nhà ga T1. Đạt yêu cầu.', 'NV011', N'Đã xử lý'),
-('BC012', '2025-01-12', N'Phát hiện ghế hành khách bị hỏng trên chuyến bay VN112. Đang chờ sửa chữa.', 'NV012', N'Chưa xử lý'),
-('BC013', '2025-01-13', N'Kiểm tra độ bền của dây an toàn trên VN113. Tất cả đều tốt.', 'NV013', N'Đã xử lý'),
-('BC014', '2025-01-14', N'Báo cáo về việc thiếu nước sạch tại một nhà vệ sinh công cộng.', 'NV014', N'Chưa xử lý'),
-('BC015', '2025-01-15', N'Kiểm tra hệ thống thoát hiểm của máy bay VN115. Đã thử nghiệm thành công.', 'NV015', N'Đã xử lý'),
-('BC016', '2025-01-16', N'Phát hiện lỗi hiển thị thông tin chuyến bay trên bảng điện tử.', 'NV016', N'Chưa xử lý'),
-('BC017', '2025-01-17', N'Báo cáo kiểm tra thiết bị định vị trên VN117. Hoạt động chính xác.', 'NV017', N'Đã xử lý'),
-('BC018', '2025-01-18', N'Kiểm tra hệ thống âm thanh thông báo tại khu vực chờ. Có tiếng rè.', 'NV018', N'Chưa xử lý'),
-('BC019', '2025-01-19', N'Báo cáo về việc thực hiện quy trình kiểm tra hành lý xách tay.', 'NV019', N'Đã xử lý'),
-('BC020', '2025-01-20', N'Phát hiện cửa thoát hiểm bị kẹt nhẹ trên máy bay VN120.', 'NV020', N'Chưa xử lý'),
-('BC021', '2025-01-21', N'Kiểm tra hoạt động của thang cuốn tại khu vực sảnh đến. Bình thường.', 'NV021', N'Đã xử lý'),
-('BC022', '2025-01-22', N'Báo cáo về việc thiếu nhân viên hướng dẫn tại khu vực làm thủ tục.', 'NV022', N'Chưa xử lý'),
-('BC023', '2025-01-23', N'Kiểm tra chất lượng bữa ăn trên chuyến bay VN123. Đảm bảo vệ sinh.', 'NV023', N'Đã xử lý'),
-('BC024', '2025-01-24', N'Phát hiện camera giám sát tại khu vực nhà ga bị lỗi.', 'NV024', N'Chưa xử lý'),
-('BC025', '2025-01-25', N'Báo cáo kiểm tra hệ thống cấp nhiên liệu cho máy bay.', 'NV025', N'Đã xử lý'),
-('BC026', '2025-01-26', N'Kiểm tra pin của thiết bị bộ đàm nhân viên. Một số pin yếu.', 'NV026', N'Chưa xử lý'),
-('BC027', '2025-01-27', N'Báo cáo về việc tuân thủ quy định an toàn khi vận chuyển hàng hóa.', 'NV027', N'Đã xử lý'),
-('BC028', '2025-01-28', N'Phát hiện lỗi trên hệ thống đèn chiếu sáng khu vực sân đỗ.', 'NV028', N'Chưa xử lý'),
-('BC029', '2025-01-29', N'Kiểm tra áp suất lốp máy bay VN129. Đạt tiêu chuẩn.', 'NV029', N'Đã xử lý'),
-('BC030', '2025-01-30', N'Báo cáo về việc xử lý rác thải tại sân bay. Cần cải thiện.', 'NV030', N'Chưa xử lý'),
-('BC031', '2025-01-31', N'Kiểm tra hệ thống báo động cháy tại phòng điều khiển không lưu.', 'NV031', N'Đã xử lý'),
-('BC032', '2025-02-01', N'Phát hiện vết bẩn lớn trên sàn nhà ga. Đã yêu cầu dọn dẹp.', 'NV032', N'Chưa xử lý'),
-('BC033', '2025-02-02', N'Báo cáo kiểm tra hệ thống cấp oxy khẩn cấp trên VN133.', 'NV033', N'Đã xử lý'),
-('BC034', '2025-02-03', N'Kiểm tra các biển báo thoát hiểm. Có một biển báo bị mờ.', 'NV034', N'Chưa xử lý'),
-('BC035', '2025-02-04', N'Báo cáo về việc tuân thủ quy trình kiểm tra an ninh hành khách.', 'NV035', N'Đã xử lý'),
-('BC036', '2025-02-05', N'Phát hiện lỗi trên hệ thống định vị GPS của xe phục vụ sân bay.', 'NV036', N'Chưa xử lý'),
-('BC037', '2025-02-06', N'Kiểm tra hiệu chuẩn thiết bị đo tốc độ gió. Chính xác.', 'NV037', N'Đã xử lý'),
-('BC038', '2025-02-07', N'Báo cáo về việc thiếu đồ dùng vệ sinh trong nhà vệ sinh máy bay.', 'NV038', N'Chưa xử lý'),
-('BC039', '2025-02-08', N'Kiểm tra hoạt động của hệ thống liên lạc nội bộ.', 'NV039', N'Đã xử lý'),
-('BC040', '2025-02-09', N'Phát hiện lỗi phần mềm trên máy tính kiểm soát không lưu.', 'NV040', N'Chưa xử lý'),
-('BC041', '2025-02-10', N'Báo cáo kiểm tra hệ thống cấp phát thẻ lên máy bay tự động.', 'NV041', N'Đã xử lý'),
-('BC042', '2025-02-11', N'Kiểm tra mức độ tiếng ồn tại khu vực bãi đỗ máy bay.', 'NV042', N'Chưa xử lý'),
-('BC043', '2025-02-12', N'Báo cáo về việc kiểm tra chất lượng nước uống trên chuyến bay.', 'NV043', N'Đã xử lý'),
-('BC044', '2025-02-13', N'Phát hiện lỗi trên hệ thống chiếu sáng khu vực nhà ga chính.', 'NV044', N'Chưa xử lý'),
-('BC045', '2025-02-14', N'Kiểm tra độ chặt của ghế ngồi hành khách trên VN145. Tốt.', 'NV045', N'Đã xử lý'),
-('BC046', '2025-02-15', N'Báo cáo về việc thiếu hướng dẫn viên hỗ trợ hành khách khuyết tật.', 'NV046', N'Chưa xử lý'),
-('BC047', '2025-02-16', N'Kiểm tra hệ thống sưởi ấm tại khu vực chờ lạnh. Hoạt động hiệu quả.', 'NV047', N'Đã xử lý'),
-('BC048', '2025-02-17', N'Phát hiện lỗi trên hệ thống điều khiển cửa ra vào sân bay.', 'NV048', N'Chưa xử lý'),
-('BC049', '2025-02-18', N'Báo cáo kiểm tra tình trạng đường băng sau mưa lớn.', 'NV049', N'Đã xử lý'),
-('BC050', '2025-02-19', N'Kiểm tra các thiết bị y tế khẩn cấp trên máy bay. Đầy đủ.', 'NV050', N'Chưa xử lý'),
-('BC051', '2025-02-20', N'Báo cáo về việc tuân thủ quy định về vận chuyển chất lỏng.', 'NV051', N'Đã xử lý'),
-('BC052', '2025-02-21', N'Phát hiện lỗi trên hệ thống âm thanh cabin máy bay.', 'NV052', N'Chưa xử lý'),
-('BC053', '2025-02-22', N'Kiểm tra nhiệt độ phòng điều khiển. Đạt tiêu chuẩn.', 'NV053', N'Đã xử lý'),
-('BC054', '2025-02-23', N'Báo cáo về việc thiếu xe đẩy hành lý tại khu vực nhận hành lý.', 'NV054', N'Chưa xử lý'),
-('BC055', '2025-02-24', N'Kiểm tra hệ thống radar giám sát không phận. Hoạt động ổn định.', 'NV055', N'Đã xử lý'),
-('BC056', '2025-02-25', N'Phát hiện rò rỉ nước nhỏ tại khu vực kỹ thuật sân bay.', 'NV056', N'Chưa xử lý'),
-('BC057', '2025-02-26', N'Báo cáo về việc kiểm tra định kỳ các thiết bị bay không người lái.', 'NV057', N'Đã xử lý'),
-('BC058', '2025-02-27', N'Kiểm tra đèn chiếu sáng tại các khu vực đậu xe sân bay. Có vài đèn hỏng.', 'NV058', N'Chưa xử lý'),
-('BC059', '2025-02-28', N'Báo cáo về việc vệ sinh khu vực bếp trên máy bay.', 'NV059', N'Đã xử lý'),
-('BC060', '2025-03-01', N'Phát hiện lỗi trên hệ thống liên lạc giữa phi công và đài kiểm soát.', 'NV060', N'Chưa xử lý'),
-('BC061', '2025-03-02', N'Kiểm tra hệ thống báo động khói tại nhà ga T2. Đạt yêu cầu.', 'NV061', N'Đã xử lý'),
-('BC062', '2025-03-03', N'Báo cáo về việc thiếu giấy vệ sinh trong một số nhà vệ sinh.', 'NV062', N'Chưa xử lý'),
-('BC063', '2025-03-04', N'Kiểm tra chất lượng gối và chăn trên chuyến bay dài. Tốt.', 'NV063', N'Đã xử lý'),
-('BC064', '2025-03-05', N'Phát hiện lỗi trên màn hình hiển thị thông tin chuyến bay tại quầy.', 'NV064', N'Chưa xử lý'),
-('BC065', '2025-03-06', N'Báo cáo kiểm tra các thiết bị hỗ trợ người già và trẻ em.', 'NV065', N'Đã xử lý'),
-('BC066', '2025-03-07', N'Kiểm tra độ an toàn của đường dành cho xe cộ trong sân bay.', 'NV066', N'Chưa xử lý'),
-('BC067', '2025-03-08', N'Báo cáo về việc tuân thủ quy định về hành lý quá khổ.', 'NV067', N'Đã xử lý'),
-('BC068', '2025-03-09', N'Phát hiện lỗi trên hệ thống nhận diện khuôn mặt tại cổng an ninh.', 'NV068', N'Chưa xử lý'),
-('BC069', '2025-03-10', N'Kiểm tra tình trạng hoạt động của các xe cứu hỏa sân bay.', 'NV069', N'Đã xử lý'),
-('BC070', '2025-03-11', N'Báo cáo về việc thiếu thông tin về các chuyến bay bị hoãn/hủy.', 'NV070', N'Chưa xử lý'),
-('BC071', '2025-03-12', N'Kiểm tra hệ thống định vị của máy bay khi hạ cánh.', 'NV071', N'Đã xử lý'),
-('BC072', '2025-03-13', N'Phát hiện mùi lạ tại khu vực nhà vệ sinh gần cổng C.', 'NV072', N'Chưa xử lý'),
-('BC073', '2025-03-14', N'Báo cáo kiểm tra chất lượng không khí trong nhà ga.', 'NV073', N'Đã xử lý'),
-('BC074', '2025-03-15', N'Kiểm tra các thiết bị tập thể dục tại phòng chờ hạng sang.', 'NV074', N'Chưa xử lý'),
-('BC075', '2025-03-16', N'Báo cáo về việc tuân thủ quy định về vận chuyển động vật cảnh.', 'NV075', N'Đã xử lý'),
-('BC076', '2025-03-17', N'Phát hiện lỗi trên hệ thống cổng tự động lên máy bay.', 'NV076', N'Chưa xử lý'),
-('BC077', '2025-03-18', N'Kiểm tra hiệu chuẩn thiết bị đo độ ẩm không khí.', 'NV077', N'Đã xử lý'),
-('BC078', '2025-03-19', N'Báo cáo về việc thiếu ổ cắm sạc điện thoại tại khu vực chờ.', 'NV078', N'Chưa xử lý'),
-('BC079', '2025-03-20', N'Kiểm tra hoạt động của hệ thống báo động xâm nhập.', 'NV079', N'Đã xử lý'),
-('BC080', '2025-03-21', N'Phát hiện lỗi trên hệ thống điều khiển ánh sáng đường băng.', 'NV080', N'Chưa xử lý'),
-('BC081', '2025-03-22', N'Báo cáo kiểm tra các xe bus vận chuyển hành khách nội bộ.', 'NV081', N'Đã xử lý'),
-('BC082', '2025-03-23', N'Kiểm tra độ chắc chắn của lan can tại khu vực cầu thang.', 'NV082', N'Chưa xử lý'),
-('BC083', '2025-03-24', N'Báo cáo về việc kiểm tra chất lượng đồ uống tại quầy bar sân bay.', 'NV083', N'Đã xử lý'),
-('BC084', '2025-03-25', N'Phát hiện lỗi trên hệ thống thang máy khu vực hành chính.', 'NV084', N'Chưa xử lý'),
-('BC085', '2025-03-26', N'Kiểm tra các tủ thuốc y tế khẩn cấp tại các điểm.', 'NV085', N'Đã xử lý'),
-('BC086', '2025-03-27', N'Báo cáo về việc thiếu bản đồ sân bay tại một số vị trí.', 'NV086', N'Chưa xử lý'),
-('BC087', '2025-03-28', N'Kiểm tra hệ thống camera giám sát khu vực bãi đỗ xe.', 'NV087', N'Đã xử lý'),
-('BC088', '2025-03-29', N'Phát hiện lỗi trên hệ thống phát thanh khẩn cấp.', 'NV088', N'Chưa xử lý'),
-('BC089', '2025-03-30', N'Báo cáo kiểm tra tình trạng các phương tiện cứu hộ sân bay.', 'NV089', N'Đã xử lý'),
-('BC090', '2025-03-31', N'Kiểm tra nhiệt độ của các tủ lạnh bảo quản thực phẩm.', 'NV090', N'Chưa xử lý'),
-('BC091', '2025-04-01', N'Báo cáo về việc tuân thủ quy định về trang phục nhân viên.', 'NV091', N'Đã xử lý'),
-('BC092', '2025-04-02', N'Phát hiện lỗi trên hệ thống cung cấp điện dự phòng.', 'NV092', N'Chưa xử lý'),
-('BC093', '2025-04-03', N'Kiểm tra các biển chỉ dẫn trong nhà ga. Tất cả rõ ràng.', 'NV093', N'Đã xử lý'),
-('BC094', '2025-04-04', N'Báo cáo về việc thiếu thùng rác tại khu vực ăn uống.', 'NV094', N'Chưa xử lý'),
-('BC095', '2025-04-05', N'Kiểm tra độ sạch của thảm trải sàn tại khu vực chờ.', 'NV095', N'Đã xử lý'),
-('BC096', '2025-04-06', N'Phát hiện lỗi trên hệ thống khóa cửa phòng điều hành.', 'NV096', N'Chưa xử lý'),
-('BC097', '2025-04-07', N'Báo cáo kiểm tra chất lượng dịch vụ WiFi miễn phí tại sân bay.', 'NV097', N'Đã xử lý'),
-('BC098', '2025-04-08', N'Kiểm tra các lối đi dành cho người khuyết tật. Đảm bảo tiếp cận.', 'NV098', N'Chưa xử lý'),
-('BC099', '2025-04-09', N'Báo cáo về việc tuân thủ quy định về giới hạn tốc độ xe.', 'NV099', N'Đã xử lý'),
-('BC100', '2025-04-10', N'Phát hiện lỗi trên hệ thống hiển thị giờ bay quốc tế.', 'NV100', N'Chưa xử lý');
+-- Dữ liệu mẫu cho bảng BaoCao (100 bản ghi)
+DECLARE @i INT = 1;
+DECLARE @NgayBaoCao DATE;
+DECLARE @NoiDungBaoCao NVARCHAR(MAX);
+DECLARE @MaNV VARCHAR(20);
+DECLARE @TrangThai NVARCHAR(20);
 
+WHILE @i <= 100
+BEGIN
+    SET @NgayBaoCao = DATEADD(day, -RAND() * 365, GETDATE());
+    SET @NoiDungBaoCao = N'Nội dung báo cáo số ' + CAST(@i AS NVARCHAR(10));
+    SET @MaNV = 'NV00' + CAST(CAST(RAND() * 9 + 1 AS INT) AS VARCHAR(1)); -- Chọn ngẫu nhiên từ NV001 đến NV009
+    IF CAST(RAND() * 10 AS INT) % 2 = 0
+        SET @TrangThai = N'Đã xử lý';
+    ELSE
+        SET @TrangThai = N'Chưa xử lý';
 
---
+    INSERT INTO BaoCao (MaBaoCao, NgayBaoCao, NoiDungBaoCao, MaNV, TrangThai) VALUES
+    ('BC' + FORMAT(@i, '000'), @NgayBaoCao, @NoiDungBaoCao, @MaNV, @TrangThai);
+    SET @i = @i + 1;
+END;
+GO
 
-INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi) VALUES
-('VN201', N'Đúng giờ', '2025-07-10 08:00:00', '2025-07-10 10:00:00', N'Thành phố Hồ Chí Minh', N'Hà Nội'),
-('VN202', N'Đã khởi hành', '2025-07-10 11:30:00', '2025-07-10 13:30:00', N'Hà Nội', N'Đà Nẵng'),
-('VN203', N'Chưa khởi hành', '2025-07-11 15:00:00', '2025-07-11 17:00:00', N'Thành phố Hồ Chí Minh', N'Phú Quốc'),
-('VN204', N'Đúng giờ', '2025-07-11 19:00:00', '2025-07-11 21:30:00', N'Đà Nẵng', N'Thành phố Hồ Chí Minh'),
-('VN205', N'Đã hạ cánh', '2025-07-12 09:00:00', '2025-07-12 11:00:00', N'Hà Nội', N'Cần Thơ');
+-- Dữ liệu mẫu cho bảng ChuyenBay (15 bản ghi)
+-- Sử dụng stored procedure sp_ThemChuyenBay để tự động tạo ghế
+EXEC sp_ThemChuyenBay 'CB001', N'Chưa khởi hành', '2025-06-01 08:00:00', '2025-06-01 10:00:00', N'Hà Nội', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB002', N'Chưa khởi hành', '2025-06-02 14:00:00', '2025-06-02 16:00:00', N'TP. Hồ Chí Minh', N'Đà Nẵng';
+EXEC sp_ThemChuyenBay 'CB003', N'Chưa khởi hành', '2025-06-03 09:30:00', '2025-06-03 11:30:00', N'Đà Nẵng', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB004', N'Chưa khởi hành', '2025-06-04 11:00:00', '2025-06-04 12:00:00', N'Hà Nội', N'Phú Quốc';
+EXEC sp_ThemChuyenBay 'CB005', N'Chưa khởi hành', '2025-06-05 17:00:00', '2025-06-05 19:00:00', N'TP. Hồ Chí Minh', N'Hải Phòng';
+EXEC sp_ThemChuyenBay 'CB006', N'Chưa khởi hành', '2025-06-06 07:00:00', '2025-06-06 08:30:00', N'Hải Phòng', N'Nha Trang';
+EXEC sp_ThemChuyenBay 'CB007', N'Chưa khởi hành', '2025-06-07 10:00:00', '2025-06-07 12:30:00', N'Nha Trang', N'Cần Thơ';
+EXEC sp_ThemChuyenBay 'CB008', N'Chưa khởi hành', '2025-06-08 13:00:00', '2025-06-08 14:00:00', N'Cần Thơ', N'Đà Lạt';
+EXEC sp_ThemChuyenBay 'CB009', N'Chưa khởi hành', '2025-06-09 15:00:00', '2025-06-09 16:30:00', N'Đà Lạt', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB010', N'Chưa khởi hành', '2025-06-10 18:00:00', '2025-06-10 20:00:00', N'TP. Hồ Chí Minh', N'Vinh';
+EXEC sp_ThemChuyenBay 'CB011', N'Chưa khởi hành', '2025-06-11 06:00:00', '2025-06-11 07:30:00', N'Vinh', N'Huế';
+EXEC sp_ThemChuyenBay 'CB012', N'Chưa khởi hành', '2025-06-12 09:00:00', '2025-06-12 11:00:00', N'Huế', N'Phú Quốc';
+EXEC sp_ThemChuyenBay 'CB013', N'Chưa khởi hành', '2025-06-13 14:00:00', '2025-06-13 16:00:00', N'Phú Quốc', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB014', N'Chưa khởi hành', '2025-06-14 10:00:00', '2025-06-14 11:30:00', N'Hà Nội', N'Đà Lạt';
+EXEC sp_ThemChuyenBay 'CB015', N'Chưa khởi hành', '2025-06-15 16:00:00', '2025-06-15 18:00:00', N'TP. Hồ Chí Minh', N'Hà Nội';
+GO
 
---
---
-INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
--- Ghế cho chuyến bay VN201
--- Hạng nhất (15 ghế: 1-15)
-(1, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(2, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(3, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(4, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(5, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(6, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(7, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(8, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(9, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(10, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(11, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(12, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(13, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(14, 'VN201', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(15, 'VN201', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế: 16-50)
-(16, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(17, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(18, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(19, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(20, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(21, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(22, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(23, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(24, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(25, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(26, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(27, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(28, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(29, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(30, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(31, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(32, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(33, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(34, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(35, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(36, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(37, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(38, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(39, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(40, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(41, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(42, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(43, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(44, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(45, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(46, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(47, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
-(48, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(49, 'VN201', 2000000.00, N'Thương gia', N'có sẵn'),
-(50, 'VN201', 2000000.00, N'Thương gia', N'đã đặt'),
--- Phổ thông (100 ghế: 51-150)
-(51, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(52, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(53, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(54, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(55, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(56, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(57, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(58, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(59, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(60, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(61, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(62, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(63, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(64, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(65, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(66, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(67, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(68, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(69, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(70, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(71, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(72, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(73, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(74, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(75, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(76, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(77, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(78, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(79, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(80, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(81, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(82, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(83, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(84, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(85, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(86, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(87, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(88, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(89, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(90, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(91, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(92, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(93, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(94, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(95, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(96, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(97, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(98, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(99, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(100, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(101, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(102, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(103, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(104, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(105, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(106, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(107, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(108, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(109, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(110, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(111, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(112, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(113, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(114, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(115, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(116, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(117, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(118, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(119, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(120, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(121, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(122, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(123, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(124, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(125, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(126, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(127, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(128, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(129, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(130, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(131, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(132, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(133, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(134, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(135, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(136, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(137, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(138, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(139, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(140, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(141, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(142, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(143, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(144, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(145, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(146, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(147, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(148, 'VN201', 1000000.00, N'Phổ thông', N'đã đặt'),
-(149, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn'),
-(150, 'VN201', 1000000.00, N'Phổ thông', N'có sẵn');
-----
-----
-INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH) VALUES
--- Hạng nhất (5 ghế đã đặt)
-('DV001', '2025-05-22', '2025-07-11', N'Đã thanh toán', 2, 3000000.00, 'VN201', 'KH001'), -- A-02 becomes 2
-('DV002', '2025-05-22', '2025-07-11', N'Đã thanh toán', 5, 3000000.00, 'VN201', 'KH002'), -- A-05 becomes 5
-('DV003', '2025-05-22', '2025-07-11', N'Đã thanh toán', 8, 3000000.00, 'VN201', 'KH003'), -- A-08 becomes 8
-('DV004', '2025-05-22', '2025-07-11', N'Đã thanh toán', 11, 3000000.00, 'VN201', 'KH004'), -- A-11 becomes 11
-('DV005', '2025-05-22', '2025-07-11', N'Đã thanh toán', 14, 3000000.00, 'VN201', 'KH005'), -- A-14 becomes 14
+-- Dữ liệu mẫu cho bảng ThongTinDatVe (100 bản ghi)
+-- Lấy ngẫu nhiên MaKH và MaChuyenBay từ các bảng đã có
+DECLARE @k INT = 1;
+DECLARE @RandomMaKH VARCHAR(20);
+DECLARE @RandomMaChuyenBay VARCHAR(20);
+DECLARE @NgayDatVe DATE;
+DECLARE @NgayBay DATE;
+DECLARE @TrangThaiThanhToan NVARCHAR(50);
+DECLARE @SoGheDat INT;
+DECLARE @SoTien DECIMAL(18, 2);
+DECLARE @MinSoGhe INT = 1;
+DECLARE @MaxSoGhe INT = 93; -- Tổng số ghế trên mỗi chuyến bay
+DECLARE @GiaPhoThong DECIMAL(18, 2) = 1000000.00; -- Giá mặc định cho phổ thông
 
--- Thương gia (9 ghế đã đặt)
-('DV006', '2025-05-22', '2025-07-11', N'Đã thanh toán', 17, 2000000.00, 'VN201', 'KH006'), -- B-02 (15 + 2) becomes 17
-('DV007', '2025-05-22', '2025-07-11', N'Đã thanh toán', 20, 2000000.00, 'VN201', 'KH007'), -- B-05 (15 + 5) becomes 20
-('DV008', '2025-05-22', '2025-07-11', N'Đã thanh toán', 23, 2000000.00, 'VN201', 'KH008'), -- B-08 (15 + 8) becomes 23
-('DV009', '2025-05-22', '2025-07-11', N'Đã thanh toán', 26, 2000000.00, 'VN201', 'KH009'), -- B-11 (15 + 11) becomes 26
-('DV010', '2025-05-22', '2025-07-11', N'Đã thanh toán', 29, 2000000.00, 'VN201', 'KH010'), -- B-14 (15 + 14) becomes 29
-('DV011', '2025-05-22', '2025-07-11', N'Đã thanh toán', 32, 2000000.00, 'VN201', 'KH011'), -- B-17 (15 + 17) becomes 32
-('DV012', '2025-05-22', '2025-07-11', N'Đã thanh toán', 35, 2000000.00, 'VN201', 'KH012'), -- B-20 (15 + 20) becomes 35
-('DV013', '2025-05-22', '2025-07-11', N'Đã thanh toán', 38, 2000000.00, 'VN201', 'KH013'), -- B-23 (15 + 23) becomes 38
-('DV014', '2025-05-22', '2025-07-11', N'Đã thanh toán', 41, 2000000.00, 'VN201', 'KH014'), -- B-26 (15 + 26) becomes 41
+WHILE @k <= 100
+BEGIN
+    SELECT TOP 1 @RandomMaKH = MaKH FROM KhachHang ORDER BY NEWID();
+    SELECT TOP 1 @RandomMaChuyenBay = MaChuyenBay FROM ChuyenBay WHERE TinhTrangChuyenBay = N'Chưa khởi hành' ORDER BY NEWID();
+    
+    SET @NgayDatVe = DATEADD(day, -CAST(RAND() * 30 + 1 AS INT), GETDATE()); -- Đặt vé trong vòng 30 ngày qua
+    SET @NgayBay = DATEADD(day, CAST(RAND() * 60 + 1 AS INT), GETDATE()); -- Ngày bay trong 60 ngày tới
+    
+    -- Đảm bảo NgàyDatVe <= NgayBay
+    IF @NgayDatVe > @NgayBay
+        SET @NgayBay = DATEADD(day, CAST(RAND() * 30 + 1 AS INT), @NgayDatVe);
 
--- Phổ thông (28 ghế đã đặt)
-('DV015', '2025-05-22', '2025-07-11', N'Đã thanh toán', 52, 1000000.00, 'VN201', 'KH015'), -- C-02 (50 + 2) becomes 52
-('DV016', '2025-05-22', '2025-07-11', N'Đã thanh toán', 55, 1000000.00, 'VN201', 'KH016'), -- C-05 (50 + 5) becomes 55
-('DV017', '2025-05-22', '2025-07-11', N'Đã thanh toán', 58, 1000000.00, 'VN201', 'KH017'), -- C-08 (50 + 8) becomes 58
-('DV018', '2025-05-22', '2025-07-11', N'Đã thanh toán', 61, 1000000.00, 'VN201', 'KH018'), -- C-11 (50 + 11) becomes 61
-('DV019', '2025-05-22', '2025-07-11', N'Đã thanh toán', 64, 1000000.00, 'VN201', 'KH019'), -- C-14 (50 + 14) becomes 64
-('DV020', '2025-05-22', '2025-07-11', N'Đã thanh toán', 67, 1000000.00, 'VN201', 'KH020'), -- C-17 (50 + 17) becomes 67
-('DV021', '2025-05-22', '2025-07-11', N'Đã thanh toán', 70, 1000000.00, 'VN201', 'KH021'), -- C-20 (50 + 20) becomes 70
-('DV022', '2025-05-22', '2025-07-11', N'Đã thanh toán', 73, 1000000.00, 'VN201', 'KH022'), -- D-03 (70 + 3) becomes 73
-('DV023', '2025-05-22', '2025-07-11', N'Đã thanh toán', 76, 1000000.00, 'VN201', 'KH023'), -- D-06 (70 + 6) becomes 76
-('DV024', '2025-05-22', '2025-07-11', N'Đã thanh toán', 79, 1000000.00, 'VN201', 'KH024'), -- D-09 (70 + 9) becomes 79
-('DV025', '2025-05-22', '2025-07-11', N'Đã thanh toán', 82, 1000000.00, 'VN201', 'KH025'), -- D-12 (70 + 12) becomes 82
-('DV026', '2025-05-22', '2025-07-11', N'Đã thanh toán', 85, 1000000.00, 'VN201', 'KH026'), -- D-15 (70 + 15) becomes 85
-('DV027', '2025-05-22', '2025-07-11', N'Đã thanh toán', 88, 1000000.00, 'VN201', 'KH027'), -- D-18 (70 + 18) becomes 88
-('DV028', '2025-05-22', '2025-07-11', N'Đã thanh toán', 91, 1000000.00, 'VN201', 'KH028'), -- E-01 (90 + 1) becomes 91
-('DV029', '2025-05-22', '2025-07-11', N'Đã thanh toán', 94, 1000000.00, 'VN201', 'KH029'), -- E-04 (90 + 4) becomes 94
-('DV030', '2025-05-22', '2025-07-11', N'Đã thanh toán', 97, 1000000.00, 'VN201', 'KH030'), -- E-07 (90 + 7) becomes 97
-('DV031', '2025-05-22', '2025-07-11', N'Đã thanh toán', 100, 1000000.00, 'VN201', 'KH031'), -- E-10 (90 + 10) becomes 100
-('DV032', '2025-05-22', '2025-07-11', N'Đã thanh toán', 103, 1000000.00, 'VN201', 'KH032'), -- E-13 (90 + 13) becomes 103
-('DV033', '2025-05-22', '2025-07-11', N'Đã thanh toán', 106, 1000000.00, 'VN201', 'KH033'), -- E-16 (90 + 16) becomes 106
-('DV034', '2025-05-22', '2025-07-11', N'Đã thanh toán', 109, 1000000.00, 'VN201', 'KH034'), -- E-19 (90 + 19) becomes 109
-('DV035', '2025-05-22', '2025-07-11', N'Đã thanh toán', 112, 1000000.00, 'VN201', 'KH035'), -- F-02 (110 + 2) becomes 112
-('DV036', '2025-05-22', '2025-07-11', N'Đã thanh toán', 115, 1000000.00, 'VN201', 'KH036'), -- F-05 (110 + 5) becomes 115
-('DV037', '2025-05-22', '2025-07-11', N'Đã thanh toán', 118, 1000000.00, 'VN201', 'KH037'), -- F-08 (110 + 8) becomes 118
-('DV038', '2025-05-22', '2025-07-11', N'Đã thanh toán', 121, 1000000.00, 'VN201', 'KH038'), -- F-11 (110 + 11) becomes 121
-('DV039', '2025-05-22', '2025-07-11', N'Đã thanh toán', 124, 1000000.00, 'VN201', 'KH039'), -- F-14 (110 + 14) becomes 124
-('DV040', '2025-05-22', '2025-07-11', N'Đã thanh toán', 133, 1000000.00, 'VN201', 'KH040'), -- G-03 (130 + 3) becomes 133
-('DV041', '2025-05-22', '2025-07-11', N'Đã thanh toán', 136, 1000000.00, 'VN201', 'KH041'), -- G-06 (130 + 6) becomes 136
-('DV042', '2025-05-22', '2025-07-11', N'Đã thanh toán', 148, 1000000.00, 'VN201', 'KH042'); -- G-18 (130 + 18) becomes 148
--- Ghế cho chuyến bay VN202
-INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
--- Ghế cho chuyến bay VN202
--- Hạng nhất (15 ghế)
-(1, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(2, 'VN202', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(3, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(4, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(5, 'VN202', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(6, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(7, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(8, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(9, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(10, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(11, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(12, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(13, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(14, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(15, 'VN202', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế)
-(16, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(17, 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
-(18, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(19, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(20, 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
-(21, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(22, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(23, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(24, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(25, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(26, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(27, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(28, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(29, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(30, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(31, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(32, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(33, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(34, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(35, 'VN202', 2000000.00, N'Thương gia', N'đã đặt'),
-(36, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(37, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(38, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(39, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(40, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(41, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(42, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(43, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(44, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(45, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(46, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(47, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(48, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(49, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
-(50, 'VN202', 2000000.00, N'Thương gia', N'có sẵn'),
--- Phổ thông (100 ghế)
-(51, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(52, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-(53, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(54, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(55, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-(56, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(57, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(58, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(59, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(60, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(61, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(62, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(63, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(64, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(65, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(66, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(67, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(68, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(69, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(70, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(71, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(72, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(73, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-(74, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(75, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(76, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(77, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(78, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(79, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(80, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(81, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(82, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(83, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(84, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(85, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(86, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(87, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(88, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(89, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(90, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(91, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(92, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(93, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(94, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(95, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(96, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(97, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(98, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(99, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(100, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(101, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(102, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(103, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(104, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(105, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(106, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(107, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(108, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(109, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(110, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(111, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(112, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(113, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(114, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(115, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(116, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(117, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(118, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(119, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(120, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(121, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(122, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(123, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(124, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(125, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(126, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(127, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(128, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(129, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(130, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(131, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(132, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(133, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-(134, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(135, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(136, 'VN202', 1000000.00, N'Phổ thông', N'đã đặt'),
-(137, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(138, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(139, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(140, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(141, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(142, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(143, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(144, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(145, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(146, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(147, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(148, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(149, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn'),
-(150, 'VN202', 1000000.00, N'Phổ thông', N'có sẵn');
+    IF CAST(RAND() * 10 AS INT) % 2 = 0
+        SET @TrangThaiThanhToan = N'Chưa thanh toán';
+    ELSE
+        SET @TrangThaiThanhToan = N'Đã thanh toán';
 
-INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH) VALUES
--- Hạng nhất (2 ghế đã đặt)
-('DV043', '2025-05-22', '2025-07-11', N'Đã thanh toán', 2, 3000000.00, 'VN202', 'KH001'), -- A-02
-('DV044', '2025-05-22', '2025-07-11', N'Đã thanh toán', 5, 3000000.00, 'VN202', 'KH002'), -- A-05
+    SET @SoGheDat = 1; -- Đặt 1 ghế cho mỗi lần đặt vé để đơn giản hóa logic
 
--- Thương gia (3 ghế đã đặt)
-('DV045', '2025-05-22', '2025-07-11', N'Đã thanh toán', 17, 2000000.00, 'VN202', 'KH003'), -- B-02 (15 + 2)
-('DV046', '2025-05-22', '2025-07-11', N'Đã thanh toán', 20, 2000000.00, 'VN202', 'KH004'), -- B-05 (15 + 5)
-('DV047', '2025-05-22', '2025-07-11', N'Đã thanh toán', 35, 2000000.00, 'VN202', 'KH005'), -- B-20 (15 + 20)
+    -- Lấy giá của ghế phổ thông làm giá mặc định
+    SELECT TOP 1 @SoTien = GiaGhe FROM ThongTinGhe WHERE MaChuyenBay = @RandomMaChuyenBay AND HangGhe = N'Phổ thông' ORDER BY NEWID();
+    IF @SoTien IS NULL
+        SET @SoTien = @GiaPhoThong; -- Fallback nếu không tìm thấy ghế phổ thông
 
--- Phổ thông (5 ghế đã đặt)
-('DV048', '2025-05-22', '2025-07-11', N'Đã thanh toán', 52, 1000000.00, 'VN202', 'KH006'), -- C-02 (50 + 2)
-('DV049', '2025-05-22', '2025-07-11', N'Đã thanh toán', 55, 1000000.00, 'VN202', 'KH007'), -- C-05 (50 + 5)
-('DV050', '2025-05-22', '2025-07-11', N'Đã thanh toán', 73, 1000000.00, 'VN202', 'KH008'), -- D-03 (70 + 3)
-('DV051', '2025-05-22', '2025-07-11', N'Đã thanh toán', 133, 1000000.00, 'VN202', 'KH009'), -- G-03 (130 + 3)
-('DV052', '2025-05-22', '2025-07-11', N'Đã thanh toán', 136, 1000000.00, 'VN202', 'KH010'); -- G-06 (130 + 6)
----
-INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
--- Ghế cho chuyến bay VN203
--- Hạng nhất (15 ghế)
-(1, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(2, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(3, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(4, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(5, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(6, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(7, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(8, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(9, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(10, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(11, 'VN203', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(12, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(13, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(14, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(15, 'VN203', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế)
-(16, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-01
-(17, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-02
-(18, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-03
-(19, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(20, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-05
-(21, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-06
-(22, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(23, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-08
-(24, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-09
-(25, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(26, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-11
-(27, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-12
-(28, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(29, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-14
-(30, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-15
-(31, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(32, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-17
-(33, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-18
-(34, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(35, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-20
-(36, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-21
-(37, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(38, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-23
-(39, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-24
-(40, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(41, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-26
-(42, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-27
-(43, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(44, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-29
-(45, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-30
-(46, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(47, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-32
-(48, 'VN203', 2000000.00, N'Thương gia', N'có sẵn'),
-(49, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-34
-(50, 'VN203', 2000000.00, N'Thương gia', N'đã đặt'), -- B-35
--- Phổ thông (100 ghế)
-(51, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-01
-(52, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-02
-(53, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-03
-(54, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(55, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-05
-(56, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-06
-(57, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(58, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-08
-(59, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-09
-(60, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(61, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-11
-(62, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-12
-(63, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(64, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-14
-(65, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-15
-(66, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(67, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-17
-(68, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-18
-(69, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(70, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- C-20
-(71, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-01
-(72, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(73, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-03
-(74, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-04
-(75, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(76, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-06
-(77, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-07
-(78, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(79, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-09
-(80, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-10
-(81, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(82, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-12
-(83, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-13
-(84, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(85, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-15
-(86, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-16
-(87, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(88, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-18
-(89, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- D-19
-(90, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(91, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-01
-(92, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-02
-(93, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(94, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-04
-(95, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-05
-(96, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(97, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-07
-(98, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-08
-(99, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(100, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-10
-(101, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-11
-(102, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(103, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-13
-(104, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-14
-(105, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(106, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-16
-(107, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-17
-(108, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(109, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-19
-(110, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- E-20
-(111, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-01
-(112, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-02
-(113, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(114, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(115, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-05
-(116, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(117, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(118, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-08
-(119, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(120, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(121, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-11
-(122, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(123, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(124, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-14
-(125, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(126, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(127, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-17
-(128, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(129, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(130, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- F-20
-(131, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(132, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(133, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-03
-(134, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(135, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(136, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-06
-(137, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(138, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(139, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-09
-(140, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(141, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(142, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-12
-(143, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(144, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(145, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-15
-(146, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(147, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(148, 'VN203', 1000000.00, N'Phổ thông', N'đã đặt'), -- G-18
-(149, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn'),
-(150, 'VN203', 1000000.00, N'Phổ thông', N'có sẵn');
+    INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH) VALUES
+    ('DV' + FORMAT(@k, '000'), @NgayDatVe, @NgayBay, @TrangThaiThanhToan, @SoGheDat, @SoTien, @RandomMaChuyenBay, @RandomMaKH);
+    SET @k = @k + 1;
+END;
+GO
 
----
+-- Dữ liệu mẫu cho bảng ThanhToan (100 bản ghi)
+-- Lấy MaDatVe từ các bản ghi ThongTinDatVe có TrangThaiThanhToan = N'Chưa thanh toán' hoặc N'Đã thanh toán'
+DECLARE @l INT = 1;
+DECLARE @RandomMaDatVe VARCHAR(20);
+DECLARE @NgayTT DATE;
+DECLARE @SoTienTT DECIMAL(18, 2);
+DECLARE @PTTT NVARCHAR(50);
+DECLARE @MaDatVe_Cursor VARCHAR(20);
 
-INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
-VALUES
--- Hạng nhất (5 ghế đã đặt)
-('DV053', '2025-05-22', '2025-06-15', N'Đã thanh toán', 2, 3000000.00, 'VN203', 'KH001'), -- A-02
-('DV054', '2025-05-22', '2025-06-15', N'Đã thanh toán', 4, 3000000.00, 'VN203', 'KH002'), -- A-04
-('DV055', '2025-05-22', '2025-06-15', N'Đã thanh toán', 6, 3000000.00, 'VN203', 'KH003'), -- A-06
-('DV056', '2025-05-22', '2025-06-15', N'Đã thanh toán', 8, 3000000.00, 'VN203', 'KH004'), -- A-08
-('DV057', '2025-05-22', '2025-06-15', N'Đã thanh toán', 11, 3000000.00, 'VN203', 'KH005'), -- A-11
+DECLARE cur_DatVe CURSOR FOR
+SELECT MaDatVe FROM ThongTinDatVe;
 
--- Thương gia (25 ghế đã đặt)
-('DV058', '2025-05-22', '2025-06-15', N'Đã thanh toán', 16, 2000000.00, 'VN203', 'KH006'), -- B-01
-('DV059', '2025-05-22', '2025-06-15', N'Đã thanh toán', 17, 2000000.00, 'VN203', 'KH007'), -- B-02
-('DV060', '2025-05-22', '2025-06-15', N'Đã thanh toán', 18, 2000000.00, 'VN203', 'KH008'), -- B-03
-('DV061', '2025-05-22', '2025-06-15', N'Đã thanh toán', 20, 2000000.00, 'VN203', 'KH009'), -- B-05
-('DV062', '2025-05-22', '2025-06-15', N'Đã thanh toán', 21, 2000000.00, 'VN203', 'KH010'), -- B-06
-('DV063', '2025-05-22', '2025-06-15', N'Đã thanh toán', 23, 2000000.00, 'VN203', 'KH011'), -- B-08
-('DV064', '2025-05-22', '2025-06-15', N'Đã thanh toán', 24, 2000000.00, 'VN203', 'KH012'), -- B-09
-('DV065', '2025-05-22', '2025-06-15', N'Đã thanh toán', 26, 2000000.00, 'VN203', 'KH013'), -- B-11
-('DV066', '2025-05-22', '2025-06-15', N'Đã thanh toán', 27, 2000000.00, 'VN203', 'KH014'), -- B-12
-('DV067', '2025-05-22', '2025-06-15', N'Đã thanh toán', 29, 2000000.00, 'VN203', 'KH015'), -- B-14
-('DV068', '2025-05-22', '2025-06-15', N'Đã thanh toán', 30, 2000000.00, 'VN203', 'KH016'), -- B-15
-('DV069', '2025-05-22', '2025-06-15', N'Đã thanh toán', 32, 2000000.00, 'VN203', 'KH017'), -- B-17
-('DV070', '2025-05-22', '2025-06-15', N'Đã thanh toán', 33, 2000000.00, 'VN203', 'KH018'), -- B-18
-('DV071', '2025-05-22', '2025-06-15', N'Đã thanh toán', 35, 2000000.00, 'VN203', 'KH019'), -- B-20
-('DV072', '2025-05-22', '2025-06-15', N'Đã thanh toán', 36, 2000000.00, 'VN203', 'KH020'), -- B-21
-('DV073', '2025-05-22', '2025-06-15', N'Đã thanh toán', 38, 2000000.00, 'VN203', 'KH021'), -- B-23
-('DV074', '2025-05-22', '2025-06-15', N'Đã thanh toán', 39, 2000000.00, 'VN203', 'KH022'), -- B-24
-('DV075', '2025-05-22', '2025-06-15', N'Đã thanh toán', 41, 2000000.00, 'VN203', 'KH023'), -- B-26
-('DV076', '2025-05-22', '2025-06-15', N'Đã thanh toán', 42, 2000000.00, 'VN203', 'KH024'), -- B-27
-('DV077', '2025-05-22', '2025-06-15', N'Đã thanh toán', 44, 2000000.00, 'VN203', 'KH025'), -- B-29
-('DV078', '2025-05-22', '2025-06-15', N'Đã thanh toán', 45, 2000000.00, 'VN203', 'KH026'), -- B-30
-('DV079', '2025-05-22', '2025-06-15', N'Đã thanh toán', 47, 2000000.00, 'VN203', 'KH027'), -- B-32
-('DV080', '2025-05-22', '2025-06-15', N'Đã thanh toán', 49, 2000000.00, 'VN203', 'KH028'), -- B-34
-('DV081', '2025-05-22', '2025-06-15', N'Đã thanh toán', 50, 2000000.00, 'VN203', 'KH029'), -- B-35
+OPEN cur_DatVe;
+FETCH NEXT FROM cur_DatVe INTO @MaDatVe_Cursor;
 
--- Phổ thông (40 ghế đã đặt)
-('DV082', '2025-05-22', '2025-06-15', N'Đã thanh toán', 51, 1000000.00, 'VN203', 'KH030'), -- C-01
-('DV083', '2025-05-22', '2025-06-15', N'Đã thanh toán', 52, 1000000.00, 'VN203', 'KH031'), -- C-02
-('DV084', '2025-05-22', '2025-06-15', N'Đã thanh toán', 53, 1000000.00, 'VN203', 'KH032'), -- C-03
-('DV085', '2025-05-22', '2025-06-15', N'Đã thanh toán', 55, 1000000.00, 'VN203', 'KH033'), -- C-05
-('DV086', '2025-05-22', '2025-06-15', N'Đã thanh toán', 56, 1000000.00, 'VN203', 'KH034'), -- C-06
-('DV087', '2025-05-22', '2025-06-15', N'Đã thanh toán', 58, 1000000.00, 'VN203', 'KH035'), -- C-08
-('DV088', '2025-05-22', '2025-06-15', N'Đã thanh toán', 59, 1000000.00, 'VN203', 'KH036'), -- C-09
-('DV089', '2025-05-22', '2025-06-15', N'Đã thanh toán', 61, 1000000.00, 'VN203', 'KH037'), -- C-11
-('DV090', '2025-05-22', '2025-06-15', N'Đã thanh toán', 62, 1000000.00, 'VN203', 'KH038'), -- C-12
-('DV091', '2025-05-22', '2025-06-15', N'Đã thanh toán', 64, 1000000.00, 'VN203', 'KH039'), -- C-14
-('DV092', '2025-05-22', '2025-06-15', N'Đã thanh toán', 65, 1000000.00, 'VN203', 'KH040'), -- C-15
-('DV093', '2025-05-22', '2025-06-15', N'Đã thanh toán', 67, 1000000.00, 'VN203', 'KH041'), -- C-17
-('DV094', '2025-05-22', '2025-06-15', N'Đã thanh toán', 68, 1000000.00, 'VN203', 'KH042'), -- C-18
-('DV095', '2025-05-22', '2025-06-15', N'Đã thanh toán', 70, 1000000.00, 'VN203', 'KH043'), -- C-20
-('DV096', '2025-05-22', '2025-06-15', N'Đã thanh toán', 71, 1000000.00, 'VN203', 'KH044'), -- D-01
-('DV097', '2025-05-22', '2025-06-15', N'Đã thanh toán', 73, 1000000.00, 'VN203', 'KH045'), -- D-03
-('DV098', '2025-05-22', '2025-06-15', N'Đã thanh toán', 74, 1000000.00, 'VN203', 'KH046'), -- D-04
-('DV099', '2025-05-22', '2025-06-15', N'Đã thanh toán', 76, 1000000.00, 'VN203', 'KH047'), -- D-06
-('DV100', '2025-05-22', '2025-06-15', N'Đã thanh toán', 77, 1000000.00, 'VN203', 'KH048'), -- D-07
-('DV101', '2025-05-22', '2025-06-15', N'Đã thanh toán', 79, 1000000.00, 'VN203', 'KH049'), -- D-09
-('DV102', '2025-05-22', '2025-06-15', N'Đã thanh toán', 80, 1000000.00, 'VN203', 'KH050'), -- D-10
-('DV103', '2025-05-22', '2025-06-15', N'Đã thanh toán', 82, 1000000.00, 'VN203', 'KH051'), -- D-12
-('DV104', '2025-05-22', '2025-06-15', N'Đã thanh toán', 83, 1000000.00, 'VN203', 'KH052'), -- D-13
-('DV105', '2025-05-22', '2025-06-15', N'Đã thanh toán', 85, 1000000.00, 'VN203', 'KH053'), -- D-15
-('DV106', '2025-05-22', '2025-06-15', N'Đã thanh toán', 86, 1000000.00, 'VN203', 'KH054'), -- D-16
-('DV107', '2025-05-22', '2025-06-15', N'Đã thanh toán', 88, 1000000.00, 'VN203', 'KH055'), -- D-18
-('DV108', '2025-05-22', '2025-06-15', N'Đã thanh toán', 89, 1000000.00, 'VN203', 'KH056'), -- D-19
-('DV109', '2025-05-22', '2025-06-15', N'Đã thanh toán', 91, 1000000.00, 'VN203', 'KH057'), -- E-01
-('DV110', '2025-05-22', '2025-06-15', N'Đã thanh toán', 92, 1000000.00, 'VN203', 'KH058'), -- E-02
-('DV111', '2025-05-22', '2025-06-15', N'Đã thanh toán', 94, 1000000.00, 'VN203', 'KH059'), -- E-04
-('DV112', '2025-05-22', '2025-06-15', N'Đã thanh toán', 95, 1000000.00, 'VN203', 'KH060'), -- E-05
-('DV113', '2025-05-22', '2025-06-15', N'Đã thanh toán', 97, 1000000.00, 'VN203', 'KH061'), -- E-07
-('DV114', '2025-05-22', '2025-06-15', N'Đã thanh toán', 98, 1000000.00, 'VN203', 'KH062'), -- E-08
-('DV115', '2025-05-22', '2025-06-15', N'Đã thanh toán', 100, 1000000.00, 'VN203', 'KH063'), -- E-10
-('DV116', '2025-05-22', '2025-06-15', N'Đã thanh toán', 101, 1000000.00, 'VN203', 'KH064'), -- E-11
-('DV117', '2025-05-22', '2025-06-15', N'Đã thanh toán', 103, 1000000.00, 'VN203', 'KH065'), -- E-13
-('DV118', '2025-05-22', '2025-06-15', N'Đã thanh toán', 104, 1000000.00, 'VN203', 'KH066'), -- E-14
-('DV119', '2025-05-22', '2025-06-15', N'Đã thanh toán', 106, 1000000.00, 'VN203', 'KH067'), -- E-16
-('DV120', '2025-05-22', '2025-06-15', N'Đã thanh toán', 107, 1000000.00, 'VN203', 'KH068'), -- E-17
-('DV121', '2025-05-22', '2025-06-15', N'Đã thanh toán', 109, 1000000.00, 'VN203', 'KH069'), -- E-19
-('DV122', '2025-05-22', '2025-06-15', N'Đã thanh toán', 110, 1000000.00, 'VN203', 'KH070'), -- E-20
-('DV123', '2025-05-22', '2025-06-15', N'Đã thanh toán', 111, 1000000.00, 'VN203', 'KH071'), -- F-01
-('DV124', '2025-05-22', '2025-06-15', N'Đã thanh toán', 112, 1000000.00, 'VN203', 'KH072'), -- F-02
-('DV125', '2025-05-22', '2025-06-15', N'Đã thanh toán', 115, 1000000.00, 'VN203', 'KH073'), -- F-05
-('DV126', '2025-05-22', '2025-06-15', N'Đã thanh toán', 118, 1000000.00, 'VN203', 'KH074'), -- F-08
-('DV127', '2025-05-22', '2025-06-15', N'Đã thanh toán', 121, 1000000.00, 'VN203', 'KH075'), -- F-11
-('DV128', '2025-05-22', '2025-06-15', N'Đã thanh toán', 124, 1000000.00, 'VN203', 'KH076'), -- F-14
-('DV129', '2025-05-22', '2025-06-15', N'Đã thanh toán', 127, 1000000.00, 'VN203', 'KH077'), -- F-17
-('DV130', '2025-05-22', '2025-06-15', N'Đã thanh toán', 130, 1000000.00, 'VN203', 'KH078'), -- F-20
-('DV131', '2025-05-22', '2025-06-15', N'Đã thanh toán', 133, 1000000.00, 'VN203', 'KH079'), -- G-03
-('DV132', '2025-05-22', '2025-06-15', N'Đã thanh toán', 136, 1000000.00, 'VN203', 'KH080'), -- G-06
-('DV133', '2025-05-22', '2025-06-15', N'Đã thanh toán', 139, 1000000.00, 'VN203', 'KH081'), -- G-09
-('DV134', '2025-05-22', '2025-06-15', N'Đã thanh toán', 142, 1000000.00, 'VN203', 'KH082'), -- G-12
-('DV135', '2025-05-22', '2025-06-15', N'Đã thanh toán', 145, 1000000.00, 'VN203', 'KH083'), -- G-15
-('DV136', '2025-05-22', '2025-06-15', N'Đã thanh toán', 148, 1000000.00, 'VN203', 'KH084'); -- G-18
-----
-INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
--- Ghế cho chuyến bay VN204
--- Hạng nhất (15 ghế)
-(1, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(2, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(3, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(4, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(5, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(6, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(7, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(8, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(9, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(10, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(11, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(12, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(13, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(14, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(15, 'VN204', 3000000.00, N'Hạng nhất', N'có sẵn'),
+WHILE @@FETCH_STATUS = 0 AND @l <= 100
+BEGIN
+    -- Lấy thông tin số tiền từ bảng ThongTinDatVe
+    SELECT @SoTienTT = SoTien FROM ThongTinDatVe WHERE MaDatVe = @MaDatVe_Cursor;
 
--- Thương gia (35 ghế)
-(16, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(17, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(18, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(19, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(20, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(21, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(22, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(23, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(24, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(25, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(26, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(27, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(28, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(29, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(30, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(31, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(32, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(33, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(34, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(35, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(36, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(37, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(38, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(39, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(40, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(41, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(42, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(43, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(44, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(45, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(46, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(47, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(48, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(49, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
-(50, 'VN204', 2000000.00, N'Thương gia', N'có sẵn'),
+    SET @NgayTT = DATEADD(day, -CAST(RAND() * 15 AS INT), GETDATE()); -- Ngày thanh toán trong 15 ngày qua
+    
+    SET @PTTT = CASE CAST(RAND() * 3 AS INT) + 1
+        WHEN 1 THEN N'Tiền mặt'
+        WHEN 2 THEN N'Thẻ tín dụng'
+        WHEN 3 THEN N'Chuyển khoản'
+    END;
 
--- Phổ thông (100 ghế)
-(51, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(52, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(53, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(54, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(55, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(56, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(57, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(58, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(59, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(60, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(61, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(62, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(63, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(64, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(65, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(66, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(67, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(68, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(69, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(70, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(71, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(72, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(73, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(74, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(75, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(76, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(77, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(78, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(79, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(80, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(81, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(82, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(83, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(84, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(85, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(86, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(87, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(88, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(89, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(90, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(91, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(92, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(93, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(94, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(95, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(96, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(97, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(98, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(99, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(100, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(101, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(102, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(103, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(104, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(105, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(106, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(107, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(108, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(109, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(110, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(111, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(112, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(113, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(114, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(115, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(116, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(117, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(118, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(119, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(120, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(121, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(122, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(123, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(124, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(125, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(126, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(127, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(128, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(129, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(130, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(131, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(132, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(133, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(134, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(135, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(136, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(137, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(138, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(139, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(140, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(141, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(142, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(143, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(144, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(145, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(146, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(147, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(148, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(149, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn'),
-(150, 'VN204', 1000000.00, N'Phổ thông', N'có sẵn');
-----
-----
-INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe) VALUES
--- Hạng nhất (15 ghế) - 3 ghế đã đặt
-(1, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(2, 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(3, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(4, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(5, 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(6, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(7, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(8, 'VN205', 3000000.00, N'Hạng nhất', N'đã đặt'),
-(9, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(10, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(11, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(12, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(13, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(14, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
-(15, 'VN205', 3000000.00, N'Hạng nhất', N'có sẵn'),
--- Thương gia (35 ghế) - 7 ghế đã đặt
-(16, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(17, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(18, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(19, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(20, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(21, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(22, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(23, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(24, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(25, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(26, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(27, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(28, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(29, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(30, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(31, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(32, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(33, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(34, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(35, 'VN205', 2000000.00, N'Thương gia', N'đã đặt'),
-(36, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(37, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(38, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(39, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(40, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(41, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(42, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(43, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(44, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(45, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(46, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(47, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(48, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(49, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
-(50, 'VN205', 2000000.00, N'Thương gia', N'có sẵn'),
--- Phổ thông (100 ghế) - 20 ghế đã đặt
-(51, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(52, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(53, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(54, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(55, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(56, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(57, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(58, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(59, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(60, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(61, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(62, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(63, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(64, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(65, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(66, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(67, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(68, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(69, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(70, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(71, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(72, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(73, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(74, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(75, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(76, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(77, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(78, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(79, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(80, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(81, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(82, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(83, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(84, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(85, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(86, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(87, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(88, 'VN205', 1000000.00, N'Phổ thông', N'đã đặt'),
-(89, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(90, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(91, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(92, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(93, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(94, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(95, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(96, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(97, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(98, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(99, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(100, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(101, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(102, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(103, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(104, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(105, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(106, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(107, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(108, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(109, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(110, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(111, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(112, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(113, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(114, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(115, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(116, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(117, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(118, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(119, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(120, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(121, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(122, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(123, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(124, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(125, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(126, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(127, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(128, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(129, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(130, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(131, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(132, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(133, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(134, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(135, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(136, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(137, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(138, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(139, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(140, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(141, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(142, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(143, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(144, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(145, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(146, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(147, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(148, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(149, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn'),
-(150, 'VN205', 1000000.00, N'Phổ thông', N'có sẵn');
+    INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
+    ('TT' + FORMAT(@l, '000'), @NgayTT, @SoTienTT, @PTTT, @MaDatVe_Cursor);
+    
+    SET @l = @l + 1;
+    FETCH NEXT FROM cur_DatVe INTO @MaDatVe_Cursor;
+END;
+CLOSE cur_DatVe;
+DEALLOCATE cur_DatVe;
+GO
 
-INSERT INTO ThongTinDatVe (MaDatVe, NgayDatVe, NgayBay, TrangThaiThanhToan, SoGhe, SoTien, MaChuyenBay, MaKH)
-VALUES
--- Hạng nhất (3 ghế đã đặt)
-('DV137', '2025-05-22', '2025-06-15', N'Đã thanh toán', 2, 3000000.00, 'VN205', 'KH085'),
-('DV138', '2025-05-22', '2025-06-15', N'Đã thanh toán', 5, 3000000.00, 'VN205', 'KH086'),
-('DV139', '2025-05-22', '2025-06-15', N'Đã thanh toán', 8, 3000000.00, 'VN205', 'KH087'),
--- Thương gia (7 ghế đã đặt)
-('DV140', '2025-05-22', '2025-06-15', N'Đã thanh toán', 17, 2000000.00, 'VN205', 'KH088'),
-('DV141', '2025-05-22', '2025-06-15', N'Đã thanh toán', 20, 2000000.00, 'VN205', 'KH089'),
-('DV142', '2025-05-22', '2025-06-15', N'Đã thanh toán', 23, 2000000.00, 'VN205', 'KH090'),
-('DV143', '2025-05-22', '2025-06-15', N'Đã thanh toán', 26, 2000000.00, 'VN205', 'KH091'),
-('DV144', '2025-05-22', '2025-06-15', N'Đã thanh toán', 29, 2000000.00, 'VN205', 'KH092'),
-('DV145', '2025-05-22', '2025-06-15', N'Đã thanh toán', 32, 2000000.00, 'VN205', 'KH093'),
-('DV146', '2025-05-22', '2025-06-15', N'Đã thanh toán', 35, 2000000.00, 'VN205', 'KH094'),
--- Phổ thông (10 ghế đã đặt)
-('DV147', '2025-05-22', '2025-06-15', N'Đã thanh toán', 52, 1000000.00, 'VN205', 'KH095'),
-('DV148', '2025-05-22', '2025-06-15', N'Đã thanh toán', 55, 1000000.00, 'VN205', 'KH096'),
-('DV149', '2025-05-22', '2025-06-15', N'Đã thanh toán', 58, 1000000.00, 'VN205', 'KH097'),
-('DV150', '2025-05-22', '2025-06-15', N'Đã thanh toán', 61, 1000000.00, 'VN205', 'KH098'),
-('DV151', '2025-05-22', '2025-06-15', N'Đã thanh toán', 64, 1000000.00, 'VN205', 'KH099'),
-('DV152', '2025-05-22', '2025-06-15', N'Đã thanh toán', 67, 1000000.00, 'VN205', 'KH100'),
-('DV153', '2025-05-22', '2025-06-15', N'Đã thanh toán', 70, 1000000.00, 'VN205', 'KH001'),
-('DV154', '2025-05-22', '2025-06-15', N'Đã thanh toán', 73, 1000000.00, 'VN205', 'KH100'),
-('DV155', '2025-05-22', '2025-06-15', N'Đã thanh toán', 76, 1000000.00, 'VN205', 'KH099'),
-('DV156', '2025-05-22', '2025-06-15', N'Đã thanh toán', 79, 1000000.00, 'VN205', 'KH100');
----
-----
-INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
--- Hạng nhất (5 ghế đã đặt)
-('TT203-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV053'),
-('TT203-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV054'),
-('TT203-003', '2025-05-22', 3000000.00, N'Chuyển khoản', 'DV055'),
-('TT203-004', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV056'),
-('TT203-005', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV057'),
+-- Dữ liệu mẫu cho bảng HoaDon (100 bản ghi)
+DECLARE @m INT = 1;
+DECLARE @RandomMaTT VARCHAR(20);
+DECLARE @NgayXuatHD DATE;
+DECLARE @PhuongThucTT NVARCHAR(50);
+DECLARE @NgayThanhToan DATE;
+DECLARE @MaTT_Cursor VARCHAR(20);
 
--- Thương gia (25 ghế đã đặt)
-('TT203-006', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV058'),
-('TT203-007', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV059'),
-('TT203-008', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV060'),
-('TT203-009', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV061'),
-('TT203-010', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV062'),
-('TT203-011', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV063'),
-('TT203-012', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV064'),
-('TT203-013', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV065'),
-('TT203-014', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV066'),
-('TT203-015', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV067'),
-('TT203-016', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV068'),
-('TT203-017', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV069'),
-('TT203-018', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV070'),
-('TT203-019', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV071'),
-('TT203-020', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV072'),
-('TT203-021', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV073'),
-('TT203-022', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV074'),
-('TT203-023', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV075'),
-('TT203-024', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV076'),
-('TT203-025', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV077'),
-('TT203-026', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV078'),
-('TT203-027', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV079'),
-('TT203-028', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV080'),
-('TT203-029', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV081'),
+DECLARE cur_ThanhToan CURSOR FOR
+SELECT MaTT FROM ThanhToan;
 
--- Phổ thông (40 ghế đã đặt)
-('TT203-030', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV082'),
-('TT203-031', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV083'),
-('TT203-032', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV084'),
-('TT203-033', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV085'),
-('TT203-034', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV086'),
-('TT203-035', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV087'),
-('TT203-036', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV088'),
-('TT203-037', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV089'),
-('TT203-038', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV090'),
-('TT203-039', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV091'),
-('TT203-040', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV092'),
-('TT203-041', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV093'),
-('TT203-042', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV094'),
-('TT203-043', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV095'),
-('TT203-044', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV096'),
-('TT203-045', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV097'),
-('TT203-046', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV098'),
-('TT203-047', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV099'),
-('TT203-048', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV100'),
-('TT203-049', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV101'),
-('TT203-050', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV102'),
-('TT203-051', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV103'),
-('TT203-052', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV104'),
-('TT203-053', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV105'),
-('TT203-054', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV106'),
-('TT203-055', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV107'),
-('TT203-056', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV108'),
-('TT203-057', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV109'),
-('TT203-058', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV110'),
-('TT203-059', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV111'),
-('TT203-060', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV112'),
-('TT203-061', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV113'),
-('TT203-062', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV114'),
-('TT203-063', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV115'),
-('TT203-064', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV116'),
-('TT203-065', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV117'),
-('TT203-066', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV118'),
-('TT203-067', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV119'),
-('TT203-068', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV120'),
-('TT203-069', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV121'),
-('TT203-070', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV122'),
-('TT203-071', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV123'),
-('TT203-072', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV124'),
-('TT203-073', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV125'),
-('TT203-074', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV126'),
-('TT203-075', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV127'),
-('TT203-076', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV128'),
-('TT203-077', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV129'),
-('TT203-078', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV130'),
-('TT203-079', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV131'),
-('TT203-080', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV132'),
-('TT203-081', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV133'),
-('TT203-082', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV134'),
-('TT203-083', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV135'),
-('TT203-084', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV136');
-INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
--- Hạng nhất (2 ghế đã đặt)
-('TT202-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV043'),
-('TT202-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV044'),
+OPEN cur_ThanhToan;
+FETCH NEXT FROM cur_ThanhToan INTO @MaTT_Cursor;
 
--- Thương gia (3 ghế đã đặt)
-('TT202-003', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV045'),
-('TT202-004', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV046'),
-('TT202-005', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV047'),
+WHILE @@FETCH_STATUS = 0 AND @m <= 100
+BEGIN
+    -- Lấy thông tin từ bảng ThanhToan
+    SELECT @NgayThanhToan = NgayTT, @PhuongThucTT = PTTT FROM ThanhToan WHERE MaTT = @MaTT_Cursor;
 
--- Phổ thông (5 ghế đã đặt)
-('TT202-006', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV048'),
-('TT202-007', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV049'),
-('TT202-008', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV050'),
-('TT202-009', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV051'),
-('TT202-010', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV052');
-INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
--- Hạng nhất (5 ghế đã đặt)
-('TT201-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV001'),
-('TT201-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV002'),
-('TT201-003', '2025-05-22', 3000000.00, N'Chuyển khoản', 'DV003'),
-('TT201-004', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV004'),
-('TT201-005', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV005'),
+    SET @NgayXuatHD = DATEADD(day, -CAST(RAND() * 5 AS INT), @NgayThanhToan); -- Ngày xuất hóa đơn trước hoặc bằng ngày thanh toán
 
--- Thương gia (9 ghế đã đặt)
-('TT201-006', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV006'),
-('TT201-007', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV007'),
-('TT201-008', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV008'),
-('TT201-009', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV009'),
-('TT201-010', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV010'),
-('TT201-011', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV011'),
-('TT201-012', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV012'),
-('TT201-013', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV013'),
-('TT201-014', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV014'),
-
--- Phổ thông (28 ghế đã đặt)
-('TT201-015', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV015'),
-('TT201-016', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV016'),
-('TT201-017', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV017'),
-('TT201-018', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV018'),
-('TT201-019', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV019'),
-('TT201-020', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV020'),
-('TT201-021', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV021'),
-('TT201-022', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV022'),
-('TT201-023', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV023'),
-('TT201-024', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV024'),
-('TT201-025', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV025'),
-('TT201-026', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV026'),
-('TT201-027', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV027'),
-('TT201-028', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV028'),
-('TT201-029', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV029'),
-('TT201-030', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV030'),
-('TT201-031', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV031'),
-('TT201-032', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV032'),
-('TT201-033', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV033'),
-('TT201-034', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV034'),
-('TT201-035', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV035'),
-('TT201-036', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV036'),
-('TT201-037', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV037'),
-('TT201-038', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV038'),
-('TT201-039', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV039'),
-('TT201-040', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV040'),
-('TT201-041', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV041'),
-('TT201-042', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV042');
-INSERT INTO ThanhToan (MaTT, NgayTT, SoTien, PTTT, MaDatVe) VALUES
--- Các thanh toán cho vé Hạng nhất (SoTien = 3000000.00)
-('TT205-001', '2025-05-22', 3000000.00, N'Thẻ tín dụng', 'DV137'),
-('TT205-002', '2025-05-22', 3000000.00, N'Tiền mặt', 'DV138'),
-('TT205-003', '2025-05-22', 3000000.00, N'Chuyển khoản', 'DV139'),
-
--- Các thanh toán cho vé Thương gia (SoTien = 2000000.00)
-('TT205-004', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV140'),
-('TT205-005', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV141'),
-('TT205-006', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV142'),
-('TT205-007', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV143'),
-('TT205-008', '2025-05-22', 2000000.00, N'Chuyển khoản', 'DV144'),
-('TT205-009', '2025-05-22', 2000000.00, N'Tiền mặt', 'DV145'),
-('TT205-010', '2025-05-22', 2000000.00, N'Thẻ tín dụng', 'DV146'),
-
--- Các thanh toán cho vé Phổ thông (SoTien = 1000000.00)
-('TT205-011', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV147'),
-('TT205-012', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV148'),
-('TT205-013', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV149'),
-('TT205-014', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV150'),
-('TT205-015', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV151'),
-('TT205-016', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV152'),
-('TT205-017', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV153'),
-('TT205-018', '2025-05-22', 1000000.00, N'Tiền mặt', 'DV154'),
-('TT205-019', '2025-05-22', 1000000.00, N'Thẻ tín dụng', 'DV155'),
-('TT205-020', '2025-05-22', 1000000.00, N'Chuyển khoản', 'DV156');
-
-
-------
-INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
-('HD205-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-001'),
-('HD205-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-002'),
-('HD205-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-003'),
-('HD205-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-004'),
-('HD205-005', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-005'),
-('HD205-006', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-006'),
-('HD205-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-007'),
-('HD205-008', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-008'),
-('HD205-009', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-009'),
-('HD205-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-010'),
-('HD205-011', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-011'),
-('HD205-012', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-012'),
-('HD205-013', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-013'),
-('HD205-014', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-014'),
-('HD205-015', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-015'),
-('HD205-016', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-016'),
-('HD205-017', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-017'),
-('HD205-018', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT205-018'),
-('HD205-019', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT205-019'),
-('HD205-020', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT205-020');
-
-INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
-('HD203-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-001'),
-('HD203-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-002'),
-('HD203-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-003'),
-('HD203-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-004'),
-('HD203-005', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-005'),
-('HD203-006', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-006'),
-('HD203-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-007'),
-('HD203-008', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-008'),
-('HD203-009', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-009'),
-('HD203-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-010'),
-('HD203-011', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-011'),
-('HD203-012', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-012'),
-('HD203-013', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-013'),
-('HD203-014', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-014'),
-('HD203-015', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-015'),
-('HD203-016', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-016'),
-('HD203-017', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-017'),
-('HD203-018', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-018'),
-('HD203-019', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-019'),
-('HD203-020', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-020'),
-('HD203-021', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-021'),
-('HD203-022', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-022'),
-('HD203-023', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-023'),
-('HD203-024', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-024'),
-('HD203-025', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-025'),
-('HD203-026', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-026'),
-('HD203-027', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-027'),
-('HD203-028', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-028'),
-('HD203-029', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-029'),
-('HD203-030', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-030'),
-('HD203-031', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-031'),
-('HD203-032', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-032'),
-('HD203-033', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-033'),
-('HD203-034', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-034'),
-('HD203-035', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-035'),
-('HD203-036', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-036'),
-('HD203-037', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-037'),
-('HD203-038', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-038'),
-('HD203-039', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-039'),
-('HD203-040', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-040'),
-('HD203-041', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-041'),
-('HD203-042', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-042'),
-('HD203-043', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-043'),
-('HD203-044', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-044'),
-('HD203-045', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-045'),
-('HD203-046', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-046'),
-('HD203-047', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-047'),
-('HD203-048', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-048'),
-('HD203-049', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-049'),
-('HD203-050', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-050'),
-('HD203-051', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-051'),
-('HD203-052', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-052'),
-('HD203-053', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-053'),
-('HD203-054', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-054'),
-('HD203-055', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-055'),
-('HD203-056', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-056'),
-('HD203-057', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-057'),
-('HD203-058', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-058'),
-('HD203-059', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-059'),
-('HD203-060', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-060'),
-('HD203-061', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-061'),
-('HD203-062', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-062'),
-('HD203-063', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-063'),
-('HD203-064', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-064'),
-('HD203-065', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-065'),
-('HD203-066', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-066'),
-('HD203-067', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-067'),
-('HD203-068', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-068'),
-('HD203-069', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-069'),
-('HD203-070', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-070'),
-('HD203-071', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-071'),
-('HD203-072', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-072'),
-('HD203-073', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-073'),
-('HD203-074', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-074'),
-('HD203-075', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-075'),
-('HD203-076', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-076'),
-('HD203-077', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-077'),
-('HD203-078', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-078'),
-('HD203-079', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-079'),
-('HD203-080', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-080'),
-('HD203-081', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-081'),
-('HD203-082', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT203-082'),
-('HD203-083', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT203-083'),
-('HD203-084', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT203-084');
-
-INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
-('HD202-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-001'),
-('HD202-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT202-002'),
-('HD202-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT202-003'),
-('HD202-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-004'),
-('HD202-005', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT202-005'),
-('HD202-006', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT202-006'),
-('HD202-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-007'),
-('HD202-008', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT202-008'),
-('HD202-009', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT202-009'),
-('HD202-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT202-010');
-
-INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
-('HD201-001', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-001'),
-('HD201-002', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-002'),
-('HD201-003', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-003'),
-('HD201-004', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-004'),
-('HD201-005', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-005'),
-('HD201-006', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-006'),
-('HD201-007', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-007'),
-('HD201-008', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-008'),
-('HD201-009', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-009'),
-('HD201-010', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-010'),
-('HD201-011', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-011'),
-('HD201-012', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-012'),
-('HD201-013', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-013'),
-('HD201-014', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-014'),
-('HD201-015', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-015'),
-('HD201-016', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-016'),
-('HD201-017', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-017'),
-('HD201-018', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-018'),
-('HD201-019', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-019'),
-('HD201-020', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-020'),
-('HD201-021', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-021'),
-('HD201-022', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-022'),
-('HD201-023', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-023'),
-('HD201-024', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-024'),
-('HD201-025', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-025'),
-('HD201-026', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-026'),
-('HD201-027', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-027'),
-('HD201-028', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-028'),
-('HD201-029', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-029'),
-('HD201-030', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-030'),
-('HD201-031', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-031'),
-('HD201-032', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-032'),
-('HD201-033', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-033'),
-('HD201-034', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-034'),
-('HD201-035', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-035'),
-('HD201-036', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-036'),
-('HD201-037', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-037'),
-('HD201-038', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-038'),
-('HD201-039', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-039'),
-('HD201-040', '2025-05-22', N'Thẻ tín dụng', '2025-05-22', 'TT201-040'),
-('HD201-041', '2025-05-22', N'Tiền mặt', '2025-05-22', 'TT201-041'),
-('HD201-042', '2025-05-22', N'Chuyển khoản', '2025-05-22', 'TT201-042');
+    INSERT INTO HoaDon (MaHoaDon, NgayXuatHD, PhuongThucTT, NgayThanhToan, MaTT) VALUES
+    ('HD' + FORMAT(@m, '000'), @NgayXuatHD, @PhuongThucTT, @NgayThanhToan, @MaTT_Cursor);
+    
+    SET @m = @m + 1;
+    FETCH NEXT FROM cur_ThanhToan INTO @MaTT_Cursor;
+END;
+CLOSE cur_ThanhToan;
+DEALLOCATE cur_ThanhToan;
+GO
