@@ -509,6 +509,7 @@ SELECT
 FROM ThanhToan tt
 WHERE tt.SoTien > 0
 GROUP BY YEAR(tt.NgayTT), MONTH(tt.NgayTT);
+GO
 
 CREATE VIEW vw_BaoCaoTongDoanhThu
 AS
@@ -517,6 +518,7 @@ SELECT
     COUNT(tt.MaTT) AS TongSoGiaoDich
 FROM ThanhToan tt
 WHERE tt.SoTien > 0;
+GO
 
 -- View báo cáo ghế trống
 CREATE VIEW vw_GheTrong AS
