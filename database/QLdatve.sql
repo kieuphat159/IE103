@@ -499,6 +499,30 @@ BEGIN
 END;
 GO
 
+-- Function kiểm tra ghế trống theo hạng
+
+CREATE FUNCTION fn_KiemTraGheTrongTheoHang
+(
+    @MaChuyenBay VARCHAR(20),
+    @HangGhe NVARCHAR(20)
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @SoGheTrong INT;
+
+    SELECT @SoGheTrong = COUNT(*)
+    FROM ThongTinGhe
+    WHERE MaChuyenBay = @MaChuyenBay 
+        AND HangGhe = @HangGhe 
+        AND TinhTrangGhe = N'có sẵn';
+
+    RETURN @SoGheTrong;
+END;
+GO
+
+-- View báo cáo doanh thu
+
 CREATE VIEW vw_BaoCaoDoanhThuTheoThang
 AS
 SELECT 
