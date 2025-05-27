@@ -1,3 +1,114 @@
+USE QLdatve;
+GO
+
+-- Dữ liệu trong quá khứ
+ DISABLE TRIGGER ALL ON ChuyenBay;
+ DISABLE TRIGGER ALL ON ThongTinDatVe;
+ DISABLE TRIGGER ALL ON ThanhToan;
+ DISABLE TRIGGER ALL ON NguoiDung;
+
+ -- Thêm dữ liệu chuyến bay từ tháng 12/2024 đến tháng 4/2025
+-- Chuyến bay tháng 12/2024
+EXEC sp_ThemChuyenBay 'CB1201', N'Chưa khởi hành', '2024-12-01 08:00:00', '2024-12-01 10:00:00', N'Hà Nội', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB1202', N'Chưa khởi hành', '2024-12-05 14:00:00', '2024-12-05 16:00:00', N'Đà Nẵng', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB1203', N'Chưa khởi hành', '2024-12-10 09:30:00', '2024-12-10 11:30:00', N'TP. Hồ Chí Minh', N'Phú Quốc';
+EXEC sp_ThemChuyenBay 'CB1204', N'Chưa khởi hành', '2024-12-15 18:00:00', '2024-12-15 20:00:00', N'Hà Nội', N'Đà Lạt';
+EXEC sp_ThemChuyenBay 'CB1205', N'Chưa khởi hành', '2024-12-20 07:00:00', '2024-12-20 09:00:00', N'TP. Hồ Chí Minh', N'Hà Nội';
+
+-- Chuyến bay tháng 01/2025
+EXEC sp_ThemChuyenBay 'CB0101', N'Chưa khởi hành', '2025-01-01 10:00:00', '2025-01-01 12:00:00', N'Hà Nội', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB0102', N'Chưa khởi hành', '2025-01-07 15:00:00', '2025-01-07 17:00:00', N'TP. Hồ Chí Minh', N'Đà Nẵng';
+EXEC sp_ThemChuyenBay 'CB0103', N'Chưa khởi hành', '2025-01-12 11:00:00', '2025-01-12 13:00:00', N'Đà Nẵng', N'Phú Quốc';
+EXEC sp_ThemChuyenBay 'CB0104', N'Chưa khởi hành', '2025-01-18 09:00:00', '2025-01-18 11:00:00', N'Phú Quốc', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB0105', N'Chưa khởi hành', '2025-01-25 16:00:00', '2025-01-25 18:00:00', N'Hà Nội', N'Đà Nẵng';
+
+-- Chuyến bay tháng 02/2025
+EXEC sp_ThemChuyenBay 'CB0201', N'Chưa khởi hành', '2025-02-01 08:30:00', '2025-02-01 10:30:00', N'TP. Hồ Chí Minh', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB0202', N'Chưa khởi hành', '2025-02-08 13:00:00', '2025-02-08 15:00:00', N'Hà Nội', N'Huế';
+EXEC sp_ThemChuyenBay 'CB0203', N'Chưa khởi hành', '2025-02-14 10:00:00', '2025-02-14 12:00:00', N'Huế', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB0204', N'Chưa khởi hành', '2025-02-20 17:00:00', '2025-02-20 19:00:00', N'TP. Hồ Chí Minh', N'Cần Thơ';
+EXEC sp_ThemChuyenBay 'CB0205', N'Chưa khởi hành', '2025-02-25 09:00:00', '2025-02-25 11:00:00', N'Cần Thơ', N'Hà Nội';
+
+-- Chuyến bay tháng 03/2025
+EXEC sp_ThemChuyenBay 'CB0301', N'Chưa khởi hành', '2025-03-01 09:00:00', '2025-03-01 11:00:00', N'Hà Nội', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB0302', N'Chưa khởi hành', '2025-03-06 14:30:00', '2025-03-06 16:30:00', N'TP. Hồ Chí Minh', N'Đà Nẵng';
+EXEC sp_ThemChuyenBay 'CB0303', N'Chưa khởi hành', '2025-03-11 10:00:00', '2025-03-11 12:00:00', N'Đà Nẵng', N'Nha Trang';
+EXEC sp_ThemChuyenBay 'CB0304', N'Chưa khởi hành', '2025-03-17 19:00:00', '2025-03-17 21:00:00', N'Nha Trang', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB0305', N'Chưa khởi hành', '2025-03-22 07:30:00', '2025-03-22 09:30:00', N'Hà Nội', N'Phú Quốc';
+
+-- Chuyến bay tháng 04/2025
+EXEC sp_ThemChuyenBay 'CB0401', N'Chưa khởi hành', '2025-04-01 11:00:00', '2025-04-01 13:00:00', N'TP. Hồ Chí Minh', N'Hà Nội';
+EXEC sp_ThemChuyenBay 'CB0402', N'Chưa khởi hành', '2025-04-05 16:00:00', '2025-04-05 18:00:00', N'Hà Nội', N'Côn Đảo';
+EXEC sp_ThemChuyenBay 'CB0403', N'Chưa khởi hành', '2025-04-10 09:00:00', '2025-04-10 11:00:00', N'Côn Đảo', N'TP. Hồ Chí Minh';
+EXEC sp_ThemChuyenBay 'CB0404', N'Chưa khởi hành', '2025-04-15 14:00:00', '2025-04-15 16:00:00', N'TP. Hồ Chí Minh', N'Đà Lạt';
+EXEC sp_ThemChuyenBay 'CB0405', N'Chưa khởi hành', '2025-04-20 08:00:00', '2025-04-20 10:00:00', N'Đà Lạt', N'Hà Nội';
+
+-- Thêm dữ liệu khách hàng (nếu chưa có)
+INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD, VaiTro) VALUES
+('khachhang01', N'Trần Văn A', 'pass123', 'a.tran@example.com', '0912345678', '1990-01-15', N'Nam', '123456789012', N'Customer'),
+('khachhang02', N'Nguyễn Thị B', 'pass123', 'b.nguyen@example.com', '0987654321', '1985-05-20', N'Nữ', '987654321098', N'Customer');
+
+INSERT INTO KhachHang (MaKH, Passport, TaiKhoan) VALUES
+('KH001', 'P1234567', 'khachhang01'),
+('KH002', 'P7654321', 'khachhang02');
+
+-- Thêm dữ liệu đặt vé và thanh toán từ tháng 12/2024 đến tháng 4/2025
+-- Đặt vé tháng 12/2024
+EXEC sp_ThemDatVe 'DV12001', '2024-11-20', '2024-12-01', N'Chưa thanh toán', 1, 1000000.00, 'CB1201', 'KH001';
+EXEC sp_ThemThanhToan 'TT12001', '2024-11-25', 1000000.00, N'Chuyển khoản', 'DV12001';
+EXEC sp_ThemHoaDon 'HD12001', '2024-11-25', N'Chuyển khoản', '2024-11-25', 'TT12001';
+
+EXEC sp_ThemDatVe 'DV12002', '2024-11-22', '2024-12-05', N'Chưa thanh toán', 2, 2000000.00, 'CB1202', 'KH002';
+EXEC sp_ThemThanhToan 'TT12002', '2024-11-28', 2000000.00, N'Thẻ tín dụng', 'DV12002';
+EXEC sp_ThemHoaDon 'HD12002', '2024-11-28', N'Thẻ tín dụng', '2024-11-28', 'TT12002';
+
+EXEC sp_ThemDatVe 'DV12003', '2024-11-25', '2024-12-10', N'Chưa thanh toán', 1, 3000000.00, 'CB1203', 'KH001';
+EXEC sp_ThemThanhToan 'TT12003', '2024-12-01', 3000000.00, N'Tiền mặt', 'DV12003';
+EXEC sp_ThemHoaDon 'HD12003', '2024-12-01', N'Tiền mặt', '2024-12-01', 'TT12003';
+
+-- Đặt vé tháng 01/2025
+EXEC sp_ThemDatVe 'DV01001', '2024-12-15', '2025-01-01', N'Chưa thanh toán', 1, 1000000.00, 'CB0101', 'KH002';
+EXEC sp_ThemThanhToan 'TT01001', '2024-12-20', 1000000.00, N'Chuyển khoản', 'DV01001';
+EXEC sp_ThemHoaDon 'HD01001', '2024-12-20', N'Chuyển khoản', '2024-12-20', 'TT01001';
+
+EXEC sp_ThemDatVe 'DV01002', '2024-12-20', '2025-01-07', N'Chưa thanh toán', 2, 2000000.00, 'CB0102', 'KH001';
+EXEC sp_ThemThanhToan 'TT01002', '2024-12-25', 2000000.00, N'Thẻ tín dụng', 'DV01002';
+EXEC sp_ThemHoaDon 'HD01002', '2024-12-25', N'Thẻ tín dụng', '2024-12-25', 'TT01002';
+
+-- Đặt vé tháng 02/2025
+EXEC sp_ThemDatVe 'DV02001', '2025-01-10', '2025-02-01', N'Chưa thanh toán', 1, 1000000.00, 'CB0201', 'KH001';
+EXEC sp_ThemThanhToan 'TT02001', '2025-01-15', 1000000.00, N'Tiền mặt', 'DV02001';
+EXEC sp_ThemHoaDon 'HD02001', '2025-01-15', N'Tiền mặt', '2025-01-15', 'TT02001';
+
+EXEC sp_ThemDatVe 'DV02002', '2025-01-18', '2025-02-08', N'Chưa thanh toán', 2, 2000000.00, 'CB0202', 'KH002';
+EXEC sp_ThemThanhToan 'TT02002', '2025-01-23', 2000000.00, N'Chuyển khoản', 'DV02002';
+EXEC sp_ThemHoaDon 'HD02002', '2025-01-23', N'Chuyển khoản', '2025-01-23', 'TT02002';
+
+-- Đặt vé tháng 03/2025
+EXEC sp_ThemDatVe 'DV03001', '2025-02-05', '2025-03-01', N'Chưa thanh toán', 1, 1000000.00, 'CB0301', 'KH002';
+EXEC sp_ThemThanhToan 'TT03001', '2025-02-10', 1000000.00, N'Thẻ tín dụng', 'DV03001';
+EXEC sp_ThemHoaDon 'HD03001', '2025-02-10', N'Thẻ tín dụng', '2025-02-10', 'TT03001';
+
+EXEC sp_ThemDatVe 'DV03002', '2025-02-12', '2025-03-06', N'Chưa thanh toán', 2, 2000000.00, 'CB0302', 'KH001';
+EXEC sp_ThemThanhToan 'TT03002', '2025-02-17', 2000000.00, N'Tiền mặt', 'DV03002';
+EXEC sp_ThemHoaDon 'HD03002', '2025-02-17', N'Tiền mặt', '2025-02-17', 'TT03002';
+
+-- Đặt vé tháng 04/2025
+EXEC sp_ThemDatVe 'DV04001', '2025-03-10', '2025-04-01', N'Chưa thanh toán', 1, 1000000.00, 'CB0401', 'KH001';
+EXEC sp_ThemThanhToan 'TT04001', '2025-03-15', 1000000.00, N'Chuyển khoản', 'DV04001';
+EXEC sp_ThemHoaDon 'HD04001', '2025-03-15', N'Chuyển khoản', '2025-03-15', 'TT04001';
+
+EXEC sp_ThemDatVe 'DV04002', '2025-03-18', '2025-04-05', N'Chưa thanh toán', 2, 2000000.00, 'CB0402', 'KH002';
+EXEC sp_ThemThanhToan 'TT04002', '2025-03-23', 2000000.00, N'Thẻ tín dụng', 'DV04002';
+EXEC sp_ThemHoaDon 'HD04002', '2025-03-23', N'Thẻ tín dụng', '2025-03-23', 'TT04002';
+
+-- Bật lại
+
+ ENABLE TRIGGER ALL ON ChuyenBay;
+ ENABLE TRIGGER ALL ON ThongTinDatVe;
+ ENABLE TRIGGER ALL ON ThanhToan;
+ ENABLE TRIGGER ALL ON NguoiDung;
+
 -- Dữ liệu mẫu cho bảng NguoiDung
 -- (Bao gồm admin đã có, thêm 99 bản ghi khác)
 INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, SoCCCD, VaiTro) VALUES

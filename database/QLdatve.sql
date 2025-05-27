@@ -293,8 +293,7 @@ BEGIN
     END CATCH
 END;
 GO
---
---
+
 
 CREATE PROCEDURE sp_ThemChuyenBay
     @MaChuyenBay VARCHAR(20),
@@ -305,46 +304,31 @@ CREATE PROCEDURE sp_ThemChuyenBay
     @DiaDiemCuoi NVARCHAR(100)
 AS
 BEGIN
-    -- Thêm chuyến bay mới vào bảng ChuyenBay
     INSERT INTO ChuyenBay (MaChuyenBay, TinhTrangChuyenBay, GioBay, GioDen, DiaDiemDau, DiaDiemCuoi)
     VALUES (@MaChuyenBay, @TinhTrangChuyenBay, @GioBay, @GioDen, @DiaDiemDau, @DiaDiemCuoi);
-
-    -- Khởi tạo biến đếm cho vòng lặp tạo ghế
     DECLARE @i INT = 1;
-    -- Tổng số ghế cần tạo là 150 (15 hạng nhất + 35 thương gia + 100 phổ thông)
     DECLARE @TotalSeats INT = 150;
-
-    -- Vòng lặp để tạo từng ghế cho chuyến bay
     WHILE @i <= @TotalSeats
     BEGIN
-        -- Khai báo các biến để lưu thông tin ghế
         DECLARE @GiaGhe DECIMAL(18, 2);
         DECLARE @HangGhe NVARCHAR(50);
-        -- Không cần @Prefix và @SeatNumInClass nữa vì SoGhe giờ là INT
-
-        -- Logic phân loại ghế theo hạng và gán giá vé, hạng ghế
-        IF @i <= 15 -- 15 ghế hạng nhất (từ 1 đến 15)
+        IF @i <= 15 
         BEGIN
-            SET @GiaGhe = 3000000.00; -- Giá hạng nhất
+            SET @GiaGhe = 3000000.00; 
             SET @HangGhe = N'Hạng nhất';
         END
-        ELSE IF @i <= 50 -- 35 ghế thương gia (từ 16 đến 50)
+        ELSE IF @i <= 50 
         BEGIN
-            SET @GiaGhe = 2000000.00; -- Giá thương gia
+            SET @GiaGhe = 2000000.00; 
             SET @HangGhe = N'Thương gia';
         END
-        ELSE -- 100 ghế phổ thông (từ 51 đến 150)
+        ELSE 
         BEGIN
-            SET @GiaGhe = 1000000.00; -- Giá phổ thông
+            SET @GiaGhe = 1000000.00;
             SET @HangGhe = N'Phổ thông';
         END;
-
-        -- Chèn thông tin ghế vào bảng ThongTinGhe
-        -- Cột SoGhe sẽ nhận trực tiếp giá trị số nguyên từ biến @i
         INSERT INTO ThongTinGhe (SoGhe, MaChuyenBay, GiaGhe, HangGhe, TinhTrangGhe)
         VALUES (@i, @MaChuyenBay, @GiaGhe, @HangGhe, N'có sẵn');
-
-        -- Tăng biến đếm để chuyển sang ghế tiếp theo
         SET @i = @i + 1;
     END;
 END;

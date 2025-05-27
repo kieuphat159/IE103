@@ -323,21 +323,40 @@ function confirmLogout() {
 }
 async function fetchRevenueReports() {
     try {
-        // Fetch monthly revenue data
         const monthlyResponse = await fetch('http://localhost:3000/api/revenue-reports-monthly');
         if (!monthlyResponse.ok) {
             throw new Error('Không thể lấy dữ liệu báo cáo doanh thu theo tháng');
         }
         const monthlyData = await monthlyResponse.json();
 
-        // Fetch total revenue data
+        // Tạo danh sách 6 tháng gần nhất
+        const now = new Date();
+        const months = [];
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // getMonth() trả về 0-11, cần +1
+            months.push({ year, month });
+        }
+
+        // Ánh xạ dữ liệu vào 6 tháng, điền 0 nếu không có dữ liệu
+        const filteredData = months.map(m => {
+            const report = monthlyData.find(r => r.Nam === m.year && r.Thang === m.month);
+            return {
+                Nam: m.year,
+                Thang: m.month,
+                TongDoanhThu: report ? report.TongDoanhThu : 0
+            };
+        });
+
+        // Lấy dữ liệu tổng doanh thu (không thay đổi)
         const totalResponse = await fetch('http://localhost:3000/api/revenue-reports-total');
         if (!totalResponse.ok) {
             throw new Error('Không thể lấy dữ liệu báo cáo tổng doanh thu');
         }
         const totalData = await totalResponse.json();
 
-        renderRevenueChart(monthlyData);
+        renderRevenueChart(filteredData);
         displayTotalRevenue(totalData);
     } catch (error) {
         console.error('Lỗi khi lấy báo cáo doanh thu:', error);
@@ -359,16 +378,15 @@ function renderRevenueChart(reports) {
         return;
     }
 
-    // Destroy existing chart instance if it exists
+    // Hủy biểu đồ hiện tại nếu đã tồn tại
     const existingChart = Chart.getChart(canvas);
     if (existingChart) {
         existingChart.destroy();
     }
 
-    // Prepare data for the chart
-    const labels = reports.map(report => `${report.Thang}/${report.Nam}`);
+    // Chuẩn bị dữ liệu cho biểu đồ
+    const labels = reports.map(report => `${String(report.Thang).padStart(2, '0')}/${report.Nam}`);
     const revenueData = reports.map(report => report.TongDoanhThu);
-    const transactionData = reports.map(report => report.SoGiaoDich);
 
     new Chart(ctx, {
         type: 'bar',
@@ -381,13 +399,6 @@ function renderRevenueChart(reports) {
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
-                },
-                {
-                    label: 'Số Giao Dịch',
-                    data: transactionData,
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
                 }
             ]
         },
@@ -397,7 +408,7 @@ function renderRevenueChart(reports) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Giá trị'
+                        text: 'Doanh Thu (VND)'
                     }
                 },
                 x: {
@@ -419,11 +430,7 @@ function renderRevenueChart(reports) {
                             if (label) {
                                 label += ': ';
                             }
-                            if (context.dataset.label === 'Doanh Thu (VND)') {
-                                label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
-                            } else {
-                                label += context.parsed.y;
-                            }
+                            label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
                             return label;
                         }
                     }
