@@ -200,6 +200,11 @@ function openControllerModal(mode, controller = null) {
         </form>
     `;
 
+    // Add CSS to make modal content scrollable
+    modalContent.style.maxHeight = '80vh'; // Adjust height as needed
+    modalContent.style.overflowY = 'auto';
+    modalContent.style.paddingRight = '10px'; // Prevent scrollbar overlap
+
     modal.classList.remove('hidden');
     window.currentMode = mode;
     window.currentController = controller;
