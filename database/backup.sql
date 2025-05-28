@@ -1,5 +1,5 @@
 BACKUP DATABASE QLdatve
-TO DISK = 'C:\Backup\QLdatve_Diff.BAK'
+TO DISK = 'C:\Backup\QLdatve.BAK'
 
 ALTER DATABASE QLdatve
 SET RECOVERY FULL;
