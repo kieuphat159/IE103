@@ -40,6 +40,8 @@ function showSection(sectionId) {
         fetchReports();
     } else if (sectionId === 'personal-info') {
         fetchPersonalInfo();
+    } else if (sectionId === 'flights') {
+        fetchFlights();
     }
 }
 
