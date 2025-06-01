@@ -557,8 +557,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
             default:
-                mainContentTitle.textContent = 'Chào mừng';
-                mainContent.innerHTML = '<div class="main-content-header"><p>Chào mừng!</p></div>';
+                fetch('http://localhost:3000/api/flights')
+                .then(res => res.json())
+                .then(data => {
+                    flightData.length = 0; // Clear cũ
+                    data.forEach(f => {
+                        flightData.push({
+                            'Mã chuyến bay ': f.maChuyenBay,
+                            'Thời gian bay': new Date(f.gioBay).toLocaleString() + ' - ' + new Date(f.gioDen).toLocaleString(),
+                            'Điểm khởi hành': f.diaDiemDau,
+                            'Điểm đến': f.diaDiemCuoi,
+                            'Trạng thái': f.tinhTrangChuyenBay,
+                            'Số chỗ còn trống': 'N/A' // Nếu chưa xử lý số ghế trống
+                        });
+                    });
+        
+                    displayTable(flightData, ['Mã chuyến bay ', 'Thời gian bay', 'Điểm khởi hành', 'Điểm đến', 'Trạng thái', 'Số chỗ còn trống', 'Hành động'], 'Danh Sách Các chuyến bay', true);
+                })
+                .catch(err => {
+                    console.error('Lỗi gọi API /flights:', err);
+                    mainContent.innerHTML = '<p style="color:red">Không thể tải danh sách chuyến bay</p>';
+                });
                 break;
         }
     }
