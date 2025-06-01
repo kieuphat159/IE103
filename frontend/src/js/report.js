@@ -229,7 +229,32 @@ async function deleteItem(section, id) {
                 //if (currentSection === 'invoices') {
                     fetchInvoices();
                 //}
-            } else {
+            } else if (section === 'flights') {
+          //if (confirm(`Bạn có chắc chắn muốn xóa chuyến bay với ID: ${id}?`)) {
+              try {
+                  console.log(`Đang gửi yêu cầu DELETE /api/flights/${id}`);
+                  const response = await fetch(`http://localhost:3000/api/flights/${id}`, {
+                      method: 'DELETE',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      }
+                  });
+  
+                  const data = await response.json();
+                  console.log(`Kết quả DELETE /api/flights/${id}:`, data);
+  
+                  if (!response.ok) {
+                      throw new Error(data.error || `Lỗi khi xóa chuyến bay: ${response.status} ${response.statusText}`);
+                  }
+  
+                  alert(data.message || `Đã xóa chuyến bay với ID: ${id}`);
+                  fetchFlights();
+              } catch (error) {
+                  console.error('Lỗi:', error);
+                  alert(`Không thể xóa chuyến bay: ${error.message}`);
+              }
+          //}
+      } else {
                 alert(`Chức năng xóa cho ${section} chưa được triển khai`);
             }
         } catch (error) {

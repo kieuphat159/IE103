@@ -555,24 +555,42 @@ app.delete('/api/flights/:maChuyenBay', async (req, res) => {
             return res.status(404).json({ error: 'Không tìm thấy chuyến bay' });
         }
 
+        // Step 1: Get all MaDatVe associated with the MaChuyenBay
         const bookingResult = await transaction.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
 
+        // Step 2: Delete related HoaDon and ThanhToan records for each MaDatVe
         for (const booking of bookingResult.recordset) {
+            // Get all MaTT associated with the current MaDatVe
+            const paymentResult = await transaction.request()
+                .input('maDatVe', sql.VarChar, booking.MaDatVe)
+                .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @maDatVe');
+
+            // Delete HoaDon records for each MaTT
+            for (const payment of paymentResult.recordset) {
+                await transaction.request()
+                    .input('maTT', sql.VarChar, payment.MaTT)
+                    .query('DELETE FROM HoaDon WHERE MaTT = @maTT');
+            }
+
+            // Now delete the ThanhToan records
             await transaction.request()
                 .input('maDatVe', sql.VarChar, booking.MaDatVe)
                 .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
         }
 
+        // Step 3: Delete ThongTinDatVe records
         await transaction.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ThongTinDatVe WHERE MaChuyenBay = @maChuyenBay');
 
+        // Step 4: Delete ThongTinGhe records
         await transaction.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ThongTinGhe WHERE MaChuyenBay = @maChuyenBay');
 
+        // Step 5: Delete ChuyenBay record
         await transaction.request()
             .input('maChuyenBay', sql.VarChar, maChuyenBay)
             .query('DELETE FROM ChuyenBay WHERE MaChuyenBay = @maChuyenBay');
@@ -586,7 +604,6 @@ app.delete('/api/flights/:maChuyenBay', async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi xóa chuyến bay: ' + err.message });
     }
 });
-
 // API xóa ghế
 app.delete('/api/seats/:soGhe/:maChuyenBay', async (req, res) => {
     const { soGhe, maChuyenBay } = req.params;
