@@ -48,9 +48,6 @@ INSERT INTO NguoiDung (TaiKhoan, Ten, MatKhau, Email, Sdt, NgaySinh, GioiTinh, S
 ('khachhang01', N'Trần Văn A', 'pass123', 'a.tran@example.com', '0912345678', '1990-01-15', N'Nam', '123456789012', N'Customer'),
 ('khachhang02', N'Nguyễn Thị B', 'pass123', 'b.nguyen@example.com', '0987654321', '1985-05-20', N'Nữ', '987654321098', N'Customer');
 
-INSERT INTO KhachHang (MaKH, Passport, TaiKhoan) VALUES
-('KH001', 'P1234567', 'khachhang01'),
-('KH002', 'P7654321', 'khachhang02');
 
 -- Thêm dữ liệu đặt vé và thanh toán từ tháng 12/2024 đến tháng 4/2025
 -- Đặt vé tháng 12/2024
