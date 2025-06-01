@@ -17,7 +17,7 @@ app.use(express.json());
 // Cấu hình kết nối với MS SQL Server
 const dbConfig = {
     user: "sa",
-    password: "Vtn.2432005",
+    password: "Thnguyen_123",
     server: "localhost",
     port: 1433,
     database: "QLdatve",
@@ -279,16 +279,19 @@ app.delete('/api/payments/by-booking/:maDatVe', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
+        // Step 1: Find all MaTT associated with the given MaDatVe
         const paymentResult = await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
             .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @maDatVe');
 
+        // Step 2: Delete all HoaDon records associated with each MaTT
         for (const payment of paymentResult.recordset) {
             await transaction.request()
                 .input('maTT', sql.VarChar, payment.MaTT)
                 .query('DELETE FROM HoaDon WHERE MaTT = @maTT');
         }
 
+        // Step 3: Delete the ThanhToan records after HoaDon records are deleted
         await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
             .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
@@ -362,14 +365,42 @@ app.delete('/api/customers/:maKH', async (req, res) => {
 
         const taiKhoan = findResult.recordset[0].taiKhoan;
 
+        // Step 1: Get all MaDatVe associated with the MaKH
+        const bookingResult = await transaction.request()
+            .input('maKH', sql.VarChar, maKH)
+            .query('SELECT MaDatVe FROM ThongTinDatVe WHERE MaKH = @maKH');
+
+        // Step 2: Delete related HoaDon and ThanhToan records for each MaDatVe
+        for (const booking of bookingResult.recordset) {
+            // Get all MaTT associated with the current MaDatVe
+            const paymentResult = await transaction.request()
+                .input('maDatVe', sql.VarChar, booking.MaDatVe)
+                .query('SELECT MaTT FROM ThanhToan WHERE MaDatVe = @maDatVe');
+
+            // Delete HoaDon records for each MaTT
+            for (const payment of paymentResult.recordset) {
+                await transaction.request()
+                    .input('maTT', sql.VarChar, payment.MaTT)
+                    .query('DELETE FROM HoaDon WHERE MaTT = @maTT');
+            }
+
+            // Now delete the ThanhToan records
+            await transaction.request()
+                .input('maDatVe', sql.VarChar, booking.MaDatVe)
+                .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
+        }
+
+        // Step 3: Delete ThongTinDatVe records
         await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .query('DELETE FROM ThongTinDatVe WHERE MaKH = @maKH');
 
+        // Step 4: Delete KhachHang record
         await transaction.request()
             .input('maKH', sql.VarChar, maKH)
             .query('DELETE FROM KhachHang WHERE maKH = @maKH');
 
+        // Step 5: Delete NguoiDung record
         await transaction.request()
             .input('taiKhoan', sql.VarChar, taiKhoan)
             .query('DELETE FROM NguoiDung WHERE taiKhoan = @taiKhoan');
