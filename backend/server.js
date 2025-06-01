@@ -1039,21 +1039,42 @@ app.delete('/api/bookings/:maDatVe', async (req, res) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
+        // Kiểm tra xem đặt vé có tồn tại không
         const bookingCheck = await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
-            .query('SELECT MaDatVe, MaChuyenBay FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
+            .query('SELECT MaDatVe, MaChuyenBay, SoGhe FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
 
         if (bookingCheck.recordset.length === 0) {
             await transaction.rollback();
             return res.status(404).json({ error: 'Không tìm thấy thông tin đặt vé' });
         }
 
-        const { MaChuyenBay } = bookingCheck.recordset[0];
+        const { MaChuyenBay, SoGhe } = bookingCheck.recordset[0];
 
+        // Bước 1: Xóa các hóa đơn liên quan đến MaTT trong ThanhToan
+        await transaction.request()
+            .input('maDatVe', sql.VarChar, maDatVe)
+            .query(`
+                DELETE FROM HoaDon
+                WHERE MaTT IN (SELECT MaTT FROM ThanhToan WHERE MaDatVe = @maDatVe)
+            `);
+
+        // Bước 2: Xóa các bản ghi trong ThanhToan
         await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
             .query('DELETE FROM ThanhToan WHERE MaDatVe = @maDatVe');
 
+        // Bước 3: Cập nhật trạng thái ghế về 'có sẵn'
+        await transaction.request()
+            .input('maChuyenBay', sql.VarChar, MaChuyenBay)
+            .input('soGhe', sql.Int, SoGhe)
+            .query(`
+                UPDATE ThongTinGhe
+                SET TinhTrangGhe = N'có sẵn'
+                WHERE MaChuyenBay = @maChuyenBay AND SoGhe = @soGhe
+            `);
+
+        // Bước 4: Xóa thông tin đặt vé
         await transaction.request()
             .input('maDatVe', sql.VarChar, maDatVe)
             .query('DELETE FROM ThongTinDatVe WHERE MaDatVe = @maDatVe');
