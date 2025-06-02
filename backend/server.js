@@ -1343,6 +1343,7 @@ app.get('/api/reports', async (req, res) => {
                 MaBaoCao as maBaoCao,
                 NgayBaoCao as ngayBaoCao,
                 NoiDungBaoCao as noiDungBaoCao,
+                TrangThai as trangThai,
                 MaNV as maNV
             FROM BaoCao
         `;
